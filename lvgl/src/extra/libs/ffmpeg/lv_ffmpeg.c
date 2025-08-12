@@ -939,7 +939,6 @@ static void lv_ffmpeg_player_constructor(const lv_obj_class_t * class_p,
     lv_timer_pause(player->timer);
 
     audio_init();
-    audio_volume(10);
 
     LV_TRACE_OBJ_CREATE("finished");
 }
