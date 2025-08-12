@@ -1,0 +1,4 @@
+PROJECT_PLATFORM_DIR_NAME ?= platform
+
+CSRCS += $(wildcard $(LVGL_DIR)/$(PROJECT_PLATFORM_DIR_NAME)/*.c)
+

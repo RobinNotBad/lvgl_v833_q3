@@ -1,0 +1,14 @@
+{
+	"folders": [
+		{
+			"path": "../../.."
+		}
+	],
+	"settings": {
+		"files.associations": {
+			"page_main.h": "c",
+			"lvgl.h": "c",
+			"audio_alsa.h": "c"
+		}
+	}
+}

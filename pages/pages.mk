@@ -1,0 +1,4 @@
+PROJECT_PAGES_DIR_NAME ?= pages
+
+CSRCS += $(wildcard $(LVGL_DIR)/$(PROJECT_PAGES_DIR_NAME)/*.c)
+
