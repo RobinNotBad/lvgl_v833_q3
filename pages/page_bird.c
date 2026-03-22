@@ -76,40 +76,40 @@ static lv_obj_t * page_bird_obj(BirdPage * page)
     lv_obj_t * background = lv_img_create(screen);
     lv_obj_set_size(background, LV_SCR_WIDTH, LV_SCR_HEIGHT);
     lv_obj_set_pos(background, 0, 0);
-    lv_img_set_src(background, "/mnt/UDISK/lvgl/res/bird/background.png");
+    lv_img_set_src(background, "./res/bird/background.png");
 
     lv_obj_t * tubeA = lv_img_create(screen);
     lv_obj_set_size(tubeA, TUBE_WIDTH, TUBE_HEIGHT);
-    lv_img_set_src(tubeA, "/mnt/UDISK/lvgl/res/bird/tube.png");
+    lv_img_set_src(tubeA, "./res/bird/tube.png");
     page->tubeA = tubeA;
 
     lv_obj_t * tubeB = lv_img_create(screen);
     lv_obj_set_size(tubeB, TUBE_WIDTH, TUBE_HEIGHT);
-    lv_img_set_src(tubeB, "/mnt/UDISK/lvgl/res/bird/tube.png");
+    lv_img_set_src(tubeB, "./res/bird/tube.png");
     page->tubeB = tubeB;
 
     lv_obj_t * bird = lv_img_create(screen);
     lv_obj_set_size(bird, BIRD_WIDTH, BIRD_HEIGHT);
-    lv_img_set_src(bird, "/mnt/UDISK/lvgl/res/bird/bird2.png");
+    lv_img_set_src(bird, "./res/bird/bird2.png");
     page->bird = bird;
 
     lv_obj_t * img_tap = lv_img_create(screen);
     lv_obj_set_size(img_tap, 120, 98);
     lv_obj_align(img_tap, LV_ALIGN_TOP_MID, 0, lv_pct(42));
-    lv_img_set_src(img_tap, "/mnt/UDISK/lvgl/res/bird/tap.png");
+    lv_img_set_src(img_tap, "./res/bird/tap.png");
     page->img_tap = img_tap;
 
     lv_obj_t * img_over = lv_img_create(screen);
     lv_obj_set_size(img_over, 208, 60);
     lv_obj_align(img_over, LV_ALIGN_TOP_MID, 0, lv_pct(20));
     lv_obj_add_flag(img_over, LV_OBJ_FLAG_HIDDEN);
-    lv_img_set_src(img_over, "/mnt/UDISK/lvgl/res/bird/over.png");
+    lv_img_set_src(img_over, "./res/bird/over.png");
     page->img_over = img_over;
 
     lv_obj_t * img_logo = lv_img_create(screen);
     lv_obj_set_size(img_logo, 178, 48);
     lv_obj_align(img_logo, LV_ALIGN_TOP_MID, 0, lv_pct(16));
-    lv_img_set_src(img_logo, "/mnt/UDISK/lvgl/res/bird/logo.png");
+    lv_img_set_src(img_logo, "./res/bird/logo.png");
     page->img_logo = img_logo;
 
     lv_obj_t * label_score = lv_label_create(screen);
@@ -132,7 +132,7 @@ static lv_obj_t * page_bird_obj(BirdPage * page)
     lv_obj_align(btn_restart, LV_ALIGN_TOP_MID, 0, lv_pct(55));
     lv_obj_add_flag(btn_restart, LV_OBJ_FLAG_HIDDEN);
     lv_obj_add_flag(btn_restart, LV_OBJ_FLAG_CLICKABLE);
-    lv_img_set_src(btn_restart, "/mnt/UDISK/lvgl/res/bird/start.png");
+    lv_img_set_src(btn_restart, "./res/bird/start.png");
     lv_obj_add_event_cb(btn_restart, restart_click, LV_EVENT_CLICKED, page);
     page->btn_restart = btn_restart;
 

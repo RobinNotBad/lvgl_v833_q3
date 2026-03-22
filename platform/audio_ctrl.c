@@ -22,6 +22,7 @@ int audio_init(void)
     const char * selem_name = "LINEOUT volume";
 
     if((ret = snd_mixer_open(&mixer, 0)) < 0) {
+        fprintf(stderr, "[alsa]无法打开mixer: %s\n", snd_strerror(ret));
         goto cleanup;
     }
 
@@ -41,12 +42,15 @@ int audio_init(void)
     }
 
     // 查找音量控制元素
-    snd_mixer_selem_id_t * sid;
-    snd_mixer_selem_id_alloca(&sid);
-    snd_mixer_selem_id_set_index(sid, 0);
-    snd_mixer_selem_id_set_name(sid, selem_name);
+    {
+        snd_mixer_selem_id_t * sid;
+        snd_mixer_selem_id_alloca(&sid);
+        snd_mixer_selem_id_set_index(sid, 0);
+        snd_mixer_selem_id_set_name(sid, selem_name);
 
-    elem = snd_mixer_find_selem(mixer, sid);
+        elem = snd_mixer_find_selem(mixer, sid);
+    }  // 防止栈分配问题，虽然不知道有没有用，编译器也还是会警告
+    
     if(!elem) {
         fprintf(stderr, "[alsa]无法找到音量控制元素 '%s'\n", selem_name);
         goto cleanup;
@@ -60,7 +64,7 @@ int audio_init(void)
     snd_mixer_selem_get_playback_volume(elem, 0, &actual_volume);
     volume = 100 * (actual_volume - volume_min) / (volume_max - volume_min);
 
-    printf("[alsa]音量: %ld (%ld, %ld-%ld)\n", volume, actual_volume, volume_min, volume_max);
+    printf("[alsa]音量: %d (%ld, %ld-%ld)\n", volume, actual_volume, volume_min, volume_max);
     return 0;
 
 cleanup:
@@ -96,7 +100,8 @@ int audio_volume_get(void)
     return volume;
 }
 
-void audio_close() {
+void audio_close(void)
+{
     if(mixer) {
         snd_mixer_close(mixer);
         mixer = NULL;

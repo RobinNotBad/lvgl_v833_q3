@@ -1,13 +1,13 @@
 #include "page_ftp.h"
 
-#define VSFTPD_EXE "/mnt/UDISK/ftp/vsftpd"
-#define VSFTPD_CONF "/mnt/UDISK/ftp/vsftpd.conf"
+#define VSFTPD_EXE "../ftp/vsftpd"
+#define VSFTPD_CONF "../ftp/vsftpd.conf"
 
 static void back_click(lv_event_t * e);
 static void btn_start_click(lv_event_t * e);
 static void btn_stop_click(lv_event_t * e);
 
-lv_obj_t * page_ftp()
+lv_obj_t * page_ftp(void)
 {
     lv_obj_t * screen = lv_obj_create(lv_scr_act());
     lv_obj_remove_style_all(screen);

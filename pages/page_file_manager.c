@@ -1,9 +1,14 @@
 #include "page_file_manager.h"
 
+#include "page_apple.h"
+#include "page_audio.h"
+#include "page_midi.h"
+#include "page_image.h"
+
 static void explorer_event_handler(lv_event_t * e);
 static void back_click(lv_event_t * e);
 
-lv_obj_t * page_file_manager()
+lv_obj_t * page_file_manager(void)
 {
     lv_obj_t * screen = lv_obj_create(lv_scr_act());
     lv_obj_remove_style_all(screen);
@@ -37,8 +42,7 @@ static void explorer_event_handler(lv_event_t * e)
 
         lv_snprintf(file_name, sizeof(file_name), "%s%s", cur_path+1, sel_fn);
 
-        printf(file_name);
-        printf("\n");
+        printf("%s\n", file_name);
 
         if(str_end_with(file_name, ".png", false) || str_end_with(file_name, ".jpg", false) ||
             str_end_with(file_name, ".jpeg", false) || str_end_with(file_name, ".bmp", false) ||

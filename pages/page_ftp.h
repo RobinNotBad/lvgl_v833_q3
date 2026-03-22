@@ -30,7 +30,7 @@ extern "C" {
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
-lv_obj_t * page_ftp();
+lv_obj_t * page_ftp(void);
 
 /**********************
  *      MACROS

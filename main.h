@@ -24,7 +24,7 @@ extern "C" {
  **********************/
 #define DISP_BUF_SIZE (LV_SCR_WIDTH * LV_SCR_HEIGHT)
 
-#define PATH_MAX_LENGTH 256
+#define PATH_MAX_LENGTH 1024
 
 /**********************
  * GLOBAL PROTOTYPES

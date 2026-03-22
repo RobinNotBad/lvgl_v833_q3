@@ -27,6 +27,7 @@ extern "C" {
 void audio_enable(void);
 void audio_disable(void);
 int audio_init(void);
+void audio_close(void);
 int audio_volume_set(int percent);
 int audio_volume_get(void);
 

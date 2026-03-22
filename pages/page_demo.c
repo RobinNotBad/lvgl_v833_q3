@@ -41,7 +41,7 @@ static lv_obj_t * page_demo_obj() {
 	
 	lv_obj_t * img1 = lv_img_create(screen);
 	lv_obj_set_size(img1, 128, 128);
-	lv_img_set_src(img1, "/mnt/UDISK/lvgl/res/avatar.png");
+	lv_img_set_src(img1, "./res/avatar.png");
 	
 	lv_obj_t * btn = lv_btn_create(screen);
 	lv_obj_set_size(btn, 100, 50);
