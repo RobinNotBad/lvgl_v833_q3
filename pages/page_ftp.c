@@ -9,6 +9,7 @@ static void back_click(lv_event_t * e);
 static void btn_start_click(lv_event_t * e);
 static void btn_stop_click(lv_event_t * e);
 static void refresh_text(lv_obj_t * label);
+static bool is_vsftpd_running(void);
 
 lv_obj_t * page_ftp(void)
 {
@@ -55,6 +56,8 @@ static void back_click(lv_event_t * e)
 
 static void btn_start_click(lv_event_t * e)
 {
+    if(is_vsftpd_running()) return;
+
     system("chmod 777 " VSFTPD_EXE);
 
     pid_t cpid = fork();
@@ -79,6 +82,8 @@ static void btn_start_click(lv_event_t * e)
 
 static void btn_stop_click(lv_event_t * e)
 {
+    if(!is_vsftpd_running()) return;
+
     system("killall vsftpd &");
     usleep(1000);
     refresh_text((lv_obj_t *)e->user_data);
@@ -86,23 +91,18 @@ static void btn_stop_click(lv_event_t * e)
 
 static void refresh_text(lv_obj_t * label)
 {
-    char buffer_pidof[32];
-    FILE * fp_pidof = popen("pidof vsftpd", "r");
-    int is_running  = (fgets(buffer_pidof, sizeof(buffer_pidof), fp_pidof) != NULL);
-    pclose(fp_pidof);
-
-    if(is_running) {
-        FILE * fp_ifconfig;
+    if(is_vsftpd_running()) {
+        FILE * fp;
         char buffer_ifconfig[512];
         char ip[20] = "";
 
         // 执行ifconfig命令
-        fp_ifconfig = popen("ifconfig", "r");
-        if(fp_ifconfig == NULL) {
+        fp = popen("ifconfig", "r");
+        if(fp == NULL) {
             perror("popen failed");
         } else {
             // 解析输出，查找IP地址
-            while(fgets(buffer_ifconfig, sizeof(buffer_ifconfig), fp_ifconfig) != NULL) {
+            while(fgets(buffer_ifconfig, sizeof(buffer_ifconfig), fp) != NULL) {
                 // 查找包含"inet"的行（IPv4地址）
                 if(strstr(buffer_ifconfig, "inet addr:") != NULL && strstr(buffer_ifconfig, "127.0.0.1") == NULL) {
                     char * ip_start = strstr(buffer_ifconfig, "inet addr:") + 10;
@@ -110,7 +110,7 @@ static void refresh_text(lv_obj_t * label)
                     break;
                 }
             }
-            pclose(fp_ifconfig);
+            pclose(fp);
 
             if(strlen(ip) == 0)
                 lv_label_set_text(label, "No Connection");
@@ -122,4 +122,13 @@ static void refresh_text(lv_obj_t * label)
         lv_label_set_text(label, "Not Running");
     }
 
+}
+
+static bool is_vsftpd_running(void)
+{
+    char buffer_pidof[32];
+    FILE * fp = popen("pidof vsftpd", "r");
+    bool is_running  = (fgets(buffer_pidof, sizeof(buffer_pidof), fp) != NULL);
+    pclose(fp);
+    return is_running;
 }

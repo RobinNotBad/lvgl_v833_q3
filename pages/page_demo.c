@@ -2,9 +2,9 @@
 
 static void slider1_changed(lv_event_t * e);
 static void btn_click(lv_event_t * e);
-static lv_obj_t * page_demo_obj();
+static lv_obj_t * page_demo_obj(void);
 
-BasePage * demo_page_create()
+BasePage * demo_page_create(void)
 {
 	/*
     DemoPage * page = malloc(sizeof(DemoPage));
@@ -15,7 +15,7 @@ BasePage * demo_page_create()
     return base_page_create(page_demo_obj());
 }
 
-static lv_obj_t * page_demo_obj() {
+static lv_obj_t * page_demo_obj(void) {
     lv_obj_t * screen = lv_obj_create(lv_scr_act());
     //lv_obj_remove_style_all(screen);
     lv_obj_set_size(screen, lv_pct(100), lv_pct(100));
@@ -57,7 +57,7 @@ static lv_obj_t * page_demo_obj() {
 static void slider1_changed(lv_event_t * e) {
     lv_obj_t * slider = lv_event_get_target(e);
     int value = lv_slider_get_value(slider);
-    lcdBrightness(value);
+    lcdSetBrightness(value);
 }
 
 static void btn_click(lv_event_t * e) {

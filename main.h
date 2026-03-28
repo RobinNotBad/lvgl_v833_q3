@@ -26,6 +26,9 @@ extern "C" {
 
 #define PATH_MAX_LENGTH 1024
 
+#define SCREEN_TIMEOUT_MS 30000
+#define SCREEN_BRIGHTNESS_DEFAULT 25
+
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
@@ -42,7 +45,7 @@ extern uint32_t backgroundTs;
 
 extern bool dontDeepSleep;
 
-void lcdBrightness(int brightness);
+void lcdSetBrightness(int brightness);
 void sysSleep(void);
 void sysWake(void);
 void sysDeepSleep(void);
@@ -52,6 +55,7 @@ void switchBackground(void);
 void switchForeground(void);
 
 uint32_t tick_get(void);
+uint64_t ms_get(void);
 
 lv_style_t getFontStyle(const char * filename, uint16_t weight, uint16_t style);
 

@@ -31,7 +31,8 @@
 			"page_manager.h": "c",
 			"wildmidi_lib.h": "c",
 			"timidity.h": "c",
-			"page_calculator.h": "c"
+			"page_calculator.h": "c",
+			"midi_player.h": "c"
 		}
 	}
 }

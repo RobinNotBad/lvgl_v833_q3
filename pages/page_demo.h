@@ -26,7 +26,7 @@ extern "C" {
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
-BasePage * demo_page_create();
+BasePage * demo_page_create(void);
 
 /**********************
  *      MACROS

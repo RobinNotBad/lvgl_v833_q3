@@ -40,7 +40,9 @@ int homed;  // 主页按钮
 uint32_t sleepTs;
 uint32_t homeClickTs;
 uint32_t backgroundTs;
+uint32_t lcdBrightness;
 
+bool screenTimeout;
 bool dontDeepSleep;
 
 void readKeyPower(void);
@@ -51,6 +53,7 @@ void lcdClose(void);
 void lcdRefresh(void);
 void touchOpen(void);
 void touchClose(void);
+void detectTimeout(void);
 
 static lv_style_t style_default;
 
@@ -60,6 +63,8 @@ int main(int argc, char * argv[])
     sleepTs       = -1;
     homeClickTs   = -1;
     backgroundTs  = -1;
+    lcdBrightness = SCREEN_BRIGHTNESS_DEFAULT;
+    screenTimeout = false;
     dontDeepSleep = false;
 
     printf("ciallo lvgl\n");
@@ -122,7 +127,7 @@ int main(int argc, char * argv[])
     lcdInit();
     lcdClose();
     lcdOpen();
-    lcdBrightness(25);
+    lcdSetBrightness(SCREEN_BRIGHTNESS_DEFAULT);
     touchOpen();
 
     lv_init();
@@ -185,10 +190,14 @@ int main(int argc, char * argv[])
         if(backgroundTs == -1) {
             readKeyPower();
             if(sleepTs == -1) {
+                // 亮
                 lv_timer_handler();
                 lcdRefresh(); // 放在fbdev里不合适，反而会增大cpu占用且变卡，神金啊
+                detectTimeout();
                 usleep(5000);
+
             } else {
+                // 灭
                 if(dontDeepSleep)
                     sleepTs = tick_get();
 
@@ -228,6 +237,13 @@ uint32_t tick_get(void)
 
     uint32_t time_ms = now_ms - start_ms;
     return time_ms;
+}
+
+uint64_t ms_get(void)
+{
+    struct timeval tv;
+    gettimeofday(&tv, NULL);
+    return (tv.tv_sec * 1000000 + tv.tv_usec) / 1000;
 }
 
 /**
@@ -294,7 +310,7 @@ void lcdRefresh(void)
 /**
  * 设置LCD背光亮度
  */
-void lcdBrightness(int brightness)
+void lcdSetBrightness(int brightness)
 {
     int buffer[8] = {0};
     buffer[1]     = brightness;
@@ -365,19 +381,21 @@ void readKeyHome(void)
 }
 
 /**
- * 熄屏
+ * 亮屏
  */
 void sysWake(void)
 {
     if(sleepTs != -1) {
-        sleepTs = -1;
+        screenTimeout = false;
+        sleepTs       = -1;
         touchOpen();
         lcdOpen();
+        lcdSetBrightness(lcdBrightness);
     }
 }
 
 /**
- * 亮屏
+ * 熄屏
  */
 void sysSleep(void)
 {
@@ -406,6 +424,26 @@ void sysDeepSleep(void)
 
     sysWake(); // 那睡觉的起来了嗷（改到这里是为了防止其他醒来的情况，比如插拔usb）
     while(read(powerd, buffer, 0x10u) > 0); // 再次清空电源键的缓冲区，因为开机按的电源键也算数
+}
+
+/**
+ * 检测是否超时熄屏
+ */
+void detectTimeout(void)
+{
+    uint64_t timeout_ms = ms_get() - evdev_get_release_ts();
+    if(timeout_ms < SCREEN_TIMEOUT_MS){
+        if(screenTimeout) {
+            screenTimeout = false;
+            lcdSetBrightness(lcdBrightness);
+        }
+    }
+    else if(!screenTimeout) {
+        screenTimeout = true;
+        lcdSetBrightness(5);
+    } else if(timeout_ms > SCREEN_TIMEOUT_MS + 4500) {
+        sysSleep();
+    }
 }
 
 /**
