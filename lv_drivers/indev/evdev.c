@@ -45,7 +45,7 @@ int evdev_button;
 
 int evdev_key_val;
 
-static uint64_t release_ts;
+static uint64_t press_ts;
 
 /**********************
  *      MACROS
@@ -54,9 +54,9 @@ static uint64_t release_ts;
 /**********************
  *   GLOBAL FUNCTIONS
  **********************/
-uint64_t evdev_get_release_ts(void)
+uint64_t evdev_get_press_ts(void)
 {
-    return release_ts;
+    return press_ts;
 }
 
 /**
@@ -66,7 +66,7 @@ void evdev_init(void)
 {
     struct timeval tv_start;
     gettimeofday(&tv_start, NULL);
-    release_ts = (tv_start.tv_sec * 1000000 + tv_start.tv_usec) / 1000;
+    press_ts = (tv_start.tv_sec * 1000000 + tv_start.tv_usec) / 1000;
     
     if(!evdev_set_file(EVDEV_NAME)) {
         return;
@@ -129,13 +129,14 @@ void evdev_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
                 evdev_root_y = val;
                 evdev_button = LV_INDEV_STATE_PR;
                 // printf("[tp]press x=%d, y=%d\n", evdev_root_x, evdev_root_y);
+                
+                struct timeval tv_start;
+                gettimeofday(&tv_start, NULL);
+                press_ts = (tv_start.tv_sec * 1000000 + tv_start.tv_usec) / 1000;
                 break;
             case 21626881:
                 evdev_button = LV_INDEV_STATE_REL;
                 // printf("[tp]release x=%d, y=%d\n", evdev_root_x, evdev_root_y);
-                struct timeval tv_start;
-                gettimeofday(&tv_start, NULL);
-                release_ts = (tv_start.tv_sec * 1000000 + tv_start.tv_usec) / 1000;
                 break;
         }
     }

@@ -58,7 +58,7 @@ bool evdev_set_file(char* dev_name);
  */
 void evdev_read(lv_indev_drv_t * drv, lv_indev_data_t * data);
 
-uint64_t evdev_get_release_ts(void);
+uint64_t evdev_get_press_ts(void);
 
 /**********************
  *      MACROS

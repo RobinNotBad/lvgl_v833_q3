@@ -437,7 +437,7 @@ void sysDeepSleep(void)
  */
 void detectTimeout(void)
 {
-    uint64_t timeout_ms = ms_get() - evdev_get_release_ts();
+    uint64_t timeout_ms = ms_get() - evdev_get_press_ts();
     if(timeout_ms < SCREEN_TIMEOUT_MS){
         if(screenTimeout) {
             screenTimeout = false;
