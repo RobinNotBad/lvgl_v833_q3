@@ -31,11 +31,11 @@ battery_status_t battery_get_status(void)
         fclose(fp_status);
     }
 
-    if(strcmp(status, "Full"))
+    if(strcmp(status, "Full") == 0)
         return BATTERY_FULL;
-    else if(strcmp(status, "Charging"))
+    else if(strcmp(status, "Charging") == 0)
         return BATTERY_CHARGING;
-    else if(strcmp(status, "Discharging"))
+    else if(strcmp(status, "Discharging") == 0)
         return BATTERY_DISCHARGING;
     else
         return BATTERY_UNKNOWN;
