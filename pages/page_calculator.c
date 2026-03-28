@@ -2,7 +2,7 @@
 
 static void back_click(lv_event_t * e);
 
-lv_obj_t * page_calc()
+lv_obj_t * page_calc(void)
 {
     lv_obj_t * screen = lv_obj_create(lv_scr_act());
     lv_obj_remove_style_all(screen);

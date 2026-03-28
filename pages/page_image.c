@@ -32,7 +32,7 @@ BasePage * page_image_create(char * filename)
 
     page->base.obj        = page_image_obj(page, filename);
     page->base.on_destroy = page_image_destroy;
-    return page;
+    return (BasePage *)page;
 }
 
 static lv_obj_t * page_image_obj(ImagePage * page, char * src)

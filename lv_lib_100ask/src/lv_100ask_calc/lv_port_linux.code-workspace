@@ -1,38 +1,39 @@
 {
-	"folders": [
-		{
-			"path": "../../.."
-		}
-	],
-	"settings": {
-		"files.associations": {
-			"page_main.h": "c",
-			"lvgl.h": "c",
-			"audio_alsa.h": "c",
-			"imgutils.h": "c",
-			"page_apple.h": "c",
-			"ffplayer.h": "c",
-			"str_utils.h": "c",
-			"page_file_manager.h": "c",
-			"lv_lib_100ask.h": "c",
-			"string.h": "c",
-			"lv_100ask_file_explorer.h": "c",
-			"lv_lib_100ask_conf.h": "c",
-			"audio_ctrl.h": "c",
-			"page_audio.h": "c",
-			"lv_freetype.h": "c",
-			"page_image.h": "c",
-			"stdlib.h": "c",
-			"page_bird.h": "c",
-			"swscale.h": "c",
-			"page_ftp.h": "c",
-			"cjson_utils.h": "c",
-			"cjson.h": "c",
-			"page_manager.h": "c",
-			"wildmidi_lib.h": "c",
-			"timidity.h": "c",
-			"page_calculator.h": "c",
-			"midi_player.h": "c"
-		}
-	}
+    "folders": [
+        {
+            "path": "../../.."
+        }
+    ],
+    "settings": {
+        "files.associations": {
+            "page_main.h": "c",
+            "lvgl.h": "c",
+            "audio_alsa.h": "c",
+            "imgutils.h": "c",
+            "page_apple.h": "c",
+            "ffplayer.h": "c",
+            "str_utils.h": "c",
+            "page_file_manager.h": "c",
+            "lv_lib_100ask.h": "c",
+            "string.h": "c",
+            "lv_100ask_file_explorer.h": "c",
+            "lv_lib_100ask_conf.h": "c",
+            "audio_ctrl.h": "c",
+            "page_audio.h": "c",
+            "lv_freetype.h": "c",
+            "page_image.h": "c",
+            "stdlib.h": "c",
+            "page_bird.h": "c",
+            "swscale.h": "c",
+            "page_ftp.h": "c",
+            "cjson_utils.h": "c",
+            "cjson.h": "c",
+            "page_manager.h": "c",
+            "wildmidi_lib.h": "c",
+            "timidity.h": "c",
+            "page_calculator.h": "c",
+            "midi_player.h": "c",
+            "battery_manager.h": "c"
+        }
+    }
 }

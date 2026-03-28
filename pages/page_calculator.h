@@ -23,7 +23,7 @@ extern "C" {
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
-lv_obj_t * page_calc();
+lv_obj_t * page_calc(void);
 
 /**********************
  *      MACROS

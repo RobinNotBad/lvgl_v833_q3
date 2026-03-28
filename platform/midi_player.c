@@ -153,7 +153,7 @@ static void * midi_thread_func(void * arg)
 {
     midi_player_t * player = (midi_player_t *)arg;
 
-    int * audio_buffer = malloc(BUFFER_SIZE * player->channels * 2); // S16LE
+    sint8 * audio_buffer = malloc(BUFFER_SIZE * player->channels * 2); // S16LE
     if(!audio_buffer) {
         fprintf(stderr, "[midi_player]无法分配音频缓冲区\n");
         goto cleanup;
@@ -301,7 +301,7 @@ int midi_seek_ms(midi_player_t * player, uint32_t ms)
 {
     if(!player || !player->song) return -1;
 
-    LV_LOG_USER("[midi_player]now=%lld, duration=%lld\n", ms, midi_get_duration_ms(player));
+    LV_LOG_USER("[midi_player]now=%d, duration=%d\n", ms, midi_get_duration_ms(player));
 
     pthread_mutex_lock(&player->mutex);
     player->seek_pos     = ms;

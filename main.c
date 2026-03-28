@@ -13,6 +13,7 @@
 #include <sys/ioctl.h>
 #include <string.h>
 #include "platform/audio_ctrl.h"
+#include "platform/battery_manager.h"
 
 // 请教DeepSeek实现了简易页面管理器，100ask那个实际上不太好用……
 #include "pages/page_manager.h"
@@ -198,11 +199,16 @@ int main(int argc, char * argv[])
 
             } else {
                 // 灭
-                if(dontDeepSleep)
+                // 如果插着电，别睡
+                if(dontDeepSleep){
                     sleepTs = tick_get();
-
-                else if(tick_get() - sleepTs >= 60000)
-                    sysDeepSleep();
+                }
+                else if(tick_get() - sleepTs >= 60000){
+                    if(battery_get_status() == BATTERY_DISCHARGING) 
+                        sysDeepSleep();
+                    else
+                        sleepTs = tick_get();
+                }
 
                 usleep(25000);
             }
