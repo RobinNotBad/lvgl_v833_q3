@@ -423,9 +423,7 @@ void switchRobot(void)
 {
     switchBackground();
 
-    // 我没招了，杀vsftpd还能连带着把lvgl的图像给干没
-    // 所以我选择在退出的时候顺带也把vsftpd杀了
-    system("killall vsftpd");
+    // 现在不需要杀vsftpd了
     system("chmod 777 ./switch_robot");
     system("sh ./switch_robot");
 }
