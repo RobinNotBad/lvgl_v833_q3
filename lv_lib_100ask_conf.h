@@ -142,7 +142,7 @@
 #define LV_USE_100ASK_FILE_EXPLORER                     1
 #if LV_USE_100ASK_FILE_EXPLORER
     /*Maximum length of path*/
-    #define LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN        (256)
+    #define LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN        (1024)
     /*Quick access bar, 1:use, 0:not use*/
     #define LV_100ASK_FILE_EXPLORER_QUICK_ACCESS        0
     /*test*/

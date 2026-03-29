@@ -40,7 +40,7 @@ static lv_obj_t * page_video_obj(VideoPage * page, char * filename)
     lv_obj_remove_style_all(screen);
     lv_obj_set_size(screen, lv_pct(100), lv_pct(100));
 
-    setDontDeepSleep(true);
+    sys_set_dont_deep_sleep(true);
     audio_enable();
 
     lv_img_header_t header;
@@ -195,5 +195,5 @@ static void page_video_destroy(void * p)
     if(page->player) player_destroy(page->player);
     page->player = NULL;
     audio_disable();
-    setDontDeepSleep(false);
+    sys_set_dont_deep_sleep(false);
 }

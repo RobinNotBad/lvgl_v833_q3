@@ -60,6 +60,8 @@ void evdev_read(lv_indev_drv_t * drv, lv_indev_data_t * data);
 
 uint64_t evdev_get_press_ts(void);
 
+void evdev_refresh_press_ts(void);
+
 /**********************
  *      MACROS
  **********************/

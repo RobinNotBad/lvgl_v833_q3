@@ -103,12 +103,12 @@ static void btn_demo_click(lv_event_t * e) // static可以防止同名冲突
 
 static void btn_robot_click(lv_event_t * e)
 {
-    switchRobot();
+    switch_robot();
 }
 
 static void btn_file_manager_click(lv_event_t * e)
 {
-    page_open_obj(page_file_manager());
+    page_open(page_file_manager_create());
 }
 
 static void btn_calculator_click(lv_event_t * e)

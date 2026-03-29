@@ -32,7 +32,7 @@ BasePage * page_audio_create(char * filename)
 
     page->base.obj        = page_audio_obj(page, filename);
     page->base.on_destroy = page_audio_destroy;
-    return page;
+    return (BasePage *)page;
 }
 
 static lv_obj_t * page_audio_obj(AudioPage * page, char * filename)
@@ -41,7 +41,7 @@ static lv_obj_t * page_audio_obj(AudioPage * page, char * filename)
     lv_obj_remove_style_all(screen);
     lv_obj_set_size(screen, lv_pct(100), lv_pct(100));
 
-    setDontDeepSleep(true);
+    sys_set_dont_deep_sleep(true);
     page->cycle = false;
     audio_enable();
 
@@ -199,5 +199,5 @@ static void page_audio_destroy(void * p)
     if(page->player) player_destroy(page->player);
     page->player = NULL;
     audio_disable();
-    setDontDeepSleep(false);
+    sys_set_dont_deep_sleep(false);
 }

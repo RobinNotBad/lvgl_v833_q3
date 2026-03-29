@@ -38,35 +38,38 @@ int fbd;    // 帧缓冲设备
 int powerd; // 电源按钮
 int homed;  // 主页按钮
 
-uint32_t sleepTs;
-uint32_t homeClickTs;
-uint32_t backgroundTs;
-uint32_t lcdBrightness;
+uint32_t ts_sleep;
+uint32_t ts_home_click;
+uint32_t ts_background;
+uint32_t lcd_brightness;
 
-bool screenTimeout;
-bool dontDeepSleep;
+bool is_screen_timeout;
+bool dont_deep_sleep_enabled;
+bool dont_timeout_enabled;
 
-void readKeyPower(void);
-void readKeyHome(void);
-void lcdInit(void);
-void lcdOpen(void);
-void lcdClose(void);
-void lcdRefresh(void);
-void touchOpen(void);
-void touchClose(void);
-void detectTimeout(void);
+void key_read_power(void);
+void key_read_home(void);
+void lcd_init(void);
+void lcd_on(void);
+void lcd_off(void);
+void lcd_refresh(void);
+void touch_on(void);
+void touch_off(void);
+void lcd_detect_timeout(void);
+void lcd_set_brightness_inner(int brightness);
 
 static lv_style_t style_default;
 
 int main(int argc, char * argv[])
 {
     // 初始化变量
-    sleepTs       = -1;
-    homeClickTs   = -1;
-    backgroundTs  = -1;
-    lcdBrightness = SCREEN_BRIGHTNESS_DEFAULT;
-    screenTimeout = false;
-    dontDeepSleep = false;
+    ts_sleep       = -1;
+    ts_home_click   = -1;
+    ts_background  = -1;
+    lcd_brightness = SCREEN_BRIGHTNESS_DEFAULT;
+    is_screen_timeout = false;
+    dont_deep_sleep_enabled = false;
+    dont_timeout_enabled    = false;
 
     printf("ciallo lvgl\n");
 #if LV_USE_PERF_MONITOR
@@ -100,10 +103,10 @@ int main(int argc, char * argv[])
 
         if(strcmp(arg, "-w") == 0) {
             daemon(1, 0);
-            switchBackground();
+            switch_background();
             while(1) {
                 usleep(25000);
-                readKeyHome();
+                key_read_home();
             }
         }
     }
@@ -125,11 +128,11 @@ int main(int argc, char * argv[])
     dispd = open("/dev/disp", O_RDWR);
     fbdev_init();
     fbd = fbdev_get_fbd();
-    lcdInit();
-    lcdClose();
-    lcdOpen();
-    lcdSetBrightness(SCREEN_BRIGHTNESS_DEFAULT);
-    touchOpen();
+    lcd_init();
+    lcd_off();
+    lcd_on();
+    lcd_set_brightness(SCREEN_BRIGHTNESS_DEFAULT);
+    touch_on();
 
     lv_init();
 
@@ -187,27 +190,27 @@ int main(int argc, char * argv[])
     page_open_obj(page_main());
 
     while(1) {
-        readKeyHome();
-        if(backgroundTs == -1) {
-            readKeyPower();
-            if(sleepTs == -1) {
+        key_read_home();
+        if(ts_background == -1) {
+            key_read_power();
+            if(ts_sleep == -1) {
                 // 亮
                 lv_timer_handler();
-                lcdRefresh(); // 放在fbdev里不合适，反而会增大cpu占用且变卡，神金啊
-                detectTimeout();
+                lcd_refresh(); // 放在fbdev里不合适，反而会增大cpu占用且变卡，神金啊
+                lcd_detect_timeout();
                 usleep(5000);
 
             } else {
                 // 灭
                 // 如果插着电，别睡
-                if(dontDeepSleep){
-                    sleepTs = tick_get();
+                if(dont_deep_sleep_enabled){
+                    ts_sleep = tick_get();
                 }
-                else if(tick_get() - sleepTs >= 60000){
+                else if(tick_get() - ts_sleep >= 60000){
                     if(battery_get_status() == BATTERY_DISCHARGING) 
-                        sysDeepSleep();
+                        sys_deep_sleep();
                     else
-                        sleepTs = tick_get();
+                        ts_sleep = tick_get();
                 }
 
                 usleep(25000);
@@ -255,7 +258,7 @@ uint64_t ms_get(void)
 /**
  * 初始化LCD，设置旋转方向
  */
-void lcdInit(void)
+void lcd_init(void)
 {
     vinfo         = fbdev_get_vinfo();
     vinfo->rotate = 3;
@@ -265,7 +268,7 @@ void lcdInit(void)
 /**
  * 点亮LCD
  */
-void lcdOpen(void)
+void lcd_on(void)
 {
     int buffer[8] = {0};
     buffer[1]     = 1;
@@ -276,7 +279,7 @@ void lcdOpen(void)
 /**
  * 熄灭LCD
  */
-void lcdClose(void)
+void lcd_off(void)
 {
     int buffer[8] = {0};
     ioctl(dispd, 0xFu, buffer);
@@ -286,7 +289,7 @@ void lcdClose(void)
 /**
  * 启用触摸
  */
-void touchOpen(void)
+void touch_on(void)
 {
     int tpd = open("/proc/sprocomm_tpInfo", 526338);
     write(tpd, "1", 1u);
@@ -297,7 +300,7 @@ void touchOpen(void)
 /**
  * 关闭触摸
  */
-void touchClose(void)
+void touch_off(void)
 {
     int tpd = open("/proc/sprocomm_tpInfo", 526338);
     write(tpd, "0", 1u);
@@ -308,15 +311,16 @@ void touchClose(void)
 /**
  * LCD刷屏
  */
-void lcdRefresh(void)
+void lcd_refresh(void)
 {
     ioctl(fbd, 0x4606u, vinfo);
 }
 
 /**
  * 设置LCD背光亮度
+ * 内部函数，不保存亮度值
  */
-void lcdSetBrightness(int brightness)
+void lcd_set_brightness_inner(int brightness)
 {
     int buffer[8] = {0};
     buffer[1]     = brightness;
@@ -324,9 +328,19 @@ void lcdSetBrightness(int brightness)
 }
 
 /**
+ * 设置LCD背光亮度
+ * 对外接口，会保存亮度值
+ */
+void lcd_set_brightness(int brightness)
+{
+    lcd_brightness = brightness;
+    lcd_set_brightness_inner(brightness);
+}
+
+/**
  * 读取电源按钮
  */
-void readKeyPower(void)
+void key_read_power(void)
 {
     char buffer[16] = {0};
     while(read(powerd, buffer, 0x10u) > 0) {
@@ -334,19 +348,20 @@ void readKeyPower(void)
 
         if(buffer[12] == 0x00) {
             printf("[key]power_up\n");
-            if(sleepTs == -1)
+            evdev_refresh_press_ts();
+            if(ts_sleep == -1)
                 if(page_on_key(KEY_CODE_POWER, KEY_ACTION_UP)) continue;
             // 如果页面处理了按键事件，就不继续执行了
 
-            if(sleepTs == -1)
-                sysSleep(); // 没睡的给我睡
+            if(ts_sleep == -1)
+                sys_sleep(); // 没睡的给我睡
             else
-                sysWake(); // 睡着的起来
+                sys_wake(); // 睡着的起来
 
         } else if(buffer[12] == 0x01) {
             printf("[key]power_down\n");
-
-            if(sleepTs == -1)
+            evdev_refresh_press_ts();
+            if(ts_sleep == -1)
                 if(page_on_key(KEY_CODE_POWER, KEY_ACTION_DOWN)) continue;
         }
     }
@@ -355,7 +370,7 @@ void readKeyPower(void)
 /**
  * 读取圆形HOME按钮
  */
-void readKeyHome(void)
+void key_read_home(void)
 {
     char buffer[16] = {0};
     while(read(homed, buffer, 0x10u) > 0) {
@@ -363,24 +378,26 @@ void readKeyHome(void)
 
         if(buffer[12] == 0x00) {
             printf("[key]home_up\n");
-            if(sleepTs == -1)
+            evdev_refresh_press_ts();
+            if(ts_sleep == -1)
                 if(page_on_key(KEY_CODE_HOME, KEY_ACTION_UP)) continue;
             // 如果页面处理了按键事件，就不继续执行了
 
             uint32_t ts = tick_get();
-            if(homeClickTs != -1 && ts - homeClickTs <= 300) {
-                switchForeground();
-                homeClickTs = -1;
+            if(ts_home_click != -1 && ts - ts_home_click <= 300) {
+                switch_foreground();
+                ts_home_click = -1;
             } else {
-                homeClickTs = ts;
-                if(sleepTs == -1)
+                ts_home_click = ts;
+                if(ts_sleep == -1)
                     page_back(); // 没睡的返回
                 else
-                    sysWake(); // 睡着的起来
+                    sys_wake(); // 睡着的起来
             }
         } else if(buffer[12] == 0x01) {
             printf("[key]home_down\n");
-            if(sleepTs == -1)
+            evdev_refresh_press_ts();
+            if(ts_sleep == -1)
                 if(page_on_key(KEY_CODE_HOME, KEY_ACTION_DOWN)) continue;
         }
     }
@@ -389,33 +406,34 @@ void readKeyHome(void)
 /**
  * 亮屏
  */
-void sysWake(void)
+void sys_wake(void)
 {
-    if(sleepTs != -1) {
-        screenTimeout = false;
-        sleepTs       = -1;
-        touchOpen();
-        lcdOpen();
-        lcdSetBrightness(lcdBrightness);
+    if(ts_sleep != -1) {
+        is_screen_timeout = false;
+        ts_sleep       = -1;
+        touch_on();
+        lcd_on();
+        lcd_set_brightness_inner(lcd_brightness);
+        evdev_refresh_press_ts();
     }
 }
 
 /**
  * 熄屏
  */
-void sysSleep(void)
+void sys_sleep(void)
 {
-    if(sleepTs == -1) {
-        sleepTs = tick_get();
-        touchClose();
-        lcdClose();
+    if(ts_sleep == -1) {
+        ts_sleep = tick_get();
+        touch_off();
+        lcd_off();
     }
 }
 
 /**
  * 睡死
  */
-void sysDeepSleep(void)
+void sys_deep_sleep(void)
 {
     char buffer[16] = {0};
     while(read(powerd, buffer, 0x10u) > 0); // 清空电源键的缓冲区
@@ -428,44 +446,58 @@ void sysDeepSleep(void)
 
     // 按电源键会醒过来，继续执行下面的代码
 
-    sysWake(); // 那睡觉的起来了嗷（改到这里是为了防止其他醒来的情况，比如插拔usb）
+    sys_wake(); // 那睡觉的起来了嗷（改到这里是为了防止其他醒来的情况，比如插拔usb）
     while(read(powerd, buffer, 0x10u) > 0); // 再次清空电源键的缓冲区，因为开机按的电源键也算数
 }
 
 /**
  * 检测是否超时熄屏
  */
-void detectTimeout(void)
+void lcd_detect_timeout(void)
 {
+    if(dont_timeout_enabled){
+        is_screen_timeout = false;
+        evdev_refresh_press_ts();
+        return;
+    }
+
     uint64_t timeout_ms = ms_get() - evdev_get_press_ts();
     if(timeout_ms < SCREEN_TIMEOUT_MS){
-        if(screenTimeout) {
-            screenTimeout = false;
-            lcdSetBrightness(lcdBrightness);
+        if(is_screen_timeout) {
+            is_screen_timeout = false;
+            lcd_set_brightness_inner(lcd_brightness);
         }
     }
-    else if(!screenTimeout) {
-        screenTimeout = true;
-        lcdSetBrightness(5);
-    } else if(timeout_ms > SCREEN_TIMEOUT_MS + 4500) {
-        sysSleep();
+    else if(!is_screen_timeout) {
+        is_screen_timeout = true;
+        lcd_set_brightness_inner(5);    // 不保存亮度值
+    } else if(timeout_ms > SCREEN_TIMEOUT_MS + 5000) {
+        sys_sleep();
     }
 }
 
 /**
  * 不许睡！
  */
-void setDontDeepSleep(bool b)
+void sys_set_dont_deep_sleep(bool b)
 {
-    dontDeepSleep = b;
+    dont_deep_sleep_enabled = b;
+}
+
+/**
+ * 不许熄屏！
+ */
+void sys_set_dont_timeout(bool b)
+{
+    dont_timeout_enabled = b;
 }
 
 /**
  * 切换到robot程序
  */
-void switchRobot(void)
+void switch_robot(void)
 {
-    switchBackground();
+    switch_background();
 
     // 现在不需要杀vsftpd了
     system("chmod 777 ./switch_robot");
@@ -475,11 +507,11 @@ void switchRobot(void)
 /**
  * 进入后台
  */
-void switchBackground(void)
+void switch_background(void)
 {
-    if(backgroundTs != -1) return;
-    backgroundTs = tick_get();
-    sleepTs      = -1;
+    if(ts_background != -1) return;
+    ts_background = tick_get();
+    ts_sleep      = -1;
     if(fbd) close(fbd);
     if(dispd) close(dispd);
     if(powerd) close(powerd);
@@ -489,9 +521,9 @@ void switchBackground(void)
 /**
  * 从robot切换回来
  */
-void switchForeground(void)
+void switch_foreground(void)
 {
-    if(backgroundTs == -1) return;
+    if(ts_background == -1) return;
 
     chdir(homepath);
     system("chmod 777 switch_foreground");
@@ -504,7 +536,7 @@ void switchForeground(void)
 /**
  * 获取字体
  */
-lv_style_t getFontStyle(const char * filename, uint16_t weight, uint16_t font_style)
+lv_style_t font_get_style(const char * filename, uint16_t weight, uint16_t font_style)
 {
     lv_style_t style;
     lv_style_init(&style);

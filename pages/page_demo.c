@@ -57,7 +57,7 @@ static lv_obj_t * page_demo_obj(void) {
 static void slider1_changed(lv_event_t * e) {
     lv_obj_t * slider = lv_event_get_target(e);
     int value = lv_slider_get_value(slider);
-    lcdSetBrightness(value);
+    lcd_set_brightness(value);
 }
 
 static void btn_click(lv_event_t * e) {

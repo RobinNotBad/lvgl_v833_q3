@@ -642,7 +642,7 @@ static void show_dir(lv_obj_t * obj, char * path)
 
         /*fn is empty, if not more files to read*/
         if(strlen(fn) == 0) {
-            LV_LOG_USER("Not more files to read!");
+            LV_LOG_USER("No more files to read!");
             break;
         }
 
@@ -654,7 +654,8 @@ static void show_dir(lv_obj_t * obj, char * path)
             lv_table_set_cell_value(explorer->file_list, index, 1, "1");
         } else if(str_end_with(fn, ".mp3", false) || str_end_with(fn, ".wav", false) ||
                   str_end_with(fn, ".ogg", false) || str_end_with(fn, ".m4a", false) ||
-                  str_end_with(fn, ".aac", false) || str_end_with(fn, ".pcm", false)) {
+                  str_end_with(fn, ".aac", false) || str_end_with(fn, ".pcm", false) ||
+                  str_end_with(fn, ".mid", false) || str_end_with(fn, ".midi", false)) {
             lv_table_set_cell_value_fmt(explorer->file_list, index, 0, LV_SYMBOL_AUDIO "  %s", fn);
             lv_table_set_cell_value(explorer->file_list, index, 1, "2");
         } else if(is_end_with(fn, ".mp4", false)) {

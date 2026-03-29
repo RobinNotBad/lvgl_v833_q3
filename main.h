@@ -43,21 +43,22 @@ extern uint32_t sleepTs;
 extern uint32_t homeClickTs;
 extern uint32_t backgroundTs;
 
-extern bool dontDeepSleep;
+extern bool dont_deep_sleep_enabled;
 
-void lcdSetBrightness(int brightness);
-void sysSleep(void);
-void sysWake(void);
-void sysDeepSleep(void);
-void setDontDeepSleep(bool b);
-void switchRobot(void);
-void switchBackground(void);
-void switchForeground(void);
+void lcd_set_brightness(int brightness);
+void sys_sleep(void);
+void sys_wake(void);
+void sys_deep_sleep(void);
+void sys_set_dont_deep_sleep(bool b);
+void sys_set_dont_timeout(bool b);
+void switch_robot(void);
+void switch_background(void);
+void switch_foreground(void);
 
 uint32_t tick_get(void);
 uint64_t ms_get(void);
 
-lv_style_t getFontStyle(const char * filename, uint16_t weight, uint16_t style);
+lv_style_t font_get_style(const char * filename, uint16_t weight, uint16_t style);
 
 /**********************
  *      MACROS
