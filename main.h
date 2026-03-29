@@ -43,7 +43,8 @@ extern uint32_t sleepTs;
 extern uint32_t homeClickTs;
 extern uint32_t backgroundTs;
 
-extern bool dont_deep_sleep_enabled;
+extern uint8_t dont_deep_sleep_enabled;
+extern uint8_t dont_timeout_enabled;
 
 void lcd_set_brightness(int brightness);
 void sys_sleep(void);

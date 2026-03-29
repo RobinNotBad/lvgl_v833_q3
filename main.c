@@ -44,8 +44,8 @@ uint32_t ts_background;
 uint32_t lcd_brightness;
 
 bool is_screen_timeout;
-bool dont_deep_sleep_enabled;
-bool dont_timeout_enabled;
+uint8_t dont_deep_sleep_enabled;
+uint8_t dont_timeout_enabled;
 
 void key_read_power(void);
 void key_read_home(void);
@@ -68,8 +68,8 @@ int main(int argc, char * argv[])
     ts_background  = -1;
     lcd_brightness = SCREEN_BRIGHTNESS_DEFAULT;
     is_screen_timeout = false;
-    dont_deep_sleep_enabled = false;
-    dont_timeout_enabled    = false;
+    dont_deep_sleep_enabled = 0;
+    dont_timeout_enabled    = 0;
 
     printf("ciallo lvgl\n");
 #if LV_USE_PERF_MONITOR
@@ -273,7 +273,7 @@ void lcd_on(void)
     int buffer[8] = {0};
     buffer[1]     = 1;
     ioctl(dispd, 0xFu, buffer);
-    printf("[lcd]opened\n");
+    printf("[lcd]on\n");
 }
 
 /**
@@ -283,7 +283,7 @@ void lcd_off(void)
 {
     int buffer[8] = {0};
     ioctl(dispd, 0xFu, buffer);
-    printf("[lcd]closed\n");
+    printf("[lcd]off\n");
 }
 
 /**
@@ -294,7 +294,7 @@ void touch_on(void)
     int tpd = open("/proc/sprocomm_tpInfo", 526338);
     write(tpd, "1", 1u);
     close(tpd);
-    printf("[tp]opened\n");
+    printf("[tp]on\n");
 }
 
 /**
@@ -305,7 +305,7 @@ void touch_off(void)
     int tpd = open("/proc/sprocomm_tpInfo", 526338);
     write(tpd, "0", 1u);
     close(tpd);
-    printf("[tp]closed\n");
+    printf("[tp]off\n");
 }
 
 /**
@@ -409,6 +409,7 @@ void key_read_home(void)
 void sys_wake(void)
 {
     if(ts_sleep != -1) {
+        printf("[sys]wake\n");
         is_screen_timeout = false;
         ts_sleep       = -1;
         touch_on();
@@ -424,6 +425,7 @@ void sys_wake(void)
 void sys_sleep(void)
 {
     if(ts_sleep == -1) {
+        printf("[sys]sleep\n");
         ts_sleep = tick_get();
         touch_off();
         lcd_off();
@@ -435,6 +437,7 @@ void sys_sleep(void)
  */
 void sys_deep_sleep(void)
 {
+    printf("[sys]deep sleep\n");
     char buffer[16] = {0};
     while(read(powerd, buffer, 0x10u) > 0); // 清空电源键的缓冲区
     while(read(homed, buffer, 0x10u) > 0);  // 清空HOME键的缓冲区
@@ -466,13 +469,16 @@ void lcd_detect_timeout(void)
         if(is_screen_timeout) {
             is_screen_timeout = false;
             lcd_set_brightness_inner(lcd_brightness);
+            printf("[lcd-timeout]restore brightness\n");
         }
     }
     else if(!is_screen_timeout) {
         is_screen_timeout = true;
-        lcd_set_brightness_inner(5);    // 不保存亮度值
+        lcd_set_brightness_inner(lcd_brightness / 5);    // 不保存亮度值
+        printf("[lcd-timeout]screen timeout\n");
     } else if(timeout_ms > SCREEN_TIMEOUT_MS + 5000) {
         sys_sleep();
+        printf("[lcd-timeout]go to sleep\n");
     }
 }
 
@@ -481,7 +487,11 @@ void lcd_detect_timeout(void)
  */
 void sys_set_dont_deep_sleep(bool b)
 {
-    dont_deep_sleep_enabled = b;
+    dont_deep_sleep_enabled += (b ? 1 : -1);
+    printf("[sys]dont_deep_sleep=%d\n", dont_deep_sleep_enabled);
+    // 初始值为0，大于1即判定为不允许睡眠
+    // 页面每设置一次，该变量+1；每取消一次，该变量-1
+    // 这样就可以处理多个页面同时请求不睡眠的情况了
 }
 
 /**
@@ -489,7 +499,8 @@ void sys_set_dont_deep_sleep(bool b)
  */
 void sys_set_dont_timeout(bool b)
 {
-    dont_timeout_enabled = b;
+    dont_timeout_enabled += (b ? 1 : -1);
+    printf("[sys]dont_timeout=%d\n", dont_timeout_enabled);
 }
 
 /**

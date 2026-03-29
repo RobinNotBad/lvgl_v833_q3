@@ -1,5 +1,7 @@
 #include "page_apple.h"
 
+#include "main.h"
+
 typedef struct
 {
     BasePage base;
@@ -41,6 +43,7 @@ static lv_obj_t * page_video_obj(VideoPage * page, char * filename)
     lv_obj_set_size(screen, lv_pct(100), lv_pct(100));
 
     sys_set_dont_deep_sleep(true);
+    sys_set_dont_timeout(true);
     audio_enable();
 
     lv_img_header_t header;
@@ -196,4 +199,5 @@ static void page_video_destroy(void * p)
     page->player = NULL;
     audio_disable();
     sys_set_dont_deep_sleep(false);
+    sys_set_dont_timeout(false);
 }
