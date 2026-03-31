@@ -1,5 +1,5 @@
-#ifndef PLAT_STR_UTILS_H
-#define PLAT_STR_UTILS_H
+#ifndef PROJ_PAGE_HOME_H
+#define PROJ_PAGE_HOME_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -8,16 +8,18 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
+#include "../lvgl/lvgl.h"
+#include "../lv_lib_100ask/lv_lib_100ask.h"
+#include "page_manager.h"
+#include <sys/time.h>
+#include <time.h>
 #include <unistd.h>
 #include <stdio.h>
-#include <stdbool.h>
-#include <stdint.h>
-#include <string.h>
+#include <stdlib.h>
 
 /*********************
  *      DEFINES
  *********************/
-extern const char * days_of_week[];
 
 /**********************
  *      TYPEDEFS
@@ -26,12 +28,7 @@ extern const char * days_of_week[];
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
-bool str_begin_with(const char * str, const char * begin, bool case_sensitivity);
-bool str_end_with(const char * str, const char * begin, bool case_sensitivity);
-char to_upper_case(char c);
-bool is_lower_letter(char c);
-bool is_upper_letter(char c);
-
+BasePage * page_home_create(void);
 
 /**********************
  *      MACROS

@@ -12,7 +12,8 @@
             ],
             "intelliSenseMode": "linux-gcc-arm",
             "mergeConfigurations": false,
-            "browse": {}
+            "browse": {},
+            "compilerPath": "F:\\toolchain-sunxi-musl\\toolchain\\bin\\arm-openwrt-linux-muslgnueabi-gcc"
         },
         {
             "name": "Win32",

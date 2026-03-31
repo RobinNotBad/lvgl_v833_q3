@@ -33,7 +33,9 @@
             "timidity.h": "c",
             "page_calculator.h": "c",
             "midi_player.h": "c",
-            "battery_manager.h": "c"
+            "battery_manager.h": "c",
+            "main.h": "c",
+            "lv_demos.h": "c"
         }
     }
 }

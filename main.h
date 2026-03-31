@@ -8,16 +8,16 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
-
-/*********************
- *      DEFINES
- *********************/
 #include <stdio.h>
 #include <stdlib.h>
 #include <unistd.h>
 #include <sys/types.h>
 #include <stdbool.h>
 #include "lvgl/lvgl.h"
+
+/*********************
+ *      DEFINES
+ *********************/
 
 /**********************
  *      TYPEDEFS
@@ -28,6 +28,8 @@ extern "C" {
 
 #define SCREEN_TIMEOUT_MS 30000
 #define SCREEN_BRIGHTNESS_DEFAULT 25
+
+#define THEME_COLOR 0xff78c05d
 
 /**********************
  * GLOBAL PROTOTYPES
@@ -59,7 +61,7 @@ void switch_foreground(void);
 uint32_t tick_get(void);
 uint64_t ms_get(void);
 
-lv_style_t font_get_style(const char * filename, uint16_t weight, uint16_t style);
+lv_font_t * font_get(uint16_t weight, uint16_t font_style);
 
 /**********************
  *      MACROS

@@ -140,6 +140,7 @@ static void lv_100ask_calc_constructor(const lv_obj_class_t * class_p, lv_obj_t 
 
     /*set layout*/
     lv_obj_set_flex_flow(obj, LV_FLEX_FLOW_COLUMN);
+    //lv_obj_clear_flag(obj, LV_OBJ_FLAG_SCROLLABLE);
 
     /*Display calculation history and results*/
     calc->ta_hist = lv_textarea_create(obj);
@@ -147,26 +148,27 @@ static void lv_100ask_calc_constructor(const lv_obj_class_t * class_p, lv_obj_t 
     lv_obj_set_style_text_color(calc->ta_hist, LV_100ASK_COLOR_GREEN, 0);
     lv_obj_set_style_radius(calc->ta_hist, 0, 0);
 
-    lv_obj_set_size(calc->ta_hist, LV_PCT(100), LV_PCT(10));
     lv_textarea_set_cursor_click_pos(calc->ta_hist, false);
     lv_textarea_set_max_length(calc->ta_hist, LV_100ASK_CALC_HISTORY_MAX_LINE);
-    lv_textarea_set_align(calc->ta_hist, LV_TEXT_ALIGN_RIGHT);
+    lv_obj_set_style_text_align(calc->ta_hist, LV_TEXT_ALIGN_RIGHT, LV_STATE_DEFAULT);
+    lv_textarea_set_one_line(calc->ta_hist, true);
     lv_textarea_set_text(calc->ta_hist, "");
-    lv_textarea_set_placeholder_text(calc->ta_hist, "CALC HISTORY\t\t");
+    lv_textarea_set_placeholder_text(calc->ta_hist, "CALC HISTORY");
     lv_obj_set_style_border_width(calc->ta_hist, 0, 0);
+    lv_obj_set_size(calc->ta_hist, LV_PCT(100), LV_SIZE_CONTENT);
 
     /*Input textarea*/
     calc->ta_input = lv_textarea_create(obj);
-    lv_obj_set_size(calc->ta_input, LV_PCT(100), LV_PCT(5));
     lv_obj_set_style_bg_color(calc->ta_input, LV_100ASK_COLOR_BLACK, 0);
     lv_obj_set_style_text_color(calc->ta_input, LV_100ASK_COLOR_GREEN, 0);
     lv_obj_set_style_radius(calc->ta_input, 0, 0);
     lv_obj_set_style_border_width(calc->ta_input, 0, 0);
-    
+    lv_obj_set_size(calc->ta_input, LV_PCT(100), LV_SIZE_CONTENT);
+
     lv_textarea_set_one_line(calc->ta_input, true);
-    lv_textarea_set_cursor_click_pos(calc->ta_input, false);
+    lv_textarea_set_cursor_click_pos(calc->ta_input, true);
     lv_textarea_set_max_length(calc->ta_input, LV_100ASK_CALC_HISTORY_MAX_LINE);
-    lv_textarea_set_align(calc->ta_input, LV_TEXT_ALIGN_RIGHT);
+    lv_obj_set_style_text_align(calc->ta_input, LV_TEXT_ALIGN_RIGHT, LV_STATE_DEFAULT);
     lv_textarea_set_text(calc->ta_input, "");
 
     /*Calculator input panel*/
@@ -176,9 +178,10 @@ static void lv_100ask_calc_constructor(const lv_obj_class_t * class_p, lv_obj_t 
     lv_obj_set_style_pad_all(calc->btnm, 4, 0);
     lv_obj_set_style_pad_gap(calc->btnm, 4, 0);
 
-    lv_obj_set_size(calc->btnm, LV_PCT(100), LV_PCT(74));
     lv_btnmatrix_set_map(calc->btnm, btnm_map);
     lv_obj_add_event_cb(calc->btnm, calc_btnm_changed_event_cb, LV_EVENT_VALUE_CHANGED, obj);
+    lv_obj_set_width(calc->btnm, LV_PCT(100));
+    lv_obj_set_flex_grow(calc->btnm, 1);
 
     LV_TRACE_OBJ_CREATE("finished");
 }
@@ -208,14 +211,13 @@ static void calc_btnm_changed_event_cb(lv_event_t *e)
         // Perform operations
         if (strcmp(txt, "=") == 0)
         {
-            char tmp_buff[128];
-            double calc_results;
+            double calc_result;
 
             // Lexical analyzer
             lv_100ask_calc_tokenizer_init(user_data, calc->calc_exp);
 
             // Calculates the value of the first level priority expression
-            calc_results = lv_100ask_calc_expr(user_data);  
+            calc_result = lv_100ask_calc_expr(user_data);  
 
             if (calc->error_code != no_error)
             {
@@ -224,19 +226,20 @@ static void calc_btnm_changed_event_cb(lv_event_t *e)
                 {
                     if (error_table[i].error_code == calc->error_code)
                     {
-                        lv_textarea_add_text(calc->ta_hist, "\n");
-                        lv_textarea_add_text(calc->ta_hist, error_table[i].message);
-                        lv_textarea_add_text(calc->ta_hist, "\n");
+                        lv_textarea_set_text(calc->ta_input, error_table[i].message);
                     }
                 }
                 calc->error_code = no_error;
             }
             else
             {
-                sprintf(tmp_buff, "%s=%.8g\0", lv_textarea_get_text(calc->ta_input), calc_results);
-                lv_textarea_add_text(calc->ta_hist, "\n");
-                lv_textarea_add_text(calc->ta_hist, tmp_buff);
-                lv_textarea_set_text(calc->ta_input, tmp_buff);
+                char result_buff[128];
+                sprintf(result_buff, "%s=%.8g", lv_textarea_get_text(calc->ta_input), calc_result);
+                char hist_buff[128];
+                sprintf(hist_buff, "%.8g", calc_result);
+
+                lv_textarea_set_text(calc->ta_hist, hist_buff);
+                lv_textarea_set_text(calc->ta_input, result_buff);
                 // Empty expression
                 lv_memset_00(calc->calc_exp, sizeof(calc->calc_exp));
                 calc->count = 0;

@@ -1,5 +1,7 @@
 #include "str_utils.h"
 
+const char * days_of_week[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+
 bool str_begin_with(const char * str, const char * begin, bool case_sensitivity)
 {
     if(str == NULL || begin == NULL) return false;

@@ -17,7 +17,7 @@
 
 // 请教DeepSeek实现了简易页面管理器，100ask那个实际上不太好用……
 #include "pages/page_manager.h"
-#include "pages/page_main.h"
+#include "pages/page_home.h"
 
 /*
 #include "pages/page_demo.h"
@@ -38,14 +38,14 @@ int fbd;    // 帧缓冲设备
 int powerd; // 电源按钮
 int homed;  // 主页按钮
 
-uint32_t ts_sleep;
-uint32_t ts_home_click;
-uint32_t ts_background;
-uint32_t lcd_brightness;
+uint32_t ts_sleep = -1;
+uint32_t ts_home_click = -1;
+uint32_t ts_background = -1;
+uint32_t lcd_brightness = SCREEN_BRIGHTNESS_DEFAULT;
 
-bool is_screen_timeout;
-uint8_t dont_deep_sleep_enabled;
-uint8_t dont_timeout_enabled;
+bool is_screen_timeout = false;
+uint8_t dont_deep_sleep_enabled = 0;
+uint8_t dont_timeout_enabled = 0;
 
 void key_read_power(void);
 void key_read_home(void);
@@ -62,14 +62,6 @@ static lv_style_t style_default;
 
 int main(int argc, char * argv[])
 {
-    // 初始化变量
-    ts_sleep       = -1;
-    ts_home_click   = -1;
-    ts_background  = -1;
-    lcd_brightness = SCREEN_BRIGHTNESS_DEFAULT;
-    is_screen_timeout = false;
-    dont_deep_sleep_enabled = 0;
-    dont_timeout_enabled    = 0;
 
     printf("ciallo lvgl\n");
 #if LV_USE_PERF_MONITOR
@@ -162,8 +154,7 @@ int main(int argc, char * argv[])
 
     audio_init();
 
-    lv_obj_t * screen = lv_obj_create(NULL);
-    lv_scr_load(screen);
+    
 
     lv_freetype_init(128, 4, 0);
 
@@ -174,8 +165,8 @@ int main(int argc, char * argv[])
     ft_info.mem    = NULL;
 
     if(lv_ft_font_init(&ft_info)) {
-        lv_theme_t * theme = lv_theme_default_init(disp, lv_palette_main(LV_PALETTE_LIGHT_GREEN),
-                                                   lv_palette_main(LV_PALETTE_GREEN), true, ft_info.font);
+        lv_theme_t * theme =
+            lv_theme_default_init(disp, lv_color_hex(THEME_COLOR), lv_color_hex(THEME_COLOR), true, ft_info.font);
         theme->font_normal = ft_info.font;
         theme->font_large  = ft_info.font;
         theme->font_small  = ft_info.font; // 为啥子设置不上？
@@ -187,7 +178,7 @@ int main(int argc, char * argv[])
     }
 
     page_manager_init();
-    page_open_obj(page_main());
+    page_open(page_home_create());
 
     while(1) {
         key_read_home();
@@ -547,20 +538,20 @@ void switch_foreground(void)
 /**
  * 获取字体
  */
-lv_style_t font_get_style(const char * filename, uint16_t weight, uint16_t font_style)
+lv_font_t * font_get(uint16_t weight, uint16_t font_style)
 {
     lv_style_t style;
     lv_style_init(&style);
 
     lv_ft_info_t ft_info;
-    ft_info.name   = filename;
+    ft_info.name   = "./res/font.ttf";
     ft_info.weight = weight;
     ft_info.style  = font_style;
     ft_info.mem    = NULL;
 
     if(lv_ft_font_init(&ft_info)) {
-        lv_style_set_text_font(&style, ft_info.font);
+        return ft_info.font;
     }
 
-    return style;
+    return NULL;
 }

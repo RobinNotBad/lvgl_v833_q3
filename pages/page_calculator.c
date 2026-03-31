@@ -6,6 +6,7 @@ lv_obj_t * page_calc(void)
 {
     lv_obj_t * screen = lv_obj_create(lv_scr_act());
     lv_obj_remove_style_all(screen);
+    lv_obj_clear_flag(screen, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(screen, lv_pct(100), lv_pct(100));
 
     lv_obj_t * calc = lv_100ask_calc_create(screen);
