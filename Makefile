@@ -17,6 +17,7 @@ include $(LVGL_DIR)/pages/pages.mk
 include $(LVGL_DIR)/platform/platform.mk
 include $(LVGL_DIR)/views/views.mk
 include $(LVGL_DIR)/cJSON/cJSON.mk
+include $(LVGL_DIR)/lv_lib_100ask/lv_lib_100ask.mk
 
 #CSRCS +=$(LVGL_DIR)/mouse_cursor_icon.c 
 
