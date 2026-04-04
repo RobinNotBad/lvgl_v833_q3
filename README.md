@@ -1,5 +1,6 @@
 ## Dendro
 这是一个简易的，为奇葩 Linux 嵌入式设备提供多媒体支持的 LVGL 程序。
+** 注意：这是开发者尝试将 LVGL 编译为 .so 共享库的测试分支！
 
 实现了以下功能：
 * 模仿安卓，自制支持各类回调和按键事件的页面管理器
@@ -14,6 +15,7 @@
 需要注意：lib 文件夹里的 .so 库文件大多由未改动的源码预编译而来，少量是从系统中直接拿取，目标系统为armv7 musleabi hf。
 你可以用自己的编译器重新编译这些库，从而适配不同的系统环境。
 ffmpeg 需要链接 libz 以实现 png 解码支持。
+对于 liblvgl ，请编译： https://github.com/RobinNotBad/lv_shared_linux 并将 liblvgl.so 放在 lib 文件夹里（已提前预编译了一个）
 
 ## 怎么编译源代码
 * 建议使用**linux系统**
