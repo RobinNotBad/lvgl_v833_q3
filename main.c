@@ -1,6 +1,5 @@
 #include "main.h"
 
-#include "lvgl/demos/lv_demos.h"
 #include "lv_drivers/display/fbdev.h"
 #include "lv_drivers/indev/evdev.h"
 #include "lv_lib_100ask/lv_lib_100ask.h"

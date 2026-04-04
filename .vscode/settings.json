@@ -1,6 +1,6 @@
 {
-    "cmake.ignoreCMakeListsMissing": true,
-    "files.exclude": {
-        "**/*.o": true
+    "C_Cpp.default.compilerPath": "",
+    "files.associations": {
+        "page_manager.h": "c"
     }
 }
