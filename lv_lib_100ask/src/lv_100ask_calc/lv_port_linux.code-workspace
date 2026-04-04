@@ -35,7 +35,8 @@
             "midi_player.h": "c",
             "battery_manager.h": "c",
             "main.h": "c",
-            "lv_demos.h": "c"
+            "lv_demos.h": "c",
+            "page_demo.h": "c"
         }
     }
 }

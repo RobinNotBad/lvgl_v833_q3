@@ -1,12 +1,9 @@
 /**
- * 一个基于WildMidi的MIDI播放器
- * 同样理论上支持所有linux设备
- * 对于配置文件和音效库，可以在linux虚拟机中apt install wildmidi
- * 然后找/etc/wildmidi/wildmidi.cfg和里面配置的路径
- * 这个库是真冷门，但是体积小且完全符合我的需求
+ * 一个基于libtimidity的MIDI播放器，同样理论上支持所有linux设备
+ * soundfont分支可以使用sf2音源库
+ * 这个库也有点冷门，但是体积小且完全符合我的需求
+ * 合成效果比wildmidi好很多，也支持连音
  * 感谢DeepSeek提供的珍贵资料
- * 很可惜，这东西不支持连音……
- * 也许可以改一改，但可能会超出我的能力范围
  */
 
 #include "midi_player.h"

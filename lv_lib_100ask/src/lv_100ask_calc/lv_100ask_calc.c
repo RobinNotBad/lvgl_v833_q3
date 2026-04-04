@@ -154,8 +154,9 @@ static void lv_100ask_calc_constructor(const lv_obj_class_t * class_p, lv_obj_t 
     lv_textarea_set_cursor_click_pos(calc->ta_hist, false);
     lv_textarea_set_max_length(calc->ta_hist, LV_100ASK_CALC_HISTORY_MAX_LINE);
     lv_obj_set_style_text_align(calc->ta_hist, LV_TEXT_ALIGN_RIGHT, LV_STATE_DEFAULT);
+    lv_obj_clear_flag(calc->ta_hist, LV_OBJ_FLAG_SCROLLABLE);
     lv_textarea_set_text(calc->ta_hist, "");
-    lv_textarea_set_placeholder_text(calc->ta_hist, "CALC HISTORY");
+    lv_textarea_set_placeholder_text(calc->ta_hist, "CALC HISTORY  ");
 
     /*Input textarea*/
     calc->ta_input = lv_textarea_create(obj);
@@ -169,6 +170,7 @@ static void lv_100ask_calc_constructor(const lv_obj_class_t * class_p, lv_obj_t 
     lv_textarea_set_cursor_click_pos(calc->ta_input, false);
     lv_textarea_set_max_length(calc->ta_input, LV_100ASK_CALC_HISTORY_MAX_LINE);
     lv_obj_set_style_text_align(calc->ta_input, LV_TEXT_ALIGN_RIGHT, LV_STATE_DEFAULT);
+    lv_obj_clear_flag(calc->ta_hist, LV_OBJ_FLAG_SCROLLABLE);
     lv_textarea_set_text(calc->ta_input, "");
 
     /*Calculator input panel*/
@@ -273,6 +275,8 @@ static void calc_btnm_changed_event_cb(lv_event_t *e)
         // Add char
         else
         {
+            if(calc->count == LV_100ASK_CALC_EXPR_LEN - 2) return;
+
             if(calc->count <= 0){
                 if(strcmp(txt, "+") || strcmp(txt, "-") || strcmp(txt, "*") || strcmp(txt, "/")) {
                     strcat(&calc->calc_exp[0], lv_textarea_get_text(calc->ta_input));

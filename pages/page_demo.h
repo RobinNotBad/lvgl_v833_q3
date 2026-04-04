@@ -13,7 +13,6 @@ extern "C" {
 #include <stdlib.h>
 #include "main.h"
 #include "page_manager.h"
-#include "cJSON/cJSON.h"
 
 /*********************
  *      DEFINES
