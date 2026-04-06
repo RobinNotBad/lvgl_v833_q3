@@ -662,6 +662,10 @@ static void show_dir(lv_obj_t * obj, char * path)
         } else if(is_end_with(fn, ".mp4", false)) {
             lv_table_set_cell_value_fmt(explorer->file_list, index, 0, LV_SYMBOL_VIDEO "  %s", fn);
             lv_table_set_cell_value(explorer->file_list, index, 1, "3");
+        } else if(str_end_with(fn, ".txt", false) || str_end_with(fn, ".json", false) ||
+                  str_end_with(fn, ".conf", false) || str_end_with(fn, ".log", false)) {
+            lv_table_set_cell_value_fmt(explorer->file_list, index, 0, LV_SYMBOL_TXT "  %s", fn);
+            lv_table_set_cell_value(explorer->file_list, index, 1, "4");
         } else if(is_end_with(fn, ".", false) || is_end_with(fn, "..", false)) {
             /*is dir*/
             //lv_table_set_cell_value_fmt(explorer->file_list, index, 0, LV_SYMBOL_DIRECTORY "  %s", fn);
@@ -671,7 +675,7 @@ static void show_dir(lv_obj_t * obj, char * path)
             lv_table_set_cell_value(explorer->file_list, index, 1, "0");
         } else {
             lv_table_set_cell_value_fmt(explorer->file_list, index, 0, LV_SYMBOL_FILE "  %s", fn);
-            lv_table_set_cell_value(explorer->file_list, index, 1, "4");
+            lv_table_set_cell_value(explorer->file_list, index, 1, "5");
         }
 
         index++;
