@@ -8,7 +8,7 @@
 #include "ff_player.h"
 
 #define BUFFER_SIZE 4096
-#define MAX_CHANNELS 6
+#define CHANNELS 1
 
 static void * player_thread_func(void * arg);
 static bool ffmpeg_pix_fmt_has_alpha(enum AVPixelFormat pix_fmt);
@@ -132,7 +132,7 @@ int player_init_audio(ff_player_t * player)
 
     // 设置重采样参数
     av_opt_set_int(player->swr_ctx, "in_channel_layout", av_get_default_channel_layout(player->audio_codec_ctx->channels), 0);
-    av_opt_set_int(player->swr_ctx, "out_channel_layout", AV_CH_LAYOUT_STEREO, 0);
+    av_opt_set_int(player->swr_ctx, "out_channel_layout", (CHANNELS == 1 ? AV_CH_FRONT_LEFT : AV_CH_LAYOUT_STEREO), 0);
     av_opt_set_int(player->swr_ctx, "in_sample_rate", player->audio_codec_ctx->sample_rate, 0);
     av_opt_set_int(player->swr_ctx, "out_sample_rate", 44100, 0);
     av_opt_set_sample_fmt(player->swr_ctx, "in_sample_fmt", player->audio_codec_ctx->sample_fmt, 0);
@@ -145,7 +145,7 @@ int player_init_audio(ff_player_t * player)
     }
 
     player->sample_rate = 44100;
-    player->channels    = 2;
+    player->channels    = CHANNELS;
 
     // 打开ALSA设备
     int err;
@@ -392,7 +392,7 @@ static void * player_thread_func(void * arg)
         goto cleanup;
     }
 
-    uint8_t * audio_buffer = malloc(BUFFER_SIZE * player->channels * 2); // S16LE
+    uint8_t * audio_buffer = malloc(BUFFER_SIZE * player->channels); // S16LE
     if(!audio_buffer) {
         fprintf(stderr, "[ff_player]无法分配音频缓冲区\n");
         goto cleanup;
@@ -466,7 +466,7 @@ static void * player_thread_func(void * arg)
                                               frame->nb_samples);
 
                 if(out_samples > 0) {
-                    int data_size = out_samples * player->channels * 2; // S16LE
+                    int data_size = out_samples * player->channels; // S16LE
 
                     // 写入ALSA设备
                     snd_pcm_sframes_t frames_written = snd_pcm_writei(player->pcm_handle, audio_buffer, out_samples);

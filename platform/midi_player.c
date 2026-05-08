@@ -13,8 +13,6 @@
 #define SAMPLE_RATE 44100
 #define CHUNK_SIZE 1024
 
-#define AV_TIME_BASE 114514
-
 static void * midi_thread_func(void * arg);
 
 midi_player_t * midi_create(const char * config_file)
@@ -150,7 +148,7 @@ static void * midi_thread_func(void * arg)
 {
     midi_player_t * player = (midi_player_t *)arg;
 
-    sint8 * audio_buffer = malloc(BUFFER_SIZE * player->channels * 2); // S16LE
+    sint8 * audio_buffer = malloc(BUFFER_SIZE * player->channels); // S16LE
     if(!audio_buffer) {
         fprintf(stderr, "[midi_player]无法分配音频缓冲区\n");
         goto cleanup;
@@ -177,7 +175,7 @@ static void * midi_thread_func(void * arg)
             continue;
         }
 
-        long bytes_read = mid_song_read_wave(player->song, audio_buffer, BUFFER_SIZE * player->channels * 2);
+        long bytes_read = mid_song_read_wave(player->song, audio_buffer, BUFFER_SIZE * player->channels);
 
         // 文件结束或错误
         if(bytes_read <= 0) {

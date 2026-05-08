@@ -4,6 +4,7 @@
 #include "page_audio.h"
 #include "page_midi.h"
 #include "page_image.h"
+#include "page_txt.h"
 
 typedef struct
 {
@@ -85,6 +86,11 @@ static void explorer_event_handler(lv_event_t * e)
 
         if(str_end_with(file_name, ".mid", false) || str_end_with(file_name, ".midi", false)) {
             page_open(page_midi_create(file_name));
+        }
+
+        if(str_end_with(file_name, ".txt", false) || str_end_with(file_name, ".json", false) || 
+            str_end_with(file_name, ".conf", false) || str_end_with(file_name, ".log", false)) {
+            page_open(page_txt_create(file_name));
         }
     }
 }
