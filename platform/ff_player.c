@@ -205,6 +205,10 @@ int player_init_video(ff_player_t * player, lv_obj_t * lv_obj)
     int ret            = 0;
     player->video_area = lv_obj;
 
+    lv_obj_update_layout(player->video_area);
+    int target_width     = lv_obj_get_width(player->video_area);
+    int target_height     = lv_obj_get_height(player->video_area);
+
     // 查找视频流
     player->video_stream_index = -1;
     for(int i = 0; i < player->format_ctx->nb_streams; i++) {
@@ -257,36 +261,38 @@ int player_init_video(ff_player_t * player, lv_obj_t * lv_obj)
         goto cleanup;
     }
 
-    // 在img_dsc对象里写入图像参数
     int width           = player->video_codec_ctx->width;
     int height           = player->video_codec_ctx->height;
 
+    // 在img_dsc对象里写入图像参数
+
     uint32_t data_size      = 0;
-    if(has_alpha)    data_size = width * height * LV_IMG_PX_SIZE_ALPHA_BYTE;
-    else             data_size = width * height * LV_COLOR_SIZE / 8;
+    if(has_alpha)    data_size = target_width * target_height * LV_IMG_PX_SIZE_ALPHA_BYTE;
+    else             data_size = target_width * target_height * LV_COLOR_SIZE / 8;
 
     player->img_dsc.header.always_zero = 0;
-    player->img_dsc.header.w           = width;
-    player->img_dsc.header.h           = height;
+    player->img_dsc.header.w           = target_width;
+    player->img_dsc.header.h           = target_height;
     player->img_dsc.data_size          = data_size;
     player->img_dsc.header.cf          = has_alpha ? LV_IMG_CF_TRUE_COLOR_ALPHA : LV_IMG_CF_TRUE_COLOR;
     player->img_dsc.data               = player->video_dst_data[0];
 
-    printf("width=%d, height=%d, data_size=%d\n", width, height, data_size);
+    printf("[ff_player]src: width=%d, height=%d\n", width, height);
+    printf("[ff_player]dst: width=%d, height=%d, data_size=%d\n", target_width, target_height, data_size);
 
     lv_img_set_src(player->video_area, &(player->img_dsc));
 
     int swsFlags = SWS_BILINEAR;
     if(ffmpeg_pix_fmt_is_yuv(player->video_codec_ctx->pix_fmt)) {
-        if((width & 0x7) || (height & 0x7)) swsFlags |= SWS_ACCURATE_RND;
+        if((width & 0x7) || (height & 0x7) || (target_width & 0x7) || (target_height & 0x7)) swsFlags |= SWS_ACCURATE_RND;
     }
 
     lv_obj_update_layout(player->video_area);
 
     player->sws_ctx =
         sws_getContext(player->video_codec_ctx->width, player->video_codec_ctx->height,
-                       player->video_codec_ctx->pix_fmt, lv_obj_get_width(player->video_area),
-                       lv_obj_get_height(player->video_area), player->video_dst_pix_fmt, swsFlags, NULL, NULL, NULL);
+                       player->video_codec_ctx->pix_fmt, target_width, target_height,
+                       player->video_dst_pix_fmt, swsFlags, NULL, NULL, NULL);
     if(!player->sws_ctx) {
         fprintf(stderr, "[ff_player]无法创建图像转换上下文\n");
         ret = -9;
@@ -337,11 +343,11 @@ static int ffmpeg_image_allocate(ff_player_t * player)
     }
 
     LV_LOG_INFO("alloc video_src_bufsize = %d", ret);
-
+    
     ret = av_image_alloc(player->video_dst_data, 
                             player->video_dst_linesize, 
-                            player->video_codec_ctx->width,
-                            player->video_codec_ctx->height, 
+                            lv_obj_get_width(player->video_area),
+                            lv_obj_get_height(player->video_area),
                             player->video_dst_pix_fmt, 
                             4);
 
