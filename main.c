@@ -80,7 +80,7 @@ int main(int argc, char * argv[])
 
     powerd = open("/dev/input/event1", O_RDWR);
     fcntl(powerd, 4, 2048);
-    homed = open("/dev/input/event2", O_RDWR);
+    homed = open("/dev/input/event0", O_RDWR);
     fcntl(homed, 4, 2048);
 
     bool isDaemonMode = true;
@@ -102,10 +102,11 @@ int main(int argc, char * argv[])
         }
     }
 
-    printf("kill robot\n");
-    system("killall robotd");
-    system("killall robot_run");
-    system("killall robot_run_1");
+    printf("kill qtgui\n");
+    system("killall qtgui_launch.sh");
+    system("killall ClockToy");
+    system("killall control_engine_launch.sh");
+    system("killall control_engine");
     usleep(100000);
 
 
@@ -137,8 +138,8 @@ int main(int argc, char * argv[])
     lv_disp_drv_init(&disp_drv);
     disp_drv.draw_buf = &disp_buf;
     disp_drv.flush_cb = fbdev_flush;
-    disp_drv.hor_res  = 240;
-    disp_drv.ver_res  = 240;
+    disp_drv.hor_res  = vinfo->xres;
+    disp_drv.ver_res  = vinfo->yres;
     lv_disp_t * disp  = lv_disp_drv_register(&disp_drv);
     lv_disp_set_default(disp);
 
@@ -148,6 +149,8 @@ int main(int argc, char * argv[])
     indev_drv.type     = LV_INDEV_TYPE_POINTER;
     indev_drv.read_cb  = evdev_read;
     /*lv_indev_t *indev =  */lv_indev_drv_register(&indev_drv);
+
+    LV_LOG_USER("%dx%d", vinfo->xres, vinfo->yres);
 
     lv_ffmpeg_init();
 
@@ -260,9 +263,12 @@ void lcd_init(void)
  */
 void lcd_on(void)
 {
-    int buffer[8] = {0};
-    buffer[1]     = 1;
-    ioctl(dispd, 0xFu, buffer);
+    //return;
+    uint64_t buffer[3];
+    buffer[0] = 0;
+    buffer[1] = 1;
+    buffer[2] = 0;
+    ioctl(dispd, 0xFuLL, buffer);
     printf("[lcd]on\n");
 }
 
@@ -271,8 +277,12 @@ void lcd_on(void)
  */
 void lcd_off(void)
 {
-    int buffer[8] = {0};
-    ioctl(dispd, 0xFu, buffer);
+    //return;
+    uint64_t buffer[3];
+    buffer[0] = 0;
+    buffer[1] = 0;
+    buffer[2] = 0;
+    ioctl(dispd, 0xFuLL, buffer);
     printf("[lcd]off\n");
 }
 
@@ -281,9 +291,8 @@ void lcd_off(void)
  */
 void touch_on(void)
 {
-    int tpd = open("/proc/sprocomm_tpInfo", 526338);
-    write(tpd, "1", 1u);
-    close(tpd);
+    //return;
+    system("echo 1 > /sys/class/input/input3/enable");
     printf("[tp]on\n");
 }
 
@@ -292,9 +301,8 @@ void touch_on(void)
  */
 void touch_off(void)
 {
-    int tpd = open("/proc/sprocomm_tpInfo", 526338);
-    write(tpd, "0", 1u);
-    close(tpd);
+    //return;
+    system("echo 0 > /sys/class/input/input3/enable");
     printf("[tp]off\n");
 }
 
@@ -312,9 +320,9 @@ void lcd_refresh(void)
  */
 void lcd_set_brightness_inner(int brightness)
 {
-    int buffer[8] = {0};
-    buffer[1]     = brightness;
-    ioctl(dispd, 0x102u, buffer);
+    char cmd[24] = {0};
+    snprintf(cmd, sizeof(cmd), "setbrightness %d", brightness);
+    system(cmd);
 }
 
 /**
@@ -332,11 +340,12 @@ void lcd_set_brightness(int brightness)
  */
 void key_read_power(void)
 {
-    char buffer[16] = {0};
-    while(read(powerd, buffer, 0x10u) > 0) {
-        if(buffer[10] != 0x74) return;
+    //return;
+    char buffer[24] = {0};
+    while(read(powerd, buffer, sizeof(buffer)) > 0) {
+        if(buffer[18] != 0x74) return;
 
-        if(buffer[12] == 0x00) {
+        if(buffer[20] == 0x00) {
             printf("[key]power_up\n");
             evdev_refresh_press_ts();
             if(ts_sleep == -1)
@@ -348,7 +357,7 @@ void key_read_power(void)
             else
                 sys_wake(); // 睡着的起来
 
-        } else if(buffer[12] == 0x01) {
+        } else if(buffer[20] == 0x01) {
             printf("[key]power_down\n");
             evdev_refresh_press_ts();
             if(ts_sleep == -1)
@@ -362,11 +371,12 @@ void key_read_power(void)
  */
 void key_read_home(void)
 {
-    char buffer[16] = {0};
-    while(read(homed, buffer, 0x10u) > 0) {
-        if(buffer[10] != 0x73) return;
+    char buffer[24] = {0};
+    while(read(homed, buffer, sizeof(buffer)) > 0) {
+        
+        if(buffer[18] != 0x73) return;
 
-        if(buffer[12] == 0x00) {
+        if(buffer[20] == 0x00) {
             printf("[key]home_up\n");
             evdev_refresh_press_ts();
             if(ts_sleep == -1)
@@ -384,7 +394,7 @@ void key_read_home(void)
                 else
                     sys_wake(); // 睡着的起来
             }
-        } else if(buffer[12] == 0x01) {
+        } else if(buffer[20] == 0x01) {
             printf("[key]home_down\n");
             evdev_refresh_press_ts();
             if(ts_sleep == -1)
@@ -406,6 +416,7 @@ void sys_wake(void)
         lcd_on();
         lcd_set_brightness_inner(lcd_brightness);
         evdev_refresh_press_ts();
+        system("echo interactive > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
     }
 }
 
@@ -419,6 +430,7 @@ void sys_sleep(void)
         ts_sleep = tick_get();
         touch_off();
         lcd_off();
+        if(!dont_deep_sleep_enabled) system("echo powersave > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
     }
 }
 
@@ -428,9 +440,9 @@ void sys_sleep(void)
 void sys_deep_sleep(void)
 {
     printf("[sys]deep sleep\n");
-    char buffer[16] = {0};
-    while(read(powerd, buffer, 0x10u) > 0); // 清空电源键的缓冲区
-    while(read(homed, buffer, 0x10u) > 0);  // 清空HOME键的缓冲区
+    char buffer[24] = {0};
+    while(read(powerd, buffer, sizeof(buffer)) > 0); // 清空电源键的缓冲区
+    while(read(homed, buffer, sizeof(buffer)) > 0);  // 清空HOME键的缓冲区
 
     // 睡死过去，相当省电
     system("echo \"0\" >/sys/class/rtc/rtc0/wakealarm");
@@ -440,7 +452,7 @@ void sys_deep_sleep(void)
     // 按电源键会醒过来，继续执行下面的代码
 
     sys_wake(); // 那睡觉的起来了嗷（改到这里是为了防止其他醒来的情况，比如插拔usb）
-    while(read(powerd, buffer, 0x10u) > 0); // 再次清空电源键的缓冲区，因为开机按的电源键也算数
+    while(read(powerd, buffer, sizeof(buffer)) > 0); // 再次清空电源键的缓冲区，因为开机按的电源键也算数
 }
 
 /**

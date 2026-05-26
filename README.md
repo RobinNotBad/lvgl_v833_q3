@@ -1,6 +1,6 @@
 ## Dendro
 这是一个简易的，为奇葩 Linux 嵌入式设备提供多媒体支持的 LVGL 程序。  
-* 本分支是针对另一款设备适配的，使用gnu-libc
+* 本分支是针对另一款设备适配的，使用aarch64 gnu-libc
 
 实现了以下功能：
 * 模仿安卓，自制支持各类回调和按键事件的页面管理器
@@ -10,18 +10,18 @@
 * 小游戏 Flappy Bird
 
 ## 运行平台
-**???，??? Linux，gnu-libc**
+**全志R818，Tina Linux，gnu-libc**
 
 ## 怎么编译源代码
 * 建议使用**linux系统**
 * 拉取源代码  
 * 找一个适合设备系统的交叉编译器  
-> 例如 ???-gcc  
+> 例如 aarch64-openwrt-linux-gcc  
 * 将项目文件中 build.sh 中的文件路径改为你的编译器路径  
 * 运行 ./build.sh 等待编译完成，输出的可执行文件为 dendro_run  
 * res 文件夹里存放了程序所需要的字体和图片资源等  
 
-需要注意：lib 文件夹里的 .so 库文件大多由未改动的源码预编译而来，少量是从系统中直接拿取，目标系统为armv7 musleabi hf。  
+需要注意：lib 文件夹里的 .so 库文件大多由未改动的源码预编译而来，少量是从系统中直接拿取，目标系统为aarch64 gnueabi hf。  
 你可以用自己的编译器重新编译这些库，从而适配不同的系统环境。  
 ffmpeg 需要链接 libz 以实现 png 解码支持。  
 对于 liblvgl ，请编译： https://github.com/RobinNotBad/lv_shared_linux 并将 liblvgl.so 放在 lib 文件夹里（已提前预编译了一个）  

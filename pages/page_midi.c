@@ -45,7 +45,7 @@ static lv_obj_t * page_midi_obj(MidiPage * page, char * filename)
     page->cycle = false;
     audio_enable();
 
-    midi_player_t * player = midi_create("/mnt/app/dendro/midi/timidity.cfg"); // /mnt/app/factory/play_test.wav
+    midi_player_t * player = midi_create("/mnt/UDISK/dendro/midi/timidity.cfg"); // /mnt/app/factory/play_test.wav
     if(midi_open(player, filename) == 0 && midi_init(player) == 0) {
         midi_resume(player);
         midi_set_finish_callback(player, player_finished, page);

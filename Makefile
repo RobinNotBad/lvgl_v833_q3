@@ -5,7 +5,7 @@ LVGL_DIR_NAME ?= lvgl
 LVGL_DIR ?= ${shell pwd}
 CFLAGS ?= -O3 -g0 -I$(LVGL_DIR) -I$(LVGL_DIR)/include -Wall -Wshadow -Wundef -Wmissing-prototypes -Wno-discarded-qualifiers -Wextra -Wno-unused-function -Wno-error=strict-prototypes -Wpointer-arith -fno-strict-aliasing -Wno-error=cpp -Wuninitialized -Wmaybe-uninitialized -Wno-unused-parameter -Wno-missing-field-initializers -Wtype-limits -Wsizeof-pointer-memaccess -Wno-format-nonliteral -Wno-cast-qual -Wunreachable-code -Wno-switch-default -Wreturn-type -Wmultichar -Wformat-security -Wno-ignored-qualifiers -Wno-error=pedantic -Wno-sign-compare -Wno-error=missing-prototypes -Wdouble-promotion -Wclobbered -Wdeprecated -Wempty-body -Wshift-negative-value -Wstack-usage=2048 -Wno-unused-value -fdiagnostics-color=always
 
-LDFLAGS ?= -L$(LVGL_DIR)/lib -Wl,-rpath,'/mnt/UDISK/lib:/mnt/app/lib:/mnt/app/dendro/lib' -Wl,--disable-new-dtags -lm -lpthread -llvgl -lavcodec -lavdevice -lavfilter -lavformat -lavutil -lpostproc -lswresample -lswscale -lz -lasound -lfreetype -ltimidity #-lcurl -lssl -lcrypto
+LDFLAGS ?= -L$(LVGL_DIR)/lib -Wl,-rpath,'/mnt/UDISK/lib:/mnt/app/lib:/mnt/app/dendro/lib' -L$(HOME)/toolchain-glibc/lib -Wl,-rpath-link=$(HOME)/toolchain-glibc/lib -Wl,--disable-new-dtags -lm -lpthread -llvgl -lavcodec -lavdevice -lavfilter -lavformat -lavutil -lpostproc -lswresample -lswscale -lz -lasound -lfreetype -ltimidity #-lcurl -lssl -lcrypto
 
 BIN = dendro_run
 
