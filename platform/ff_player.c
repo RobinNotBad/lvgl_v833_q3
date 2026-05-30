@@ -9,13 +9,15 @@
 
 #define BUFFER_SIZE 4096
 #define CHANNELS 1
+#define SAMPLE_RATE 44100
+#define PERIOD_SIZE 1024
 
 static void * player_thread_func(void * arg);
 static bool ffmpeg_pix_fmt_has_alpha(enum AVPixelFormat pix_fmt);
 static bool ffmpeg_pix_fmt_is_yuv(enum AVPixelFormat pix_fmt);
 static int ffmpeg_image_allocate(ff_player_t * player);
 
-ff_player_t * player_create()
+ff_player_t * player_create(void)
 {
     ff_player_t * player = malloc(sizeof(ff_player_t));
     if(!player) return NULL;
@@ -134,7 +136,7 @@ int player_init_audio(ff_player_t * player)
     av_opt_set_int(player->swr_ctx, "in_channel_layout", av_get_default_channel_layout(player->audio_codec_ctx->channels), 0);
     av_opt_set_int(player->swr_ctx, "out_channel_layout", (CHANNELS == 1 ? AV_CH_FRONT_LEFT : AV_CH_LAYOUT_STEREO), 0);
     av_opt_set_int(player->swr_ctx, "in_sample_rate", player->audio_codec_ctx->sample_rate, 0);
-    av_opt_set_int(player->swr_ctx, "out_sample_rate", 44100, 0);
+    av_opt_set_int(player->swr_ctx, "out_sample_rate", SAMPLE_RATE, 0);
     av_opt_set_sample_fmt(player->swr_ctx, "in_sample_fmt", player->audio_codec_ctx->sample_fmt, 0);
     av_opt_set_sample_fmt(player->swr_ctx, "out_sample_fmt", AV_SAMPLE_FMT_S16, 0);
 
@@ -143,9 +145,6 @@ int player_init_audio(ff_player_t * player)
         ret = -1;
         goto cleanup;
     }
-
-    player->sample_rate = 44100;
-    player->channels    = CHANNELS;
 
     // 打开ALSA设备
     int err;
@@ -159,14 +158,15 @@ int player_init_audio(ff_player_t * player)
     snd_pcm_hw_params_t * hw_params;
     snd_pcm_hw_params_alloca(&hw_params);
 
+    unsigned int sample_rate = SAMPLE_RATE;
+    snd_pcm_uframes_t period_size = PERIOD_SIZE;
+
     snd_pcm_hw_params_any(player->pcm_handle, hw_params);
     snd_pcm_hw_params_set_access(player->pcm_handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED);
     snd_pcm_hw_params_set_format(player->pcm_handle, hw_params, SND_PCM_FORMAT_S16_LE);
-    snd_pcm_hw_params_set_channels(player->pcm_handle, hw_params, player->channels);
-    snd_pcm_hw_params_set_rate_near(player->pcm_handle, hw_params, &player->sample_rate, 0);
-
-    player->frames = 1024;
-    snd_pcm_hw_params_set_period_size_near(player->pcm_handle, hw_params, &player->frames, 0);
+    snd_pcm_hw_params_set_channels(player->pcm_handle, hw_params, CHANNELS);
+    snd_pcm_hw_params_set_rate_near(player->pcm_handle, hw_params, &sample_rate, 0);
+    snd_pcm_hw_params_set_period_size_near(player->pcm_handle, hw_params, &period_size, 0);
 
     if((err = snd_pcm_hw_params(player->pcm_handle, hw_params)) < 0) {
         fprintf(stderr, "[ff_player]无法设置硬件参数: %s\n", snd_strerror(err));
@@ -398,7 +398,7 @@ static void * player_thread_func(void * arg)
         goto cleanup;
     }
 
-    uint8_t * audio_buffer = malloc(BUFFER_SIZE * player->channels); // S16LE
+    uint8_t * audio_buffer = malloc(BUFFER_SIZE * CHANNELS * sizeof(int16_t)); // S16LE
     if(!audio_buffer) {
         fprintf(stderr, "[ff_player]无法分配音频缓冲区\n");
         goto cleanup;
@@ -472,10 +472,10 @@ static void * player_thread_func(void * arg)
                                               frame->nb_samples);
 
                 if(out_samples > 0) {
-                    int data_size = out_samples * player->channels; // S16LE
+                    int data_size = out_samples * CHANNELS; // S16LE
 
                     // 写入ALSA设备
-                    snd_pcm_sframes_t frames_written = snd_pcm_writei(player->pcm_handle, audio_buffer, out_samples);
+                    snd_pcm_sframes_t frames_written = snd_pcm_writei(player->pcm_handle, audio_buffer, data_size);
                     if(frames_written < 0) {
                         frames_written = snd_pcm_recover(player->pcm_handle, frames_written, 0);
                         if(frames_written < 0) {
@@ -642,7 +642,7 @@ int player_seek_pct(ff_player_t * player, double percent)
     int64_t target_pts = (int64_t)(player->duration * percent / 100.0);
     int64_t now_pts    = player->current_pts;
 
-    LV_LOG_USER("[ff_player]now=%lld, duration=%lld\n", now_pts, player->duration);
+    LV_LOG_USER("[ff_player]now=%lld, duration=%lld\n", (long long)now_pts, (long long)player->duration);
 
     if(!player || player->state == PLAYER_STOPPED) return -1;
     if(target_pts < 0) target_pts = 0;
@@ -665,7 +665,7 @@ int player_seek_ms(ff_player_t * player, int64_t target_ms)
         int64_t target_pts = target_ms * (AV_TIME_BASE / 1000);
         int64_t now_pts    = player->current_pts;
 
-        LV_LOG_USER("[ff_player]now=%lld, duration=%lld\n", now_pts, player->duration);
+        LV_LOG_USER("[ff_player]now=%lld, duration=%lld\n", (long long)now_pts, (long long)player->duration);
         if(!player || target_pts < 0 || target_pts > player->duration || player->state == PLAYER_STOPPED)
             return -1;
         player->seek_pos     = target_pts;
