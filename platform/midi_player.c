@@ -150,7 +150,7 @@ static void * midi_thread_func(void * arg)
 {
     midi_player_t * player = (midi_player_t *)arg;
 
-    sint8 * audio_buffer = malloc(BUFFER_SIZE * player->channels * 2); // S16LE
+    sint8 * audio_buffer = malloc(BUFFER_SIZE * player->channels * sizeof(int16_t)); // S16LE
     if(!audio_buffer) {
         fprintf(stderr, "[midi_player]无法分配音频缓冲区\n");
         goto cleanup;

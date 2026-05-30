@@ -37,9 +37,6 @@ typedef struct
 
     // ALSA 相关
     snd_pcm_t * pcm_handle;
-    snd_pcm_uframes_t frames;
-    unsigned int sample_rate;
-    int channels;
 
     // 显示相关
     uint8_t * video_src_data[4];    // 图像数据的指针
@@ -69,7 +66,7 @@ typedef struct
 } ff_player_t;
 
 // 函数声明
-ff_player_t * player_create();
+ff_player_t * player_create(void);
 int player_open(ff_player_t * player, const char * filename);
 int player_init_audio(ff_player_t * player);
 int player_init_video(ff_player_t * player, lv_obj_t * lv_obj);
