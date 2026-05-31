@@ -282,7 +282,8 @@ int player_init_video(ff_player_t * player, lv_obj_t * lv_obj)
 
     lv_img_set_src(player->video_area, &(player->img_dsc));
 
-    int swsFlags = SWS_BILINEAR;
+    //这个比BILINEAR快得多，会牺牲一些画质
+    int swsFlags = SWS_FAST_BILINEAR;
     if(ffmpeg_pix_fmt_is_yuv(player->video_codec_ctx->pix_fmt)) {
         if((width & 0x7) || (height & 0x7) || (target_width & 0x7) || (target_height & 0x7)) swsFlags |= SWS_ACCURATE_RND;
     }
