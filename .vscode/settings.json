@@ -2,5 +2,8 @@
     "C_Cpp.default.compilerPath": "",
     "files.associations": {
         "page_manager.h": "c"
+    },
+    "files.exclude": {
+        "**/*.o": true
     }
 }
