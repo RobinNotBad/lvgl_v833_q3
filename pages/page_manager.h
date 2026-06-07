@@ -20,7 +20,7 @@ extern "C" {
  *********************/
 #define MAX_PAGE_STACK 32 // 最大页面堆栈深度
 
-typedef enum { KEY_CODE_POWER, KEY_CODE_HOME, KEY_CODE_SCANNER } key_code_t;
+typedef enum { KEY_CODE_POWER, KEY_CODE_HOME, KEY_CODE_SCANNER_TXT, KEY_CODE_SCANNER_IMG } key_code_t;
 typedef enum { KEY_ACTION_DOWN, KEY_ACTION_UP } key_action_t;
 
 /**********************

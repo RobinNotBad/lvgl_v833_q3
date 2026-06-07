@@ -90,16 +90,14 @@ lv_obj_t * page_menu_obj(MenuPage * page)
     lv_obj_center(btn_label_ftp);
     lv_obj_add_event_cb(btn_ftp, btn_ftp_click, LV_EVENT_CLICKED, NULL);
 
-    if(access("/dev/by-name/sdcard", F_OK) == 0) {
-        lv_obj_t * btn_usb = lv_btn_create(container);
-        lv_obj_set_size(btn_usb, lv_pct(64), lv_pct(32));
-        lv_obj_align(btn_usb, LV_FLEX_ALIGN_CENTER, 0, 0);
-        lv_obj_t * btn_label_usb = lv_label_create(btn_usb);
-        lv_label_set_text(btn_label_usb, "USB");
-        lv_obj_center(btn_label_usb);
-        lv_obj_add_event_cb(btn_usb, btn_usb_click, LV_EVENT_CLICKED, NULL);
-    }
-
+    lv_obj_t * btn_usb = lv_btn_create(container);
+    lv_obj_set_size(btn_usb, lv_pct(64), lv_pct(32));
+    lv_obj_align(btn_usb, LV_FLEX_ALIGN_CENTER, 0, 0);
+    lv_obj_t * btn_label_usb = lv_label_create(btn_usb);
+    lv_label_set_text(btn_label_usb, "USB");
+    lv_obj_center(btn_label_usb);
+    lv_obj_add_event_cb(btn_usb, btn_usb_click, LV_EVENT_CLICKED, NULL);
+    
     lv_obj_t * btn_demo = lv_btn_create(container);
     lv_obj_set_size(btn_demo, lv_pct(64), lv_pct(32));
     lv_obj_align(btn_demo, LV_FLEX_ALIGN_CENTER, 0, 0);

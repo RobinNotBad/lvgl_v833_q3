@@ -2,11 +2,11 @@
 
 #include "main.h"
 
-#define SET_USB_MODE_SH "/mnt/app/robot/shell/set_usb_mode"
+#define SET_USB_MODE_SH "/bin/setusbconfig"
 
 static void back_click(lv_event_t * e);
 static void btn_adb_only_click(lv_event_t * e);
-static void btn_adb_ums_click(lv_event_t * e);
+static void btn_adb_mtp_click(lv_event_t * e);
 static void refresh_text(lv_obj_t * label);
 static bool is_vsftpd_running(void);
 
@@ -25,13 +25,13 @@ lv_obj_t * page_usb(void)
     lv_obj_center(btn_adb_only_label);
     lv_obj_add_event_cb(btn_adb_only, btn_adb_only_click, LV_EVENT_CLICKED, NULL);
 
-    lv_obj_t * btn_adb_ums = lv_btn_create(screen);
-    lv_obj_set_size(btn_adb_ums, lv_pct(60), lv_pct(25));
-    lv_obj_align(btn_adb_ums, LV_ALIGN_TOP_MID, 0, lv_pct(55));
-    lv_obj_t * btn_adb_ums_label = lv_label_create(btn_adb_ums);
-    lv_label_set_text(btn_adb_ums_label, "adb & ums");
-    lv_obj_center(btn_adb_ums_label);
-    lv_obj_add_event_cb(btn_adb_ums, btn_adb_ums_click, LV_EVENT_CLICKED, NULL);
+    lv_obj_t * btn_adb_mtp = lv_btn_create(screen);
+    lv_obj_set_size(btn_adb_mtp, lv_pct(60), lv_pct(25));
+    lv_obj_align(btn_adb_mtp, LV_ALIGN_TOP_MID, 0, lv_pct(55));
+    lv_obj_t * btn_adb_mtp_label = lv_label_create(btn_adb_mtp);
+    lv_label_set_text(btn_adb_mtp_label, "adb & mtp");
+    lv_obj_center(btn_adb_mtp_label);
+    lv_obj_add_event_cb(btn_adb_mtp, btn_adb_mtp_click, LV_EVENT_CLICKED, NULL);
     
     lv_obj_t * btn_back = lv_btn_create(screen);
     lv_obj_set_size(btn_back, lv_pct(25), lv_pct(12));
@@ -51,13 +51,10 @@ static void back_click(lv_event_t * e)
 
 static void btn_adb_only_click(lv_event_t * e)
 {
-    system("chmod 777 " SET_USB_MODE_SH);
-    system("sh " SET_USB_MODE_SH " mass_storage_off");
-    system("sh " SET_USB_MODE_SH " adb_on");
+    system(SET_USB_MODE_SH " adb");
 }
 
-static void btn_adb_ums_click(lv_event_t * e)
+static void btn_adb_mtp_click(lv_event_t * e)
 {
-    system("chmod 777 " SET_USB_MODE_SH);
-    system("sh " SET_USB_MODE_SH " adb,mass_storage");
+    system(SET_USB_MODE_SH " adb,mtp");
 }

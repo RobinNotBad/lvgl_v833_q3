@@ -36,6 +36,7 @@ int dispd;  // 背光
 int fbd;    // 帧缓冲设备
 int powerd; // 电源按钮
 int homed;  // 主页按钮
+int scannerd;  // 扫描开关
 
 uint32_t ts_sleep = -1;
 uint32_t ts_home_click = -1;
@@ -48,6 +49,7 @@ uint8_t dont_timeout_enabled = 0;
 
 void key_read_power(void);
 void key_read_home(void);
+void key_read_scanner(void);
 void lcd_init(void);
 void lcd_on(void);
 void lcd_off(void);
@@ -82,6 +84,8 @@ int main(int argc, char * argv[])
     fcntl(powerd, 4, 2048);
     homed = open("/dev/input/event0", O_RDWR);
     fcntl(homed, 4, 2048);
+    scannerd = open("/dev/input/event4", O_RDWR);
+    fcntl(scannerd, 4, 2048);
 
     bool isDaemonMode = true;
 
@@ -186,6 +190,7 @@ int main(int argc, char * argv[])
         key_read_home();
         if(ts_background == -1) {
             key_read_power();
+            key_read_scanner();
             if(ts_sleep == -1) {
                 // 亮
                 lv_timer_handler();
@@ -400,6 +405,18 @@ void key_read_home(void)
             if(ts_sleep == -1)
                 if(page_on_key(KEY_CODE_HOME, KEY_ACTION_DOWN)) continue;
         }
+    }
+}
+
+/**
+ * 读取扫描开关
+ */
+void key_read_scanner(void)
+{
+    return;
+    char buffer[24] = {0};
+    while(read(scannerd, buffer, sizeof(buffer)) > 0) {
+        
     }
 }
 
