@@ -160,7 +160,6 @@ int player_init_audio(ff_player_t * player)
 
     unsigned int sample_rate = SAMPLE_RATE;
     snd_pcm_uframes_t period_size = PERIOD_SIZE;
-    snd_pcm_uframes_t buffer_size = PERIOD_SIZE * 4;
 
     snd_pcm_hw_params_any(player->pcm_handle, hw_params);
     snd_pcm_hw_params_set_access(player->pcm_handle, hw_params, SND_PCM_ACCESS_RW_INTERLEAVED);
@@ -168,7 +167,6 @@ int player_init_audio(ff_player_t * player)
     snd_pcm_hw_params_set_channels(player->pcm_handle, hw_params, CHANNELS);
     snd_pcm_hw_params_set_rate_near(player->pcm_handle, hw_params, &sample_rate, 0);
     snd_pcm_hw_params_set_period_size_near(player->pcm_handle, hw_params, &period_size, 0);
-    snd_pcm_hw_params_set_buffer_size_near(player->pcm_handle, hw_params, &buffer_size);
 
     if((err = snd_pcm_hw_params(player->pcm_handle, hw_params)) < 0) {
         fprintf(stderr, "[ff_player]无法设置硬件参数: %s\n", snd_strerror(err));
@@ -440,7 +438,6 @@ static void * player_thread_func(void * arg)
             player->seek_pos = 0;
             player->seek_request = true;
             pthread_mutex_unlock(&player->mutex);
-            snd_pcm_wait(player->pcm_handle, 128);
             if(player->finish_callback_ptr) {
                 (*player->finish_callback_ptr)(player);
             }
@@ -471,13 +468,14 @@ static void * player_thread_func(void * arg)
 
                 // 重采样
                 uint8_t * out_data[1] = {audio_buffer};
-                int out_samples = swr_convert(player->swr_ctx, out_data, BUFFER_SIZE * sizeof(int16_t), 
-                                            (const uint8_t **)frame->data, frame->nb_samples);
+                int out_samples = swr_convert(player->swr_ctx, out_data, BUFFER_SIZE, (const uint8_t **)frame->data,
+                                              frame->nb_samples);
 
                 if(out_samples > 0) {
+                    int data_size = out_samples * CHANNELS; // S16LE
 
                     // 写入ALSA设备
-                    snd_pcm_sframes_t frames_written = snd_pcm_writei(player->pcm_handle, audio_buffer, out_samples);
+                    snd_pcm_sframes_t frames_written = snd_pcm_writei(player->pcm_handle, audio_buffer, data_size);
                     if(frames_written < 0) {
                         frames_written = snd_pcm_recover(player->pcm_handle, frames_written, 0);
                         if(frames_written < 0) {
