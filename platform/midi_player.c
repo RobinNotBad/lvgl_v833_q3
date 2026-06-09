@@ -13,8 +13,6 @@
 #define SAMPLE_RATE 44100
 #define CHUNK_SIZE 1024
 
-#define AV_TIME_BASE 114514
-
 static void * midi_thread_func(void * arg);
 
 midi_player_t * midi_create(const char * config_file)
@@ -185,7 +183,6 @@ static void * midi_thread_func(void * arg)
             player->seek_request = true;
             player->seek_pos     = 0;
             pthread_mutex_unlock(&player->mutex);
-            snd_pcm_wait(player->pcm_handle, 128);
             if(player->finish_callback_ptr) {
                 (*player->finish_callback_ptr)(player);
             }
