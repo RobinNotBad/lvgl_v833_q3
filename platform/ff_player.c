@@ -438,7 +438,6 @@ static void * player_thread_func(void * arg)
             player->seek_pos = 0;
             player->seek_request = true;
             pthread_mutex_unlock(&player->mutex);
-            snd_pcm_wait(player->pcm_handle, 128);
             if(player->finish_callback_ptr) {
                 (*player->finish_callback_ptr)(player);
             }
