@@ -406,6 +406,7 @@ void sys_wake(void)
         lcd_on();
         lcd_set_brightness_inner(lcd_brightness);
         evdev_refresh_press_ts();
+        system("echo interactive > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
     }
 }
 
@@ -419,6 +420,7 @@ void sys_sleep(void)
         ts_sleep = tick_get();
         touch_off();
         lcd_off();
+        if(!dont_deep_sleep_enabled) system("echo powersave > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
     }
 }
 
