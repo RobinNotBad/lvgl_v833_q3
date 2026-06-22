@@ -26,6 +26,8 @@ extern "C" {
 
 #define PATH_MAX_LENGTH 1024
 
+#define MAIN_CONFIG_FILE "/mnt/UDISK/lvgl/config.json"
+
 #define SCREEN_TIMEOUT_MS 30000
 #define SCREEN_BRIGHTNESS_DEFAULT 25
 
@@ -49,6 +51,7 @@ extern uint8_t dont_deep_sleep_enabled;
 extern uint8_t dont_timeout_enabled;
 
 void lcd_set_brightness(int brightness);
+uint32_t lcd_get_brightness(void);
 void sys_sleep(void);
 void sys_wake(void);
 void sys_deep_sleep(void);
@@ -62,6 +65,8 @@ uint32_t tick_get(void);
 uint64_t ms_get(void);
 
 lv_font_t * font_get(uint16_t weight, uint16_t font_style);
+lv_coord_t lv_obj_get_width_pct(lv_obj_t * obj, float pct);
+lv_coord_t lv_obj_get_height_pct(lv_obj_t * obj, float pct);
 
 /**********************
  *      MACROS

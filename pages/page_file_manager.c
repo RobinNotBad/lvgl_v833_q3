@@ -37,7 +37,7 @@ lv_obj_t * page_file_manager_obj(FileManagerPage * page)
 
     lv_obj_t * file_explorer = lv_100ask_file_explorer_create(screen);
     lv_obj_add_event_cb(file_explorer, explorer_event_handler, 
-							LV_EVENT_VALUE_CHANGED, NULL);
+							LV_EVENT_ALL, page);
     lv_100ask_file_explorer_open_dir(file_explorer, "//mnt");
     page->file_explorer = file_explorer;
 
@@ -57,14 +57,14 @@ static void explorer_event_handler(lv_event_t * e)
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t * obj       = lv_event_get_target(e);
 
-    if(code == LV_EVENT_VALUE_CHANGED) {
+    if(code == LV_EVENT_CLICKED) {
         char * cur_path = lv_100ask_file_explorer_get_cur_path(obj);
         char * sel_fn   = lv_100ask_file_explorer_get_sel_fn(obj);
         char file_name[LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN];
 
         lv_snprintf(file_name, sizeof(file_name), "%s%s", cur_path+1, sel_fn);
 
-        printf("%s\n", file_name);
+        printf("[file_manager] clicked %s\n", file_name);
 
         if(str_end_with(file_name, ".png", false) || str_end_with(file_name, ".jpg", false) ||
             str_end_with(file_name, ".jpeg", false) || str_end_with(file_name, ".bmp", false) ||
@@ -80,7 +80,7 @@ static void explorer_event_handler(lv_event_t * e)
                 page_open(page_audio_create(file_name));
             }
             
-        if(str_end_with(file_name, ".mp4", false)) {
+        if(str_end_with(file_name, ".mp4", false) || str_end_with(file_name, ".avi", false)) {
             page_open(page_video_create(file_name));
         }
 
@@ -89,9 +89,20 @@ static void explorer_event_handler(lv_event_t * e)
         }
 
         if(str_end_with(file_name, ".txt", false) || str_end_with(file_name, ".json", false) || 
-            str_end_with(file_name, ".conf", false) || str_end_with(file_name, ".log", false)) {
+            str_end_with(file_name, ".conf", false) || str_end_with(file_name, ".log", false) ||
+            str_end_with(file_name, ".cfg", false)) {
             page_open(page_txt_create(file_name));
-        }
+        }   
+    }
+
+    if(code == LV_EVENT_LONG_PRESSED) {
+        char * cur_path = lv_100ask_file_explorer_get_cur_path(obj);
+        char * sel_fn   = lv_100ask_file_explorer_get_sel_fn(obj);
+        char file_name[LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN];
+
+        lv_snprintf(file_name, sizeof(file_name), "%s%s", cur_path+1, sel_fn);
+
+        printf("[file_manager] long-pressed %s\n", file_name);
     }
 }
 

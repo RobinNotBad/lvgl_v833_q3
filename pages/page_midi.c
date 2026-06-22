@@ -1,4 +1,5 @@
 #include "page_midi.h"
+#include "main.h"
 
 typedef struct
 {

@@ -13,6 +13,7 @@
 #include <string.h>
 #include "platform/audio_ctrl.h"
 #include "platform/battery_manager.h"
+#include "platform/config_manager.h"
 
 // 请教DeepSeek实现了简易页面管理器，100ask那个实际上不太好用……
 #include "pages/page_manager.h"
@@ -61,7 +62,6 @@ static lv_style_t style_default;
 
 int main(int argc, char * argv[])
 {
-
     printf("ciallo lvgl\n");
 #if LV_USE_PERF_MONITOR
     printf("monitor on\n");
@@ -175,6 +175,18 @@ int main(int argc, char * argv[])
         lv_style_set_text_font(&style_default, ft_info.font);
         lv_obj_add_style(lv_scr_act(), &style_default, 0);
     }
+
+    // 配置文件
+    bool setup;
+    if(read_config_bool(MAIN_CONFIG_FILE, CFG_SETUP, false, &setup) == -1 || !setup) {
+        write_config_bool(MAIN_CONFIG_FILE, CFG_SETUP, true);
+    }
+    int volume;
+    read_config_int(MAIN_CONFIG_FILE, CFG_VOLUME, 0, &volume);
+    audio_volume_set(volume);
+    read_config_int(MAIN_CONFIG_FILE, CFG_BRIGHTNESS, SCREEN_BRIGHTNESS_DEFAULT, &lcd_brightness);
+    lcd_set_brightness_inner(lcd_brightness);
+    
 
     page_manager_init();
     page_open(page_home_create());
@@ -328,6 +340,14 @@ void lcd_set_brightness(int brightness)
 }
 
 /**
+ * 获取LCD背光亮度
+ */
+uint32_t lcd_get_brightness(void)
+{
+    return lcd_brightness;
+}
+
+/**
  * 读取电源按钮
  */
 void key_read_power(void)
@@ -406,7 +426,7 @@ void sys_wake(void)
         lcd_on();
         lcd_set_brightness_inner(lcd_brightness);
         evdev_refresh_press_ts();
-        system("echo interactive > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
+        //system("echo interactive > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
     }
 }
 
@@ -420,7 +440,7 @@ void sys_sleep(void)
         ts_sleep = tick_get();
         touch_off();
         lcd_off();
-        if(!dont_deep_sleep_enabled) system("echo powersave > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
+        //if(!dont_deep_sleep_enabled) system("echo powersave > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
     }
 }
 
@@ -555,4 +575,22 @@ lv_font_t * font_get(uint16_t weight, uint16_t font_style)
     }
 
     return NULL;
+}
+
+/**
+ * 更新布局并获取该控件的百分比宽度
+ */
+lv_coord_t lv_obj_get_width_pct(lv_obj_t * obj, float pct)
+{
+    lv_obj_update_layout(obj);
+    return (lv_coord_t)(lv_obj_get_width(obj) * pct / 100);
+}
+
+/**
+ * 更新布局并获取该控件的百分比高度
+ */
+lv_coord_t lv_obj_get_height_pct(lv_obj_t * obj, float pct)
+{
+    lv_obj_update_layout(obj);
+    return (lv_coord_t)(lv_obj_get_height(obj) * pct / 100);
 }

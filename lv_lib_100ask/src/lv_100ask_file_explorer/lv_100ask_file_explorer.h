@@ -63,6 +63,7 @@ typedef struct {
 #endif
     char * sel_fp;
     char   cur_path[LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN];
+    bool long_pressed;
 } lv_100ask_file_explorer_t;
 
 /***********************

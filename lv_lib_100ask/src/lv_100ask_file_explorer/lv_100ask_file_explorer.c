@@ -570,6 +570,10 @@ static void brower_file_event_handler(lv_event_t * e)
     lv_100ask_file_explorer_t * explorer = (lv_100ask_file_explorer_t *)obj;
 
     if(code == LV_EVENT_VALUE_CHANGED) {
+        if(explorer->long_pressed) {
+            explorer->long_pressed = false;
+            return;
+        }
         //struct stat stat_buf;
         char * file_name[LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN];
         char * str_fn = NULL;
@@ -600,16 +604,50 @@ static void brower_file_event_handler(lv_event_t * e)
         if(lv_fs_dir_open(&dir, file_name) == LV_FS_RES_OK) {
             lv_fs_dir_close(&dir);
             show_dir(obj, file_name);
+            lv_event_send(obj, LV_EVENT_VALUE_CHANGED, e->user_data);
         }
         else {
             if(strcmp(str_fn, "..") != 0) {
                 explorer->sel_fp = str_fn;
-                lv_event_send(obj, LV_EVENT_VALUE_CHANGED, NULL);
+                lv_event_send(obj, LV_EVENT_CLICKED, e->user_data);
             }
         }
     }
     else if(code == LV_EVENT_SIZE_CHANGED) {
         lv_table_set_col_width(explorer->file_list, 0, lv_obj_get_width(explorer->file_list));
+    }
+    else if(code == LV_EVENT_LONG_PRESSED) {
+        explorer->long_pressed = true;
+        //struct stat stat_buf;
+        char * file_name[LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN];
+        char * str_fn = NULL;
+        uint16_t row;
+        uint16_t col;
+
+        memset(file_name, 0, sizeof(file_name));
+        lv_table_get_selected_cell(explorer->file_list, &row, &col);
+        str_fn = lv_table_get_cell_value(explorer->file_list, row, col);
+
+        str_fn = str_fn+5;
+        if((strcmp(str_fn, ".") == 0))  return;
+        
+        if((strcmp(str_fn, "..") == 0) && (strlen(explorer->cur_path) > 3))
+        {
+            strip_ext(explorer->cur_path);
+            strip_ext(explorer->cur_path); // 去掉最后的 '/' 路径
+            lv_snprintf(file_name, sizeof(file_name), "%s", explorer->cur_path);
+        }
+        else
+        {
+            if(strcmp(str_fn, "..") != 0){
+                lv_snprintf(file_name, sizeof(file_name), "%s%s", explorer->cur_path, str_fn);
+            }
+        }
+
+        if(strcmp(str_fn, "..") != 0) {
+            explorer->sel_fp = str_fn;
+            lv_event_send(obj, LV_EVENT_LONG_PRESSED, e->user_data);
+        }
     }
 }
 
@@ -637,29 +675,29 @@ static void show_dir(lv_obj_t * obj, char * path)
     while(1) {
         res = lv_fs_dir_read(&dir, fn);
         if(res != LV_FS_RES_OK) {
-            LV_LOG_USER("Driver, file or directory is not exists %d!", res);
+            LV_LOG_USER("Driver, file or directory does not exist: %d", res);
             break;
         }
 
         /*fn is empty, if not more files to read*/
         if(strlen(fn) == 0) {
-            LV_LOG_USER("No more files to read!");
+            //LV_LOG_USER("No more files to read!");
             break;
         }
 
         // 识别并展示文件
-        if(str_end_with(fn, ".png", false) || str_end_with(fn, ".jpg", false) ||
-           str_end_with(fn, ".jpeg", false) || str_end_with(fn, ".bmp", false) ||
-           str_end_with(fn, ".gif", false)) {
+        if(is_end_with(fn, ".png", false) || is_end_with(fn, ".jpg", false) ||
+           is_end_with(fn, ".jpeg", false) || is_end_with(fn, ".bmp", false) ||
+           is_end_with(fn, ".gif", false)) {
             lv_table_set_cell_value_fmt(explorer->file_list, index, 0, LV_SYMBOL_IMAGE "  %s", fn);
             lv_table_set_cell_value(explorer->file_list, index, 1, "1");
-        } else if(str_end_with(fn, ".mp3", false) || str_end_with(fn, ".wav", false) ||
-                  str_end_with(fn, ".ogg", false) || str_end_with(fn, ".m4a", false) ||
-                  str_end_with(fn, ".aac", false) || str_end_with(fn, ".pcm", false) ||
-                  str_end_with(fn, ".mid", false) || str_end_with(fn, ".midi", false)) {
+        } else if(is_end_with(fn, ".mp3", false) || is_end_with(fn, ".wav", false) ||
+                  is_end_with(fn, ".ogg", false) || is_end_with(fn, ".m4a", false) ||
+                  is_end_with(fn, ".aac", false) || is_end_with(fn, ".pcm", false) ||
+                  is_end_with(fn, ".mid", false) || is_end_with(fn, ".midi", false)) {
             lv_table_set_cell_value_fmt(explorer->file_list, index, 0, LV_SYMBOL_AUDIO "  %s", fn);
             lv_table_set_cell_value(explorer->file_list, index, 1, "2");
-        } else if(is_end_with(fn, ".mp4", false)) {
+        } else if(is_end_with(fn, ".mp4", false) || is_end_with(fn, ".avi", false)) {
             lv_table_set_cell_value_fmt(explorer->file_list, index, 0, LV_SYMBOL_VIDEO "  %s", fn);
             lv_table_set_cell_value(explorer->file_list, index, 1, "3");
         } else if(is_end_with(fn, ".", false) || is_end_with(fn, "..", false)) {
