@@ -122,7 +122,6 @@ int main(int argc, char * argv[])
     lcd_init();
     lcd_off();
     lcd_on();
-    lcd_set_brightness(SCREEN_BRIGHTNESS_DEFAULT);
     touch_on();
 
     lv_init();
@@ -153,38 +152,33 @@ int main(int argc, char * argv[])
 
     audio_init();
 
-    
 
     lv_freetype_init(128, 4, 0);
 
-    lv_ft_info_t ft_info;
-    ft_info.name   = "./res/font.ttf";
-    ft_info.weight = 16;
-    ft_info.style  = FT_FONT_STYLE_NORMAL;
-    ft_info.mem    = NULL;
+    lv_font_t * font = font_get(16, FT_FONT_STYLE_NORMAL);
 
-    if(lv_ft_font_init(&ft_info)) {
+    if(font) {
         lv_theme_t * theme =
-            lv_theme_default_init(disp, lv_color_hex(THEME_COLOR), lv_color_hex(THEME_COLOR), true, ft_info.font);
-        theme->font_normal = ft_info.font;
-        theme->font_large  = ft_info.font;
-        theme->font_small  = ft_info.font; // 为啥子设置不上？
+            lv_theme_default_init(disp, lv_color_hex(THEME_COLOR), lv_color_hex(THEME_COLOR), true, font);
+        theme->font_normal = font;
+        theme->font_large  = font;
+        theme->font_small  = font; // 为啥子设置不上？
         lv_disp_set_theme(disp, theme);
 
         lv_style_init(&style_default);
-        lv_style_set_text_font(&style_default, ft_info.font);
+        lv_style_set_text_font(&style_default, font);
         lv_obj_add_style(lv_scr_act(), &style_default, 0);
     }
 
     // 配置文件
     bool setup;
-    if(read_config_bool(MAIN_CONFIG_FILE, CFG_SETUP, false, &setup) == -1 || !setup) {
-        write_config_bool(MAIN_CONFIG_FILE, CFG_SETUP, true);
+    if(config_read_bool(MAIN_CONFIG_FILE, CFG_SETUP, false, &setup) == -1 || !setup) {
+        config_write_bool(MAIN_CONFIG_FILE, CFG_SETUP, true);
     }
     int volume;
-    read_config_int(MAIN_CONFIG_FILE, CFG_VOLUME, 0, &volume);
+    config_read_int(MAIN_CONFIG_FILE, CFG_VOLUME, 0, &volume);
     audio_volume_set(volume);
-    read_config_int(MAIN_CONFIG_FILE, CFG_BRIGHTNESS, SCREEN_BRIGHTNESS_DEFAULT, &lcd_brightness);
+    config_read_int(MAIN_CONFIG_FILE, CFG_BRIGHTNESS, SCREEN_BRIGHTNESS_DEFAULT, &lcd_brightness);
     lcd_set_brightness_inner(lcd_brightness);
     
 

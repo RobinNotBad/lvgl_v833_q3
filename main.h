@@ -18,20 +18,18 @@ extern "C" {
 /*********************
  *      DEFINES
  *********************/
-
-/**********************
- *      TYPEDEFS
- **********************/
 #define DISP_BUF_SIZE (LV_SCR_WIDTH * LV_SCR_HEIGHT)
 
 #define PATH_MAX_LENGTH 1024
-
-#define MAIN_CONFIG_FILE "/mnt/UDISK/lvgl/config.json"
 
 #define SCREEN_TIMEOUT_MS 30000
 #define SCREEN_BRIGHTNESS_DEFAULT 25
 
 #define THEME_COLOR 0xff78c05d
+
+/**********************
+ *      TYPEDEFS
+ **********************/
 
 /**********************
  * GLOBAL PROTOTYPES

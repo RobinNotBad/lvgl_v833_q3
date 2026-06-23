@@ -83,7 +83,7 @@ static void slider_brightness_set(lv_event_t * e)
 {
     lv_obj_t * slider = lv_event_get_target(e);
     int value = lv_slider_get_value(slider);
-    write_config_int(MAIN_CONFIG_FILE, CFG_BRIGHTNESS, value);
+    config_write_int(MAIN_CONFIG_FILE, CFG_BRIGHTNESS, value);
 }
 
 static void slider_volume_changed(lv_event_t * e)
@@ -97,7 +97,7 @@ static void slider_volume_set(lv_event_t * e)
 {
     lv_obj_t * slider = lv_event_get_target(e);
     int value = lv_slider_get_value(slider);
-    write_config_int(MAIN_CONFIG_FILE, CFG_VOLUME, value);
+    config_write_int(MAIN_CONFIG_FILE, CFG_VOLUME, value);
 }
 
 static void btn_back_click(lv_event_t * e)

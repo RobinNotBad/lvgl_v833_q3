@@ -72,7 +72,7 @@ static cJSON* load_json_root(const char* file_path) {
 }
 
 /* 读取通用函数：读取指定类型的值 */
-static int read_config_generic(const char* file_path, const char* json_path,
+static int config_read_generic(const char* file_path, const char* json_path,
                                void* out_value, int expected_type) {
     if (!file_path || !json_path || !out_value) return -1;
 
@@ -116,7 +116,7 @@ static int read_config_generic(const char* file_path, const char* json_path,
 }
 
 /* 写入通用函数：设置指定路径的值，并写回文件 */
-static int write_config_generic(const char* file_path, const char* json_path,
+static int config_write_generic(const char* file_path, const char* json_path,
                                 cJSON* value) {
     if (!file_path || !json_path || !value) return -1;
 
@@ -136,75 +136,75 @@ static int write_config_generic(const char* file_path, const char* json_path,
 
 /* ---------- 公开函数实现 ---------- */
 
-int read_config_int(const char* file_path, const char* json_path, int def, int* out_value) {
+int config_read_int(const char* file_path, const char* json_path, int def_value, int* out_value) {
     double d;
-    int ret = read_config_generic(file_path, json_path, &d, cJSON_Number);
+    int ret = config_read_generic(file_path, json_path, &d, cJSON_Number);
     if (ret == 0) {
         *out_value = (int)d; // 若实际为浮点则截断，但类型不匹配会返回-1
     }
     else {
-        *out_value = def;
+        *out_value = def_value;
     }
     return ret;
 }
 
-int read_config_double(const char* file_path, const char* json_path, double def, double* out_value) {
+int config_read_double(const char* file_path, const char* json_path, double def_value, double* out_value) {
     double d;
-    int ret = read_config_generic(file_path, json_path, &d, cJSON_Number);
+    int ret = config_read_generic(file_path, json_path, &d, cJSON_Number);
     if (ret == 0) {
         *out_value = d;
     }
-    else *out_value = def;
+    else *out_value = def_value;
     return ret;
 }
 
-int read_config_string(const char* file_path, const char* json_path, char* def, char** out_value) {
+int config_read_string(const char* file_path, const char* json_path, char* def_value, char** out_value) {
     char* str;
-    int ret = read_config_generic(file_path, json_path, &str, cJSON_String);
+    int ret = config_read_generic(file_path, json_path, &str, cJSON_String);
     if (ret == 0) {
         *out_value = str;
     }
-    else *out_value = def;
+    else *out_value = def_value;
     return ret;
 }
 
-int read_config_bool(const char* file_path, const char* json_path, bool def, bool* out_value) {
+int config_read_bool(const char* file_path, const char* json_path, bool def_value, bool* out_value) {
     // 布尔类型使用 cJSON_True 或 cJSON_False
-    int ret = read_config_generic(file_path, json_path, out_value, cJSON_True);
+    int ret = config_read_generic(file_path, json_path, out_value, cJSON_True);
     if (ret != 0) {
         // 尝试读取为 False 类型
-        ret = read_config_generic(file_path, json_path, out_value, cJSON_False);
+        ret = config_read_generic(file_path, json_path, out_value, cJSON_False);
         if(ret != 0){
-            *out_value = def;
+            *out_value = def_value;
         }
     }
     return ret;
 }
 
-int write_config_int(const char* file_path, const char* json_path, int value) {
+int config_write_int(const char* file_path, const char* json_path, int value) {
     printf("[config_manager] write int: %s=%d\n", json_path, value);
     cJSON* val = cJSON_CreateNumber(value);
     if (!val) return -1;
-    return write_config_generic(file_path, json_path, val);
+    return config_write_generic(file_path, json_path, val);
 }
 
-int write_config_double(const char* file_path, const char* json_path, double value) {
+int config_write_double(const char* file_path, const char* json_path, double value) {
     printf("[config_manager] write double: %s=%.7f\n", json_path, value);
     cJSON* val = cJSON_CreateNumber(value);
     if (!val) return -1;
-    return write_config_generic(file_path, json_path, val);
+    return config_write_generic(file_path, json_path, val);
 }
 
-int write_config_string(const char* file_path, const char* json_path, const char* value) {
+int config_write_string(const char* file_path, const char* json_path, const char* value) {
     printf("[config_manager] write string: %s=%s\n", json_path, value);
     cJSON* val = cJSON_CreateString(value);
     if (!val) return -1;
-    return write_config_generic(file_path, json_path, val);
+    return config_write_generic(file_path, json_path, val);
 }
 
-int write_config_bool(const char* file_path, const char* json_path, bool value) {
+int config_write_bool(const char* file_path, const char* json_path, bool value) {
     printf("[config_manager] write int: %s=%d\n", json_path, value);
     cJSON* val = cJSON_CreateBool(value);
     if (!val) return -1;
-    return write_config_generic(file_path, json_path, val);
+    return config_write_generic(file_path, json_path, val);
 }
