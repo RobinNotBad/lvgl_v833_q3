@@ -207,6 +207,12 @@ static void explorer_event_handler(lv_event_t * e)
 static void act_cut_click(lv_event_t * e)
 {
     FileManagerPage * page = (FileManagerPage *)e->user_data;
+
+    if(!is_directory_safe(page->file_current)) {
+        custom_toast_create("Operation Not Allowed!");
+        return;
+    }
+
     strcpy(page->file_clipboard, page->file_current);
     page->file_operation = FILE_OPERATION_CUT;
     lv_obj_add_flag(page->container_act, LV_OBJ_FLAG_HIDDEN);
@@ -225,13 +231,12 @@ static void act_copy_click(lv_event_t * e)
 static void act_paste_click(lv_event_t * e)
 {
     FileManagerPage * page = (FileManagerPage *)e->user_data;
-    
 
     if(!is_directory(page->file_current)) {
         custom_toast_create("Please Select a Directory to Paste.");
         return;
     }
-    
+
     if(!is_directory_safe(page->file_current)) {
         custom_toast_create("Operation Not Allowed!");
         return;
@@ -284,10 +289,7 @@ static void act_msgbox_delete(lv_event_t * e)
         char * file_name = &page->file_current[0];
         int cmd_length   = 10 + strlen(file_name);
         char * cmd       = malloc(cmd_length);
-        if(cmd == NULL) {
-            perror("malloc");
-            exit(EXIT_FAILURE);
-        }
+        if(cmd == NULL) { perror("malloc"); exit(EXIT_FAILURE); }
         lv_snprintf(cmd, cmd_length, "rm -rf \"%s\"", file_name);
 
         printf("[file_manager] %s\n", cmd);
@@ -319,19 +321,13 @@ static void act_msgbox_paste(lv_event_t * e)
             case FILE_OPERATION_CUT:
                 cmd_length = 12 + strlen(file_clipboard) + strlen(file_current);
                 cmd        = malloc(cmd_length);
-                if(cmd == NULL) {
-                    perror("malloc");
-                    exit(EXIT_FAILURE);
-                }
+                if(cmd == NULL) { perror("malloc"); exit(EXIT_FAILURE); }
                 lv_snprintf(cmd, cmd_length, "mv -f \"%s\" \"%s\"", file_clipboard, file_current);
                 break;
             case FILE_OPERATION_COPY:
                 cmd_length = 15 + strlen(file_clipboard) + strlen(file_current);
                 cmd        = malloc(cmd_length);
-                if(cmd == NULL) {
-                    perror("malloc");
-                    exit(EXIT_FAILURE);
-                }
+                if(cmd == NULL) { perror("malloc"); exit(EXIT_FAILURE); }
                 lv_snprintf(cmd, cmd_length, "cp -r -f \"%s\" \"%s\"", file_clipboard, file_current);
                 break;
             default: custom_toast_create("Unknown Operation!"); return;
