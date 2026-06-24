@@ -266,6 +266,18 @@ void lv_100ask_file_explorer_open_dir(lv_obj_t * obj, char * dir)
     show_dir(obj, dir);
 }
 
+void lv_100ask_file_explorer_refresh(lv_obj_t * obj) 
+{
+    lv_100ask_file_explorer_t * explorer = (lv_100ask_file_explorer_t *)obj;
+    // 获取的指针直接传进去会出问题，所以要临时拷贝一下
+    char * cur_path = lv_100ask_file_explorer_get_cur_path(explorer);
+    char * path     = strdup(cur_path);
+    if(path == NULL) return;
+    path[strlen(path) - 1] = '\0'; // 最后的"/"符号要去掉
+    lv_100ask_file_explorer_open_dir(explorer, path);
+    free(path);
+}
+
 /**********************
  *   STATIC FUNCTIONS
  **********************/

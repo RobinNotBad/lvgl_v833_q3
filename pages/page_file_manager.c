@@ -1,5 +1,8 @@
 #include "page_file_manager.h"
 
+#include <stdio.h>
+#include <sys/stat.h>
+#include <stdbool.h>
 #include "page_apple.h"
 #include "page_audio.h"
 #include "page_midi.h"
@@ -8,12 +11,17 @@
 #include "platform/str_utils.h"
 #include "views/custom_msgbox.h"
 
+typedef enum { FILE_OPERATION_NONE = 0, FILE_OPERATION_CUT, FILE_OPERATION_COPY } file_operation_t;
+
 typedef struct
 {
     BasePage base;
     lv_obj_t * file_explorer;
     lv_obj_t * container_act;
-    lv_obj_t * label_filename;
+    lv_obj_t * label_file_name;
+    char file_current[LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN];
+    char file_clipboard[LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN];
+    file_operation_t file_operation;
 } FileManagerPage;
 
 static const char * btn_txts[] = {"YES", "NO", NULL};
@@ -22,9 +30,42 @@ static lv_obj_t * page_file_manager_obj(FileManagerPage * page);
 static void explorer_event_handler(lv_event_t * e);
 static void back_click(lv_event_t * e);
 static void container_act_click(lv_event_t * e);
+static void act_cut_click(lv_event_t * e);
+static void act_copy_click(lv_event_t * e);
+static void act_paste_click(lv_event_t * e);
 static void act_delete_click(lv_event_t * e);
 static void act_msgbox_delete(lv_event_t * e);
+static void act_msgbox_paste(lv_event_t * e);
 static bool page_file_manager_on_key(void * p, key_code_t key_code, key_action_t key_action);
+
+static bool is_file_safe(char * file_name)
+{
+    return (str_begin_with(file_name, "/mnt/UDISK/", true) || str_begin_with(file_name, "/mnt/app/dendro/", true)
+            || str_begin_with(file_name, "/mnt/sdcard/", true)) &&
+            (!str_begin_with(file_name, "/mnt/UDISK/lvgl", true) && !str_begin_with(file_name, "/mnt/UDISK/lib", true));
+}
+
+static bool is_directory_safe(char * file_name)
+{
+    return (str_begin_with(file_name, "/mnt/UDISK", true) || str_begin_with(file_name, "/mnt/app/dendro", true)
+            || str_begin_with(file_name, "/mnt/sdcard", true)) &&
+            (!str_begin_with(file_name, "/mnt/UDISK/lvgl", true) && !str_begin_with(file_name, "/mnt/UDISK/lib", true));
+}
+
+static bool is_directory(char * file_name)
+{
+    struct stat s_buf;
+
+    if(stat(file_name, &s_buf) == 0) {
+        if(S_ISDIR(s_buf.st_mode)) {
+            return true;
+        }
+    } else {
+        perror("is_directory");
+        return false;
+    }
+    return false;
+}
 
 BasePage * page_file_manager_create(void)
 {
@@ -74,10 +115,31 @@ lv_obj_t * page_file_manager_obj(FileManagerPage * page)
     lv_obj_set_flex_flow(list_act, LV_FLEX_FLOW_COLUMN);
     lv_obj_set_scroll_dir(list_act, LV_DIR_VER);
 
-    lv_obj_t * label_filename = lv_label_create(list_act);
-    lv_label_set_long_mode(label_filename, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_width(label_filename, lv_pct(100));
-    page->label_filename = label_filename;
+    lv_obj_t * label_file_name = lv_label_create(list_act);
+    lv_label_set_long_mode(label_file_name, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_obj_set_width(label_file_name, lv_pct(100));
+    page->label_file_name = label_file_name;
+
+    lv_obj_t * btn_cut = lv_btn_create(list_act);
+    lv_obj_set_size(btn_cut, lv_pct(100), lv_pct(22));
+    lv_obj_t * btn_label_cut = lv_label_create(btn_cut);
+    lv_label_set_text(btn_label_cut, "Cut");
+    lv_obj_center(btn_label_cut);
+    lv_obj_add_event_cb(btn_cut, act_cut_click, LV_EVENT_CLICKED, page);
+
+    lv_obj_t * btn_copy = lv_btn_create(list_act);
+    lv_obj_set_size(btn_copy, lv_pct(100), lv_pct(22));
+    lv_obj_t * btn_label_copy = lv_label_create(btn_copy);
+    lv_label_set_text(btn_label_copy, "Copy");
+    lv_obj_center(btn_label_copy);
+    lv_obj_add_event_cb(btn_copy, act_copy_click, LV_EVENT_CLICKED, page);
+
+    lv_obj_t * btn_paste = lv_btn_create(list_act);
+    lv_obj_set_size(btn_paste, lv_pct(100), lv_pct(22));
+    lv_obj_t * btn_label_paste = lv_label_create(btn_paste);
+    lv_label_set_text(btn_label_paste, "Paste");
+    lv_obj_center(btn_label_paste);
+    lv_obj_add_event_cb(btn_paste, act_paste_click, LV_EVENT_CLICKED, page);
 
     lv_obj_t * btn_delete = lv_btn_create(list_act);
     lv_obj_set_size(btn_delete, lv_pct(100), lv_pct(22));
@@ -95,11 +157,13 @@ static void explorer_event_handler(lv_event_t * e)
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t * obj       = lv_event_get_target(e);
     FileManagerPage * page = (FileManagerPage *)e->user_data;
-    char file_name[LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN];
 
+    // file_explorer获取的路径形如 "//mnt/UDISK/lvgl/"
+    // 将其指针向前移动一位，路径变为 "/mnt/UDISK/lvgl/"
     char * cur_path = lv_100ask_file_explorer_get_cur_path(obj) + 1;
     char * sel_fn   = lv_100ask_file_explorer_get_sel_fn(obj);
-    lv_snprintf(file_name, sizeof(file_name), "%s%s", cur_path, sel_fn);
+    char * file_name = &page->file_current[0];
+    lv_snprintf(file_name, sizeof(page->file_current), "%s%s", cur_path, sel_fn);
 
     if(code == LV_EVENT_CLICKED) {
         printf("[file_manager] clicked %s\n", file_name);
@@ -135,14 +199,74 @@ static void explorer_event_handler(lv_event_t * e)
 
     if(code == LV_EVENT_LONG_PRESSED) {
         printf("[file_manager] long-pressed %s\n", file_name);
-        lv_label_set_text(page->label_filename, sel_fn);
+        lv_label_set_text(page->label_file_name, sel_fn);
         lv_obj_clear_flag(page->container_act, LV_OBJ_FLAG_HIDDEN);
     }
+}
+
+static void act_cut_click(lv_event_t * e)
+{
+    FileManagerPage * page = (FileManagerPage *)e->user_data;
+    strcpy(page->file_clipboard, page->file_current);
+    page->file_operation = FILE_OPERATION_CUT;
+    lv_obj_add_flag(page->container_act, LV_OBJ_FLAG_HIDDEN);
+    custom_toast_create("CUT");
+}
+
+static void act_copy_click(lv_event_t * e)
+{
+    FileManagerPage * page = (FileManagerPage *)e->user_data;
+    strcpy(page->file_clipboard, page->file_current);
+    page->file_operation = FILE_OPERATION_COPY;
+    lv_obj_add_flag(page->container_act, LV_OBJ_FLAG_HIDDEN);
+    custom_toast_create("COPY");
+}
+
+static void act_paste_click(lv_event_t * e)
+{
+    FileManagerPage * page = (FileManagerPage *)e->user_data;
+    
+
+    if(!is_directory(page->file_current)) {
+        custom_toast_create("Please Select a Directory to Paste.");
+        return;
+    }
+    
+    if(!is_directory_safe(page->file_current)) {
+        custom_toast_create("Operation Not Allowed!");
+        return;
+    }
+
+    lv_obj_t * mbox = NULL;
+    switch (page->file_operation)
+    {
+    case FILE_OPERATION_CUT:
+        mbox = custom_msgbox_create("Move File:", 
+                page->file_clipboard,
+                btn_txts, false);
+        break;
+        
+    case FILE_OPERATION_COPY:
+        mbox = custom_msgbox_create("Copy File:", 
+                page->file_clipboard,
+                btn_txts, false);
+        break;
+    
+    default:
+        custom_toast_create("Clipboard Is Empty.");
+        break;
+    }
+
+    if (mbox) lv_obj_add_event_cb(mbox, act_msgbox_paste, LV_EVENT_VALUE_CHANGED, page);
 }
 
 static void act_delete_click(lv_event_t * e)
 {
     FileManagerPage * page = (FileManagerPage *)e->user_data;
+    if(!is_file_safe(page->file_current)) {
+        custom_toast_create("Operation Not Allowed!");
+        return;
+    }
     lv_obj_t * mbox = custom_msgbox_create("Delete File:", 
                 lv_100ask_file_explorer_get_sel_fn(page->file_explorer),
                 btn_txts, false);
@@ -152,61 +276,76 @@ static void act_delete_click(lv_event_t * e)
 static void act_msgbox_delete(lv_event_t * e)
 {
     FileManagerPage * page = (FileManagerPage *)e->user_data;
-    lv_obj_t * file_explorer = page->file_explorer;
     // 请注意：这里的消息是冒泡上来的，target获取到的是里面的btn_matrix
     lv_obj_t * msgbox = lv_obj_get_parent(lv_event_get_target(e));
     char * txt = lv_msgbox_get_active_btn_text(msgbox);
 
-
-    if (strcmp(txt, "YES") == 0) {
-        // file_explorer获取的路径形如 "//mnt/UDISK/lvgl/"
-        // 将其指针向前移动一位，路径变为 "/mnt/UDISK/lvgl/"
-        char * cur_path = lv_100ask_file_explorer_get_cur_path(file_explorer) + 1;
-        char * sel_fn   = lv_100ask_file_explorer_get_sel_fn(file_explorer);
-
-        int fn_length = 1 + strlen(cur_path) + strlen(sel_fn);
-        char * file_name = malloc(fn_length);
-        if(file_name == NULL) {
+    if(strcmp(txt, "YES") == 0) {
+        char * file_name = &page->file_current[0];
+        int cmd_length   = 10 + strlen(file_name);
+        char * cmd       = malloc(cmd_length);
+        if(cmd == NULL) {
             perror("malloc");
             exit(EXIT_FAILURE);
         }
-        lv_snprintf(file_name, fn_length, "%s%s", cur_path, sel_fn);
+        lv_snprintf(cmd, cmd_length, "rm -rf \"%s\"", file_name);
 
-        if((str_begin_with(cur_path, "/mnt/UDISK/", true) || str_begin_with(cur_path, "/mnt/app/dendro/", true)
-            || str_begin_with(cur_path, "/mnt/sdcard/", true)) &&
-            (!str_end_with(file_name, "/mnt/UDISK/lvgl", true) && !str_end_with(file_name, "/mnt/UDISK/lib", true))) {
-            
-            int cmd_length = 9 + fn_length;
-            char * cmd     = malloc(cmd_length);
-            if(cmd == NULL) {
-                perror("malloc");
-                exit(EXIT_FAILURE);
-            }
-            lv_snprintf(cmd, cmd_length, "rm -rf \"%s\"", file_name);
+        printf("[file_manager] %s\n", cmd);
+        custom_toast_create(cmd);
+        system(cmd);
+        free(cmd);
 
-            printf("[file_manager] %s\n", cmd);
-            custom_toast_create(cmd);
-            system(cmd);
-            free(cmd);
+        lv_100ask_file_explorer_refresh(page->file_explorer);
+        lv_obj_add_flag(page->container_act, LV_OBJ_FLAG_HIDDEN);
+    }
+    lv_msgbox_close_async(msgbox);
+}
 
-            // 前面获取的指针直接传进去会出问题，所以要临时拷贝一下
-            // cur_path最后的"/"符号要去掉，这样整个字符串长度加上\0刚好是1 + strlen(cur_path)
-            int path_length = 1 + strlen(cur_path);
-            char * path = malloc(path_length);
-            if (path == NULL) {
-                perror("malloc");
-                exit(EXIT_FAILURE);
-            }
-            lv_snprintf(path, path_length, "/%s", cur_path);
-            lv_100ask_file_explorer_open_dir(file_explorer, path);
-            free(path);
-            lv_obj_add_flag(page->container_act, LV_OBJ_FLAG_HIDDEN);
-            lv_msgbox_close_async(msgbox);
+static void act_msgbox_paste(lv_event_t * e)
+{
+    FileManagerPage * page = (FileManagerPage *)e->user_data;
+    // 请注意：这里的消息是冒泡上来的，target获取到的是里面的btn_matrix
+    lv_obj_t * msgbox = lv_obj_get_parent(lv_event_get_target(e));
+    char * txt = lv_msgbox_get_active_btn_text(msgbox);
+
+    if (strcmp(txt, "YES") == 0) {
+        char * file_current   = &page->file_current[0];
+        char * file_clipboard = &page->file_clipboard[0];
+
+        char * cmd;
+        int cmd_length;
+
+        switch(page->file_operation) {
+            case FILE_OPERATION_CUT:
+                cmd_length = 12 + strlen(file_clipboard) + strlen(file_current);
+                cmd        = malloc(cmd_length);
+                if(cmd == NULL) {
+                    perror("malloc");
+                    exit(EXIT_FAILURE);
+                }
+                lv_snprintf(cmd, cmd_length, "mv -f \"%s\" \"%s\"", file_clipboard, file_current);
+                break;
+            case FILE_OPERATION_COPY:
+                cmd_length = 15 + strlen(file_clipboard) + strlen(file_current);
+                cmd        = malloc(cmd_length);
+                if(cmd == NULL) {
+                    perror("malloc");
+                    exit(EXIT_FAILURE);
+                }
+                lv_snprintf(cmd, cmd_length, "cp -r -f \"%s\" \"%s\"", file_clipboard, file_current);
+                break;
+            default: custom_toast_create("Unknown Operation!"); return;
         }
-        else {
-            custom_toast_create("Action Not Allowed!");
-        }
-        free(file_name);
+
+        printf("[file_manager] %s\n", cmd);
+        custom_toast_create(cmd);
+        system(cmd);
+        free(cmd);
+
+        lv_100ask_file_explorer_refresh(page->file_explorer);
+        lv_obj_add_flag(page->container_act, LV_OBJ_FLAG_HIDDEN);
+        lv_msgbox_close_async(msgbox);
+        page->file_operation = FILE_OPERATION_NONE;
     }
     else {
         lv_msgbox_close_async(msgbox);

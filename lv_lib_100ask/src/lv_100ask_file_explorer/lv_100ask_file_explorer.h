@@ -177,6 +177,12 @@ lv_obj_t * lv_100ask_file_explorer_get_file_list(lv_obj_t * obj);
  */
 void lv_100ask_file_explorer_open_dir(lv_obj_t * obj, char * dir);
 
+/**
+ * Added: Refresh current directory
+ * @param obj   pointer to a file explorer object
+ */
+void lv_100ask_file_explorer_refresh(lv_obj_t * obj);
+
 /**********************
  *      MACROS
  **********************/
