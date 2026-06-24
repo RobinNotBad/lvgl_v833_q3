@@ -1,5 +1,7 @@
 #include "custom_msgbox.h"
 
+#include "main.h"
+
 static void custom_msgbox_delete_cb(lv_event_t * e) {
     lv_obj_del_async(lv_obj_get_parent(lv_event_get_target(e)));
 }
@@ -21,7 +23,7 @@ lv_obj_t * custom_msgbox_create(const char *title, const char *txt, const char *
 
 static void custom_toast_timer_cb(lv_timer_t * t) {
     lv_obj_t * mbox = (lv_obj_t *)t->user_data;
-    lv_obj_del_async(mbox);
+    if(lv_obj_is_valid(mbox)) lv_obj_del(mbox);
     lv_timer_del(t);
 }
 
@@ -35,7 +37,11 @@ lv_obj_t * custom_toast_create(const char *txt)
     lv_obj_set_size(mbox, lv_pct(100), LV_SIZE_CONTENT);
     lv_obj_align(mbox, LV_ALIGN_TOP_MID, 0, lv_pct(15));
     lv_obj_set_style_text_align(mbox, LV_TEXT_ALIGN_CENTER, LV_STATE_DEFAULT);
-    
+    lv_obj_clear_flag(mbox, LV_OBJ_FLAG_CLICKABLE);
+    lv_obj_update_layout(mbox);
+    lv_obj_set_style_pad_ver(mbox, lv_obj_get_height_pct(mbox, 10), LV_STATE_DEFAULT);
+    lv_obj_set_style_pad_hor(mbox, lv_obj_get_width_pct(mbox, 5), LV_STATE_DEFAULT);
+
     lv_timer_create(custom_toast_timer_cb, 3000, mbox);
     return mbox;
 }
