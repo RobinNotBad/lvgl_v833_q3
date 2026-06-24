@@ -35,7 +35,7 @@ extern "C" {
  * @param add_close_btn 是否添加关闭按钮
  * @return              msgbox的指针
  */
-lv_obj_t * custom_msgbox_create(const char *title, const char *txt, const char **btn_txts, bool *add_close_btn);
+lv_obj_t * custom_msgbox_create(const char *title, const char *txt, const char **btn_txts, bool add_close_btn);
 
 /**
  * 仿照安卓toast，自带半透明黑色背景，到时间自动销毁，连带背景一起跑路

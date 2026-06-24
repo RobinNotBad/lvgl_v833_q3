@@ -6,7 +6,7 @@ static void custom_msgbox_delete_cb(lv_event_t * e) {
     lv_obj_del_async(lv_obj_get_parent(lv_event_get_target(e)));
 }
 
-lv_obj_t * custom_msgbox_create(const char *title, const char *txt, const char **btn_txts, bool *add_close_btn)
+lv_obj_t * custom_msgbox_create(const char *title, const char *txt, const char **btn_txts, bool add_close_btn)
 {
     lv_obj_t * mbox_bg = lv_obj_create(lv_scr_act());
     lv_obj_remove_style_all(mbox_bg);

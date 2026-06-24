@@ -5,8 +5,11 @@
 #include "platform/str_utils.h"
 #include "platform/audio_ctrl.h"
 #include "platform/config_manager.h"
+#include "views/custom_msgbox.h"
 
 static void btn_demo_click(lv_event_t * e);
+static void btn_about_click(lv_event_t * e);
+static void btn_developer_click(lv_event_t * e);
 static void btn_back_click(lv_event_t * e);
 static void slider_brightness_changed(lv_event_t * e);
 static void slider_brightness_set(lv_event_t * e);
@@ -60,16 +63,43 @@ lv_obj_t * page_settings_main(void)
     lv_obj_set_size(btn_demo, lv_pct(64), lv_pct(32));
     lv_obj_align(btn_demo, LV_FLEX_ALIGN_START, lv_pct(10), 0);
     lv_obj_t * btn_label_demo = lv_label_create(btn_demo);
-    lv_label_set_text(btn_label_demo, "Test Page");
+    lv_label_set_text(btn_label_demo, "Test");
     lv_obj_center(btn_label_demo);
     lv_obj_add_event_cb(btn_demo, btn_demo_click, LV_EVENT_CLICKED, NULL);
+
+    lv_obj_t * btn_about = lv_btn_create(container);
+    lv_obj_set_size(btn_about, lv_pct(64), lv_pct(32));
+    lv_obj_align(btn_about, LV_FLEX_ALIGN_START, lv_pct(10), 0);
+    lv_obj_t * btn_label_about = lv_label_create(btn_about);
+    lv_label_set_text(btn_label_about, "About Dendro");
+    lv_obj_center(btn_label_about);
+    lv_obj_add_event_cb(btn_about, btn_about_click, LV_EVENT_CLICKED, NULL);
+
+    lv_obj_t * btn_developer = lv_btn_create(container);
+    lv_obj_set_size(btn_developer, lv_pct(64), lv_pct(32));
+    lv_obj_align(btn_developer, LV_FLEX_ALIGN_START, lv_pct(10), 0);
+    lv_obj_t * btn_label_developer = lv_label_create(btn_developer);
+    lv_label_set_text(btn_label_developer, "Developers");
+    lv_obj_center(btn_label_developer);
+    lv_obj_add_event_cb(btn_developer, btn_developer_click, LV_EVENT_CLICKED, NULL);
 
     return screen;
 }
 
 static void btn_demo_click(lv_event_t * e) // static可以防止同名冲突
 {
-    page_open(demo_page_create());
+    custom_toast_create("May all the beauty be blessed.\nMay all the dreams shine with their light.");
+    //page_open(demo_page_create());
+}
+
+static void btn_about_click(lv_event_t * e)
+{
+    custom_msgbox_create("About", "Dendro is a simple multimedia provider program with a GUI, targeting unusual Linux devices.", NULL, true);
+}
+
+static void btn_developer_click(lv_event_t * e)
+{
+    custom_msgbox_create("Developers", "Main Developer: RobinNotBad\nOpen Source: https://github.com/RobinNotBad/lvgl_v833_q3", NULL, true);
 }
 
 static void slider_brightness_changed(lv_event_t * e)
