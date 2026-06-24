@@ -186,16 +186,17 @@ static void act_msgbox_delete(lv_event_t * e)
                 exit(EXIT_FAILURE);
             }
             lv_snprintf(path, path_length, "/%s", cur_path);
-            path[path_length - 1] = '\0';
             lv_100ask_file_explorer_open_dir(file_explorer, path);
             free(path);
             lv_obj_add_flag(page->container_act, LV_OBJ_FLAG_HIDDEN);
-            custom_msgbox_close(msgbox);
+            lv_msgbox_close_async(msgbox);
+        }
+        else {
+            custom_toast_create("Action Not Allowed!");
         }
     }
     else {
-        lv_obj_add_flag(page->container_act, LV_OBJ_FLAG_HIDDEN);
-        custom_msgbox_close(msgbox);
+        lv_msgbox_close_async(msgbox);
     }
 }
 

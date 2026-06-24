@@ -28,21 +28,21 @@ extern "C" {
  **********************/
 
 /**
- * @brief               创建自定义弹窗
+ * 自定义msgbox，自带半透明黑色背景，销毁时自动连带背景一起跑路
  * @param title         标题
  * @param txt           文本
- * @param btn_txts      按钮文本，最后一个需要为NULL
+ * @param btn_txts      按钮文本，列表最后一个需要为NULL
  * @param add_close_btn 是否添加关闭按钮
- * @return              返回msgbox对象
+ * @return              msgbox的指针
  */
 lv_obj_t * custom_msgbox_create(const char *title, const char *txt, const char **btn_txts, bool *add_close_btn);
 
 /**
- * @brief               关闭自定义弹窗
- * @param msgbox        要关掉的自定义弹窗
+ * 仿照安卓toast，自带半透明黑色背景，到时间自动销毁，连带背景一起跑路
+ * @param txt           文本
+ * @return              msgbox的指针
  */
-void custom_msgbox_close(lv_obj_t *msgbox);
-
+lv_obj_t * custom_toast_create(const char *txt);
 /**********************
  *      MACROS
  **********************/
