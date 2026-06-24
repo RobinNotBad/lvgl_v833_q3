@@ -22,6 +22,7 @@ extern "C" {
 
 typedef enum { KEY_CODE_POWER, KEY_CODE_HOME, KEY_CODE_SCANNER } key_code_t;
 typedef enum { KEY_ACTION_DOWN, KEY_ACTION_UP } key_action_t;
+typedef enum { PAGE_TYPE_DEFAULT = 0, PAGE_TYPE_DIALOG = 1 } page_type_t;
 
 /**********************
  *      TYPEDEFS
@@ -31,6 +32,7 @@ typedef struct
 {
     lv_obj_t * obj;   // 页面对象
     void * user_data; // 用户数据
+    page_type_t page_type;
     void (*on_create)(void *);  // 创建时自动触发
     void (*on_resume)(void *);  // 切换到前台时自动触发
     void (*on_pause)(void *);   // 切换到后台时自动触发
