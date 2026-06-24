@@ -16,7 +16,7 @@
 #include "platform/config_manager.h"
 
 // 请教DeepSeek实现了简易页面管理器，100ask那个实际上不太好用……
-#include "pages/page_manager.h"
+#include "platform/page_manager.h"
 #include "pages/page_home.h"
 
 /*
