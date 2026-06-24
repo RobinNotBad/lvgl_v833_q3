@@ -157,24 +157,36 @@ static void act_msgbox_delete(lv_event_t * e)
     lv_obj_t * msgbox = lv_obj_get_parent(lv_event_get_target(e));
     char * txt = lv_msgbox_get_active_btn_text(msgbox);
 
+
     if (strcmp(txt, "YES") == 0) {
         // file_explorer获取的路径形如 "//mnt/UDISK/lvgl/"
         // 将其指针向前移动一位，路径变为 "/mnt/UDISK/lvgl/"
         char * cur_path = lv_100ask_file_explorer_get_cur_path(file_explorer) + 1;
         char * sel_fn   = lv_100ask_file_explorer_get_sel_fn(file_explorer);
 
-        if((str_begin_with(cur_path, "/mnt/UDISK/", true) || str_begin_with(cur_path, "/mnt/app/dendro/", true)
-            || str_begin_with(cur_path, "/mnt/sdcard/", true)) && !str_begin_with(cur_path, "/mnt/UDISK/lvgl", true)) {
+        int fn_length = 1 + strlen(cur_path) + strlen(sel_fn);
+        char * file_name = malloc(fn_length);
+        if(file_name == NULL) {
+            perror("malloc");
+            exit(EXIT_FAILURE);
+        }
+        lv_snprintf(file_name, fn_length, "%s%s", cur_path, sel_fn);
 
-            int cmd_length = 10 + strlen(cur_path) + strlen(sel_fn);
-            char * cmd = malloc(cmd_length);
-            if (cmd == NULL) {
+        if((str_begin_with(cur_path, "/mnt/UDISK/", true) || str_begin_with(cur_path, "/mnt/app/dendro/", true)
+            || str_begin_with(cur_path, "/mnt/sdcard/", true)) &&
+            (!str_end_with(file_name, "/mnt/UDISK/lvgl", true) && !str_end_with(file_name, "/mnt/UDISK/lib", true))) {
+            
+            int cmd_length = 9 + fn_length;
+            char * cmd     = malloc(cmd_length);
+            if(cmd == NULL) {
                 perror("malloc");
                 exit(EXIT_FAILURE);
             }
-            lv_snprintf(cmd, cmd_length, "rm -rf \"%s%s\"", cur_path, sel_fn);
-            system(cmd);
+            lv_snprintf(cmd, cmd_length, "rm -rf \"%s\"", file_name);
+
             printf("[file_manager] %s\n", cmd);
+            custom_toast_create(cmd);
+            system(cmd);
             free(cmd);
 
             // 前面获取的指针直接传进去会出问题，所以要临时拷贝一下
@@ -194,6 +206,7 @@ static void act_msgbox_delete(lv_event_t * e)
         else {
             custom_toast_create("Action Not Allowed!");
         }
+        free(file_name);
     }
     else {
         lv_msgbox_close_async(msgbox);
