@@ -470,7 +470,7 @@ static void * player_thread_func(void * arg)
 
                 // 重采样
                 uint8_t * out_data[1] = {audio_buffer};
-                int out_samples = swr_convert(player->swr_ctx, out_data, BUFFER_SIZE * sizeof(int16_t), 
+                int out_samples = swr_convert(player->swr_ctx, out_data, BUFFER_SIZE, 
                                             (const uint8_t **)frame->data, frame->nb_samples);
 
                 if(out_samples > 0) {

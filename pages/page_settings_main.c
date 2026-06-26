@@ -88,7 +88,8 @@ lv_obj_t * page_settings_main(void)
 
 static void btn_demo_click(lv_event_t * e) // static可以防止同名冲突
 {
-    custom_toast_create("May all the beauty be blessed.\nMay all the dreams shine with their light.");
+    //custom_toast_create("May all the beauty be blessed.\nMay all the dreams shine with their light.");
+    custom_toast_create("人间烟火倒映湖中，她的渴望让静水泛起涟漪。\n若代价只是孤独，那就让这份愿望肆意流淌……\n流入她所注视的世间，也流入她如湖水般澄澈的目光。");
     //page_open(demo_page_create());
 }
 

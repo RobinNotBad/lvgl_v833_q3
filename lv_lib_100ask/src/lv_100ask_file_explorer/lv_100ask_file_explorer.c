@@ -630,31 +630,15 @@ static void brower_file_event_handler(lv_event_t * e)
     }
     else if(code == LV_EVENT_LONG_PRESSED) {
         explorer->long_pressed = true;
-        //struct stat stat_buf;
-        char * file_name[LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN];
         char * str_fn = NULL;
         uint16_t row;
         uint16_t col;
 
-        memset(file_name, 0, sizeof(file_name));
         lv_table_get_selected_cell(explorer->file_list, &row, &col);
         str_fn = lv_table_get_cell_value(explorer->file_list, row, col);
 
         str_fn = str_fn+5;
-        if((strcmp(str_fn, ".") == 0))  return;
-        
-        if((strcmp(str_fn, "..") == 0) && (strlen(explorer->cur_path) > 3))
-        {
-            strip_ext(explorer->cur_path);
-            strip_ext(explorer->cur_path); // 去掉最后的 '/' 路径
-            lv_snprintf(file_name, sizeof(file_name), "%s", explorer->cur_path);
-        }
-        else
-        {
-            if(strcmp(str_fn, "..") != 0){
-                lv_snprintf(file_name, sizeof(file_name), "%s%s", explorer->cur_path, str_fn);
-            }
-        }
+        if((strcmp(str_fn, ".") == 0) || (strcmp(str_fn, "..") == 0))  return;
 
         if(strcmp(str_fn, "..") != 0) {
             explorer->sel_fp = str_fn;

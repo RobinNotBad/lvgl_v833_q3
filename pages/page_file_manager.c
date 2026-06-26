@@ -208,7 +208,7 @@ static void act_cut_click(lv_event_t * e)
 {
     FileManagerPage * page = (FileManagerPage *)e->user_data;
 
-    if(!is_directory_safe(page->file_current)) {
+    if(!is_file_safe(page->file_current)) {
         custom_toast_create("Operation Not Allowed!");
         return;
     }
