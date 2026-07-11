@@ -13,9 +13,10 @@
 #include <string.h>
 #include "platform/audio_ctrl.h"
 #include "platform/battery_manager.h"
+#include "platform/config_manager.h"
 
 // 请教DeepSeek实现了简易页面管理器，100ask那个实际上不太好用……
-#include "pages/page_manager.h"
+#include "page_manager.h"
 #include "pages/page_home.h"
 
 /*
@@ -160,7 +161,6 @@ int main(int argc, char * argv[])
 
     audio_init();
 
-    
 
     lv_freetype_init(128, 4, 0);
 
@@ -182,6 +182,18 @@ int main(int argc, char * argv[])
         lv_style_set_text_font(&style_default, ft_info.font);
         lv_obj_add_style(lv_scr_act(), &style_default, 0);
     }
+
+    // 配置文件
+    bool setup;
+    if(config_read_bool(MAIN_CONFIG_FILE, CFG_SETUP, false, &setup) == -1 || !setup) {
+        config_write_bool(MAIN_CONFIG_FILE, CFG_SETUP, true);
+    }
+    int volume;
+    config_read_int(MAIN_CONFIG_FILE, CFG_VOLUME, 0, &volume);
+    audio_volume_set(volume);
+    config_read_int(MAIN_CONFIG_FILE, CFG_BRIGHTNESS, SCREEN_BRIGHTNESS_DEFAULT, &lcd_brightness);
+    lcd_set_brightness_inner(lcd_brightness);
+    
 
     page_manager_init();
     page_open(page_home_create());
@@ -338,6 +350,14 @@ void lcd_set_brightness(int brightness)
 {
     lcd_brightness = brightness;
     lcd_set_brightness_inner(brightness);
+}
+
+/**
+ * 获取LCD背光亮度
+ */
+uint32_t lcd_get_brightness(void)
+{
+    return lcd_brightness;
 }
 
 /**
@@ -582,4 +602,22 @@ lv_font_t * font_get(uint16_t weight, uint16_t font_style)
     }
 
     return NULL;
+}
+
+/**
+ * 更新布局并获取该控件的百分比宽度
+ */
+lv_coord_t lv_obj_get_width_pct(lv_obj_t * obj, float pct)
+{
+    lv_obj_update_layout(obj);
+    return (lv_coord_t)(lv_obj_get_width(obj) * pct / 100);
+}
+
+/**
+ * 更新布局并获取该控件的百分比高度
+ */
+lv_coord_t lv_obj_get_height_pct(lv_obj_t * obj, float pct)
+{
+    lv_obj_update_layout(obj);
+    return (lv_coord_t)(lv_obj_get_height(obj) * pct / 100);
 }

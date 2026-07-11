@@ -1,5 +1,5 @@
-#ifndef PROJ_PAGE_MENU_H
-#define PROJ_PAGE_MENU_H
+#ifndef PROJ_PAGE_SETTINGS_MAIN_H
+#define PROJ_PAGE_SETTINGS_MAIN_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -16,6 +16,7 @@ extern "C" {
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <stdbool.h>
 
 /*********************
  *      DEFINES
@@ -28,7 +29,7 @@ extern "C" {
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
-lv_obj_t * page_menu(void);
+lv_obj_t * page_settings_main(void);
 
 /**********************
  *      MACROS

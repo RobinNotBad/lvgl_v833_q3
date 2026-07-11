@@ -8,7 +8,6 @@ static void back_click(lv_event_t * e);
 static void btn_adb_only_click(lv_event_t * e);
 static void btn_adb_mtp_click(lv_event_t * e);
 static void refresh_text(lv_obj_t * label);
-static bool is_vsftpd_running(void);
 
 lv_obj_t * page_usb(void)
 {

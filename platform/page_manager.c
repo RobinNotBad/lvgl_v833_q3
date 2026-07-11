@@ -51,9 +51,11 @@ void page_open(BasePage * new_page)
 
     // 隐藏当前页面（如果有）
     if(page_manager.top >= 0) {
+        // 普通页面要隐藏，但对话框不要
         BasePage * current_page = page_manager.stack[page_manager.top];
-        lv_obj_add_flag(current_page->obj, LV_OBJ_FLAG_HIDDEN);
-
+        if(new_page->page_type == PAGE_TYPE_DEFAULT) {
+            lv_obj_add_flag(current_page->obj, LV_OBJ_FLAG_HIDDEN);
+        }
         // on_pause回调
         if(current_page->on_pause) (*current_page->on_pause)(current_page);
     }
@@ -106,10 +108,13 @@ bool page_on_key(key_code_t key_code, key_action_t key_action)
     
     if(current_page) {
         bool ret;
+
         if(current_page->on_key) 
             ret = (*current_page->on_key)(current_page, key_code, key_action);
         else
             ret = false;
+        
+        if(current_page->page_type == PAGE_TYPE_DIALOG && key_code != KEY_CODE_POWER) ret = true;
 
         return ret;
     }

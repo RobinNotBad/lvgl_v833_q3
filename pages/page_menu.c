@@ -1,21 +1,13 @@
 #include "page_menu.h"
 
-#include "platform/battery_manager.h"
 #include "page_file_manager.h"
 #include "page_bird.h"
 #include "page_calculator.h"
 #include "page_demo.h"
 #include "page_ftp.h"
 #include "page_usb.h"
+#include "page_settings_main.h"
 #include "main.h"
-#include "platform/str_utils.h"
-
-typedef struct
-{
-    BasePage base;
-    lv_obj_t * label_time;
-    lv_obj_t * label_battery;
-} MenuPage;
 
 static void btn_demo_click(lv_event_t * e);
 static void btn_back_click(lv_event_t * e);
@@ -24,19 +16,9 @@ static void btn_calculator_click(lv_event_t * e);
 static void btn_bird_click(lv_event_t * e);
 static void btn_ftp_click(lv_event_t * e);
 static void btn_usb_click(lv_event_t * e);
-static lv_obj_t * page_menu_obj(MenuPage * page);
+static void btn_settings_click(lv_event_t * e);
 
-BasePage * page_menu_create(void)
-{
-    MenuPage * page = malloc(sizeof(MenuPage));
-    if(!page) return NULL;
-    memset(page, 0, sizeof(MenuPage));
-
-    page->base.obj = page_menu_obj(page);
-    return (BasePage *)page;
-}
-
-lv_obj_t * page_menu_obj(MenuPage * page)
+lv_obj_t * page_menu(void)
 {
     lv_obj_t * screen = lv_obj_create(lv_scr_act());
     lv_obj_set_size(screen, lv_pct(100), lv_pct(100));
@@ -90,28 +72,25 @@ lv_obj_t * page_menu_obj(MenuPage * page)
     lv_obj_center(btn_label_ftp);
     lv_obj_add_event_cb(btn_ftp, btn_ftp_click, LV_EVENT_CLICKED, NULL);
 
-    lv_obj_t * btn_usb = lv_btn_create(container);
-    lv_obj_set_size(btn_usb, lv_pct(64), lv_pct(32));
-    lv_obj_align(btn_usb, LV_FLEX_ALIGN_CENTER, 0, 0);
-    lv_obj_t * btn_label_usb = lv_label_create(btn_usb);
-    lv_label_set_text(btn_label_usb, "USB");
-    lv_obj_center(btn_label_usb);
-    lv_obj_add_event_cb(btn_usb, btn_usb_click, LV_EVENT_CLICKED, NULL);
-    
-    lv_obj_t * btn_demo = lv_btn_create(container);
-    lv_obj_set_size(btn_demo, lv_pct(64), lv_pct(32));
-    lv_obj_align(btn_demo, LV_FLEX_ALIGN_CENTER, 0, 0);
-    lv_obj_t * btn_label_demo = lv_label_create(btn_demo);
-    lv_label_set_text(btn_label_demo, "Test Page");
-    lv_obj_center(btn_label_demo);
-    lv_obj_add_event_cb(btn_demo, btn_demo_click, LV_EVENT_CLICKED, NULL);
+    if(1) {
+        lv_obj_t * btn_usb = lv_btn_create(container);
+        lv_obj_set_size(btn_usb, lv_pct(64), lv_pct(32));
+        lv_obj_align(btn_usb, LV_FLEX_ALIGN_CENTER, 0, 0);
+        lv_obj_t * btn_label_usb = lv_label_create(btn_usb);
+        lv_label_set_text(btn_label_usb, "USB");
+        lv_obj_center(btn_label_usb);
+        lv_obj_add_event_cb(btn_usb, btn_usb_click, LV_EVENT_CLICKED, NULL);
+    }
+
+    lv_obj_t * btn_settings = lv_btn_create(container);
+    lv_obj_set_size(btn_settings, lv_pct(64), lv_pct(32));
+    lv_obj_align(btn_settings, LV_FLEX_ALIGN_CENTER, 0, 0);
+    lv_obj_t * btn_label_settings = lv_label_create(btn_settings);
+    lv_label_set_text(btn_label_settings, "Settings");
+    lv_obj_center(btn_label_settings);
+    lv_obj_add_event_cb(btn_settings, btn_settings_click, LV_EVENT_CLICKED, NULL);
 
     return screen;
-}
-
-static void btn_demo_click(lv_event_t * e) // static可以防止同名冲突
-{
-    page_open(demo_page_create());
 }
 
 static void btn_back_click(lv_event_t * e)
@@ -142,4 +121,9 @@ static void btn_ftp_click(lv_event_t * e)
 static void btn_usb_click(lv_event_t * e)
 {
     page_open_obj(page_usb());
+}
+
+static void btn_settings_click(lv_event_t * e)
+{
+    page_open_obj(page_settings_main());
 }

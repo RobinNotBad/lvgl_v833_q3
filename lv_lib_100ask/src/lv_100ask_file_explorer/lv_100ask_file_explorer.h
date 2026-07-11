@@ -63,6 +63,7 @@ typedef struct {
 #endif
     char * sel_fp;
     char   cur_path[LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN];
+    bool long_pressed;
 } lv_100ask_file_explorer_t;
 
 /***********************
@@ -175,6 +176,12 @@ lv_obj_t * lv_100ask_file_explorer_get_file_list(lv_obj_t * obj);
  * @param dir   pointer to the path
  */
 void lv_100ask_file_explorer_open_dir(lv_obj_t * obj, char * dir);
+
+/**
+ * Added: Refresh current directory
+ * @param obj   pointer to a file explorer object
+ */
+void lv_100ask_file_explorer_refresh(lv_obj_t * obj);
 
 /**********************
  *      MACROS

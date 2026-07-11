@@ -56,36 +56,38 @@ static void back_click(lv_event_t * e)
 
 static void btn_start_click(lv_event_t * e)
 {
-    if(is_vsftpd_running()) return;
+    if(!is_vsftpd_running()) {
+        system("chmod 777 " VSFTPD_EXE);
 
-    system("chmod 777 " VSFTPD_EXE);
+        pid_t cpid = fork();
 
-    pid_t cpid = fork();
+        if(cpid == 0) {
+            // 此处为子进程
+            daemon(1, 0);
+            close(fbd);
+            close(dispd);
+            close(powerd);
+            close(homed);
 
-    if(cpid == 0) {
-        //此处为子进程
-        daemon(1, 0);
-        close(fbd);
-        close(dispd);
-        close(powerd);
-        close(homed);
+            char * argv[] = {VSFTPD_EXE, VSFTPD_CONF, NULL};
+            execv(VSFTPD_EXE, argv);
 
-        char * argv[]     = {VSFTPD_EXE, VSFTPD_CONF, NULL};
-        execv(VSFTPD_EXE, argv);
-        
-        exit(127);  //防止意外执行失败
+            exit(127); // 防止意外执行失败
+        }
+
+        usleep(1000);
     }
-
-    usleep(1000);
+    
     refresh_text((lv_obj_t *)e->user_data);
 }
 
 static void btn_stop_click(lv_event_t * e)
 {
-    if(!is_vsftpd_running()) return;
+    if(is_vsftpd_running()) {
+        system("killall vsftpd &");
+        usleep(5000);
+    }
 
-    system("killall vsftpd &");
-    usleep(1000);
     refresh_text((lv_obj_t *)e->user_data);
 }
 

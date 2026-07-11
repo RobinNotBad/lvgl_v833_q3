@@ -109,7 +109,7 @@ static void btn_scan_click(lv_event_t * e)
 
 static void btn_menu_click(lv_event_t * e)
 {
-    page_open(page_menu_create());
+    page_open_obj(page_menu());
 }
 
 static void timer_time_tick(lv_timer_t * e)

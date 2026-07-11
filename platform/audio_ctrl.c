@@ -5,6 +5,10 @@ static snd_mixer_elem_t * elem;
 static long volume_min, volume_max;
 static int volume; // 0-100
 
+static int set_enum(snd_mixer_t *mixer, const char *name, unsigned int index);
+static int set_switch(snd_mixer_t * mixer, const char * name, int on);
+static int set_volume(snd_mixer_t *mixer, const char *name, long value);
+
 void audio_enable(void)
 {
     system("echo 1 > /dev/spk_crtl");
@@ -41,6 +45,10 @@ int audio_init(void)
         goto cleanup;
     }
 
+    set_switch(mixer, "External Speaker", 1);
+    set_switch(mixer, "Left Input Mixer MIC1 Boost", 1);
+    set_enum(mixer, "Left LINEOUT Mux", 1);
+    
     // 查找音量控制元素
     {
         snd_mixer_selem_id_t * sid;
@@ -107,4 +115,98 @@ void audio_close(void)
         mixer = NULL;
         elem  = NULL;
     }
+}
+
+
+// 辅助函数：设置播放开关（on=1, off=0）
+static int set_switch(snd_mixer_t *mixer, const char *name, int on) {
+    snd_mixer_selem_id_t *sid;
+    snd_mixer_elem_t *elem;
+    int err;
+
+    snd_mixer_selem_id_alloca(&sid);
+    snd_mixer_selem_id_set_name(sid, name);
+    snd_mixer_selem_id_set_index(sid, 0);  // 索引为0
+
+    elem = snd_mixer_find_selem(mixer, sid);
+    if (!elem) {
+        fprintf(stderr, "控件 '%s' 未找到\n", name);
+        return -ENOENT;
+    }
+
+    err = snd_mixer_selem_set_playback_switch_all(elem, on);
+    if (err < 0) {
+        fprintf(stderr, "设置开关 '%s' 失败: %s\n", name, snd_strerror(err));
+        return err;
+    }
+    return 0;
+}
+
+// 辅助函数：设置播放音量（范围由控件决定）
+static int set_volume(snd_mixer_t *mixer, const char *name, long value) {
+    snd_mixer_selem_id_t *sid;
+    snd_mixer_elem_t *elem;
+    int err;
+
+    snd_mixer_selem_id_alloca(&sid);
+    snd_mixer_selem_id_set_name(sid, name);
+    snd_mixer_selem_id_set_index(sid, 0);
+
+    elem = snd_mixer_find_selem(mixer, sid);
+    if (!elem) {
+        fprintf(stderr, "控件 '%s' 未找到\n", name);
+        return -ENOENT;
+    }
+
+    // 检查控件是否支持播放音量
+    if (!snd_mixer_selem_has_playback_volume(elem)) {
+        fprintf(stderr, "控件 '%s' 不支持播放音量\n", name);
+        return -ENOTSUP;
+    }
+
+    long min, max;
+    snd_mixer_selem_get_playback_volume_range(elem, &min, &max);
+    if (value < min || value > max) {
+        fprintf(stderr, "音量值 %ld 超出范围 [%ld, %ld]\n", value, min, max);
+        return -EINVAL;
+    }
+
+    err = snd_mixer_selem_set_playback_volume_all(elem, value);
+    if (err < 0) {
+        fprintf(stderr, "设置音量 '%s' 失败: %s\n", name, snd_strerror(err));
+        return err;
+    }
+    return 0;
+}
+
+// 辅助函数：设置枚举项（按索引）
+static int set_enum(snd_mixer_t *mixer, const char *name, unsigned int index) {
+    snd_mixer_selem_id_t *sid;
+    snd_mixer_elem_t *elem;
+    int err;
+
+    snd_mixer_selem_id_alloca(&sid);
+    snd_mixer_selem_id_set_name(sid, name);
+    snd_mixer_selem_id_set_index(sid, 0);
+
+    elem = snd_mixer_find_selem(mixer, sid);
+    if (!elem) {
+        fprintf(stderr, "控件 '%s' 未找到\n", name);
+        return -ENOENT;
+    }
+
+    // 获取枚举项数量（仅用于调试）
+    unsigned int items = snd_mixer_selem_get_enum_items(elem);
+    if (index >= items) {
+        fprintf(stderr, "枚举索引 %u 超出范围 (共 %u 项)\n", index, items);
+        return -EINVAL;
+    }
+
+    // 设置枚举项（播放方向）
+    err = snd_mixer_selem_set_enum_item(elem, SND_MIXER_SCHN_MONO, index);
+    if (err < 0) {
+        fprintf(stderr, "设置枚举 '%s' 失败: %s\n", name, snd_strerror(err));
+        return err;
+    }
+    return 0;
 }
