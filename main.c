@@ -136,8 +136,8 @@ int main(int argc, char * argv[])
     lv_disp_drv_init(&disp_drv);
     disp_drv.draw_buf = &disp_buf;
     disp_drv.flush_cb = fbdev_flush;
-    disp_drv.hor_res  = 240;
-    disp_drv.ver_res  = 240;
+    disp_drv.hor_res  = vinfo->xres;
+    disp_drv.ver_res  = vinfo->yres;
     lv_disp_t * disp  = lv_disp_drv_register(&disp_drv);
     lv_disp_set_default(disp);
 
@@ -147,6 +147,8 @@ int main(int argc, char * argv[])
     indev_drv.type     = LV_INDEV_TYPE_POINTER;
     indev_drv.read_cb  = evdev_read;
     /*lv_indev_t *indev =  */lv_indev_drv_register(&indev_drv);
+
+    LV_LOG_USER("%dx%d", vinfo->xres, vinfo->yres);
 
     lv_ffmpeg_init();
 
@@ -178,7 +180,7 @@ int main(int argc, char * argv[])
     int volume;
     config_read_int(MAIN_CONFIG_FILE, CFG_VOLUME, 0, &volume);
     audio_volume_set(volume);
-    config_read_int(MAIN_CONFIG_FILE, CFG_BRIGHTNESS, SCREEN_BRIGHTNESS_DEFAULT, &lcd_brightness);
+    config_read_int(MAIN_CONFIG_FILE, CFG_BRIGHTNESS, SCREEN_BRIGHTNESS_DEFAULT, (int *)&lcd_brightness);
     lcd_set_brightness_inner(lcd_brightness);
     
 
@@ -257,8 +259,9 @@ uint64_t ms_get(void)
 void lcd_init(void)
 {
     vinfo         = fbdev_get_vinfo();
-    vinfo->rotate = 3;
-    ioctl(fbd, 0x4601u, vinfo);
+    vinfo->rotate = 2;
+    ioctl(fbd, FBIOPUT_VSCREENINFO, vinfo);
+    ioctl(fbd, FBIOGET_VSCREENINFO, vinfo);
 }
 
 /**
@@ -309,7 +312,7 @@ void touch_off(void)
  */
 void lcd_refresh(void)
 {
-    ioctl(fbd, 0x4606u, vinfo);
+    ioctl(fbd, FBIOPAN_DISPLAY, vinfo);
 }
 
 /**
