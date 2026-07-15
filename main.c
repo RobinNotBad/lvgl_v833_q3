@@ -18,6 +18,7 @@
 // 请教DeepSeek实现了简易页面管理器，100ask那个实际上不太好用……
 #include "platform/page_manager.h"
 #include "pages/page_home.h"
+#include "pages/page_menu.h"
 
 /*
 #include "pages/page_demo.h"
@@ -138,6 +139,8 @@ int main(int argc, char * argv[])
     disp_drv.flush_cb = fbdev_flush;
     disp_drv.hor_res  = vinfo->xres;
     disp_drv.ver_res  = vinfo->yres;
+    disp_drv.sw_rotate = 1;
+    disp_drv.rotated  = LV_DISP_ROT_90;
     lv_disp_t * disp  = lv_disp_drv_register(&disp_drv);
     lv_disp_set_default(disp);
 
@@ -148,7 +151,7 @@ int main(int argc, char * argv[])
     indev_drv.read_cb  = evdev_read;
     /*lv_indev_t *indev =  */lv_indev_drv_register(&indev_drv);
 
-    LV_LOG_USER("%dx%d", vinfo->xres, vinfo->yres);
+    printf("resolution: %dx%d\n", vinfo->xres, vinfo->yres);
 
     lv_ffmpeg_init();
 
@@ -186,6 +189,7 @@ int main(int argc, char * argv[])
 
     page_manager_init();
     page_open(page_home_create());
+    page_open_obj(page_menu());
 
     while(1) {
         key_read_home();
@@ -259,9 +263,8 @@ uint64_t ms_get(void)
 void lcd_init(void)
 {
     vinfo         = fbdev_get_vinfo();
-    vinfo->rotate = 2;
+    vinfo->rotate = 3;
     ioctl(fbd, FBIOPUT_VSCREENINFO, vinfo);
-    ioctl(fbd, FBIOGET_VSCREENINFO, vinfo);
 }
 
 /**
