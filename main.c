@@ -189,7 +189,6 @@ int main(int argc, char * argv[])
 
     page_manager_init();
     page_open(page_home_create());
-    page_open_obj(page_menu());
 
     while(1) {
         key_read_home();
