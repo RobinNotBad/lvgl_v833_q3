@@ -18,8 +18,8 @@
 /*********************
  * CUSTOM ADDITION
  *********************/
-#define LV_SCR_WIDTH 240
-#define LV_SCR_HEIGHT 240
+#define LV_SCR_WIDTH 960
+#define LV_SCR_HEIGHT 282
 
 /*********************
  * DELAY INTERFACE
