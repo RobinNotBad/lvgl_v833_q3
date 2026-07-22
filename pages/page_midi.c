@@ -1,5 +1,6 @@
 #include "page_midi.h"
 #include "main.h"
+#include "battery_manager.h"
 
 typedef struct
 {
@@ -11,6 +12,8 @@ typedef struct
     midi_player_t * player;
     lv_timer_t * timer;
     bool cycle;
+    lv_obj_t * title_label;
+    lv_obj_t * battery_label;
 } MidiPage;
 
 static lv_obj_t * page_midi_obj(MidiPage * page, char * filename);
@@ -46,7 +49,7 @@ static lv_obj_t * page_midi_obj(MidiPage * page, char * filename)
     page->cycle = false;
     audio_enable();
 
-    midi_player_t * player = midi_create("/mnt/app/dendro/midi/timidity.cfg"); // /mnt/app/factory/play_test.wav
+    midi_player_t * player = midi_create("./setting/timidity.cfg"); // /mnt/app/factory/play_test.wav
     if(midi_open(player, filename) == 0 && midi_init(player) == 0) {
         midi_resume(player);
         midi_set_finish_callback(player, player_finished, page);
@@ -54,31 +57,52 @@ static lv_obj_t * page_midi_obj(MidiPage * page, char * filename)
     } else
         player = NULL;
 
-    lv_obj_t * btn_control = lv_btn_create(screen);
-    lv_obj_set_size(btn_control, lv_pct(40), lv_pct(20));
-    lv_obj_align(btn_control, LV_ALIGN_TOP_MID, 0, lv_pct(60));
-    lv_obj_t * btn_control_label = lv_label_create(btn_control);
-    lv_label_set_text(btn_control_label, LV_SYMBOL_PAUSE "");
-    lv_obj_center(btn_control_label);
-    lv_obj_add_event_cb(btn_control, control_click, LV_EVENT_CLICKED, page);
-    page->btn_control_label      = btn_control_label;
+    lv_obj_t * clock = lv_text_clock_create(screen);
+    lv_obj_set_size(clock, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
+    lv_obj_align(clock, LV_ALIGN_TOP_LEFT, 10, 5);
+
+    lv_obj_t * battery_label = lv_label_create(screen);
+    lv_obj_align(battery_label, LV_ALIGN_TOP_RIGHT, -12, 5);
+    uint8_t cap = battery_get_capacity();
+    lv_label_set_text_fmt(battery_label, "%d%% ", cap);
+    page->battery_label = battery_label;
+
+    lv_obj_t * title_label = lv_label_create(screen);
+    lv_obj_set_width(title_label, 200);
+    lv_label_set_long_mode(title_label, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_obj_set_style_text_align(title_label, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(title_label, LV_ALIGN_TOP_MID, 0, 40);
+    char * base = strrchr(filename, '/');
+    if (base) base++;
+    else base = (char *)filename;
+    lv_label_set_text(title_label, base);
+    page->title_label = title_label;
 
     lv_obj_t * slider_progress = lv_slider_create(screen);
-    lv_obj_set_size(slider_progress, lv_pct(80), lv_pct(10));
-    lv_obj_align(slider_progress, LV_ALIGN_TOP_MID, 0, lv_pct(20));
+    lv_obj_set_size(slider_progress, lv_pct(80), lv_pct(8));
+    lv_obj_align(slider_progress, LV_ALIGN_TOP_MID, 0, lv_pct(35));
     lv_slider_set_range(slider_progress, 0, 100);
     lv_obj_add_event_cb(slider_progress, slider_progress_changed, LV_EVENT_VALUE_CHANGED, page);
     lv_obj_add_event_cb(slider_progress, slider_progress_released, LV_EVENT_RELEASED, page);
     page->slider_progress = slider_progress;
 
     lv_obj_t * slider_volume = lv_slider_create(screen);
-    lv_obj_set_size(slider_volume, lv_pct(80), lv_pct(10));
-    lv_obj_align(slider_volume, LV_ALIGN_TOP_MID, 0, lv_pct(40));
+    lv_obj_set_size(slider_volume, lv_pct(80), lv_pct(8));
+    lv_obj_align(slider_volume, LV_ALIGN_TOP_MID, 0, lv_pct(50));
     lv_slider_set_range(slider_volume, 0, 100);
     lv_slider_set_value(slider_volume, audio_volume_get(), LV_ANIM_OFF);
     lv_obj_add_event_cb(slider_volume, slider_volume_changed, LV_EVENT_VALUE_CHANGED, page);
     lv_obj_add_event_cb(slider_volume, slider_volume_released, LV_EVENT_RELEASED, page);
     page->slider_volume = slider_volume;
+
+    lv_obj_t * btn_control = lv_btn_create(screen);
+    lv_obj_set_size(btn_control, lv_pct(40), lv_pct(20));
+    lv_obj_align(btn_control, LV_ALIGN_TOP_MID, 0, lv_pct(65));
+    lv_obj_t * btn_control_label = lv_label_create(btn_control);
+    lv_label_set_text(btn_control_label, LV_SYMBOL_PAUSE "");
+    lv_obj_center(btn_control_label);
+    lv_obj_add_event_cb(btn_control, control_click, LV_EVENT_CLICKED, page);
+    page->btn_control_label = btn_control_label;
 
     lv_obj_t * btn_back = lv_btn_create(screen);
     lv_obj_set_size(btn_back, lv_pct(25), lv_pct(12));
@@ -96,11 +120,6 @@ static lv_obj_t * page_midi_obj(MidiPage * page, char * filename)
     lv_obj_center(btn_cycle_label);
     lv_obj_add_event_cb(btn_cycle, cycle_click, LV_EVENT_CLICKED, page);
     page->btn_cycle_label = btn_cycle_label;
-
-    lv_obj_t * clock = lv_text_clock_create(screen);
-    lv_obj_set_size(clock, lv_pct(100), lv_pct(12));
-    lv_obj_align(clock, LV_ALIGN_TOP_MID, 0, lv_pct(3));
-    lv_obj_set_style_text_align(clock, LV_TEXT_ALIGN_CENTER, NULL);
 
     page->timer = lv_timer_create(timer_tick, 250, page);
 
@@ -172,6 +191,11 @@ static void timer_tick(lv_timer_t * e){
     MidiPage * page = (MidiPage *)e->user_data;
     if(!page->player) return;
     lv_slider_set_value(page->slider_progress, midi_get_position_pct(page->player), LV_ANIM_OFF);
+
+    if(page->battery_label) {
+        uint8_t cap = battery_get_capacity();
+        lv_label_set_text_fmt(page->battery_label, "%d%%", cap);
+    }
 }
 
 static void player_finished(void * p)

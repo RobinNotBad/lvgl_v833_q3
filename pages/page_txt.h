@@ -11,17 +11,11 @@ extern "C" {
  *********************/
  
 #include "../lvgl/lvgl.h"
-#include "page_manager.h"
-#include <stdio.h>
-#include <stdlib.h>
-#include <string.h>
-#include "lvgl/src/misc/lv_txt.h"
+#include "platform/page_manager.h"
 
 /*********************
  *      DEFINES
  *********************/
- 
-#define MAX_LINES 9
 
 BasePage * page_txt_create(char * filename);
 

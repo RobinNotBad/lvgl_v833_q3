@@ -2,6 +2,7 @@
 
 #include "page_demo.h"
 #include "main.h"
+#include "page_upgrade.h"
 #include "platform/str_utils.h"
 #include "platform/audio_ctrl.h"
 #include "platform/config_manager.h"
@@ -11,6 +12,7 @@ static void btn_demo_click(lv_event_t * e);
 static void btn_about_click(lv_event_t * e);
 static void btn_developer_click(lv_event_t * e);
 static void btn_back_click(lv_event_t * e);
+static void btn_upgrade_click(lv_event_t * e);
 static void slider_brightness_changed(lv_event_t * e);
 static void slider_brightness_set(lv_event_t * e);
 static void slider_volume_changed(lv_event_t * e);
@@ -66,6 +68,14 @@ lv_obj_t * page_settings_main(void)
     lv_label_set_text(btn_label_demo, "Test");
     lv_obj_center(btn_label_demo);
     lv_obj_add_event_cb(btn_demo, btn_demo_click, LV_EVENT_CLICKED, NULL);
+
+        lv_obj_t * btn_upgrade = lv_btn_create(container);
+    lv_obj_set_size(btn_upgrade, lv_pct(64), lv_pct(32));
+    lv_obj_align(btn_upgrade, LV_FLEX_ALIGN_CENTER, 0, 0);
+    lv_obj_t * btn_label_upgrade = lv_label_create(btn_upgrade);
+    lv_label_set_text(btn_label_upgrade, "软件更新");
+    lv_obj_center(btn_label_upgrade);
+    lv_obj_add_event_cb(btn_upgrade, btn_upgrade_click, LV_EVENT_CLICKED, NULL);
 
     lv_obj_t * btn_about = lv_btn_create(container);
     lv_obj_set_size(btn_about, lv_pct(64), lv_pct(32));
@@ -134,4 +144,9 @@ static void slider_volume_set(lv_event_t * e)
 static void btn_back_click(lv_event_t * e)
 {
     page_back();
+}
+
+static void btn_upgrade_click(lv_event_t * e)
+{
+    page_open(page_upgrade_create(" 请填你version.json的raw格式url "));
 }
