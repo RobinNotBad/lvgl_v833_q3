@@ -86,7 +86,7 @@ lv_obj_t * page_home_obj(HomePage * page)
     lv_obj_t * btn_robot = lv_btn_create(screen);
     lv_obj_set_size(btn_robot, LV_PCT(48), LV_PCT(25));
     lv_obj_t * btn_robot_label = lv_label_create(btn_robot);
-    lv_label_set_text(btn_robot_label, "Scan");
+    lv_label_set_text(btn_robot_label, "扫描");
     lv_obj_center(btn_robot_label);
     lv_obj_add_event_cb(btn_robot, btn_scan_click, LV_EVENT_CLICKED, NULL);
     lv_obj_align(btn_robot, LV_ALIGN_TOP_LEFT, 0, LV_PCT(72));
@@ -94,7 +94,7 @@ lv_obj_t * page_home_obj(HomePage * page)
     lv_obj_t * btn_menu = lv_btn_create(screen);
     lv_obj_set_size(btn_menu, LV_PCT(48), LV_PCT(25));
     lv_obj_t * btn_menu_label = lv_label_create(btn_menu);
-    lv_label_set_text(btn_menu_label, "Menu");
+    lv_label_set_text(btn_menu_label, "菜单");
     lv_obj_center(btn_menu_label);
     lv_obj_add_event_cb(btn_menu, btn_menu_click, LV_EVENT_CLICKED, NULL);
     lv_obj_align(btn_menu, LV_ALIGN_TOP_RIGHT, 0, LV_PCT(72));
@@ -144,9 +144,9 @@ static void timer_battery_tick(lv_timer_t * e)
     char status_str[24];
     switch(status) {
         case BATTERY_DISCHARGING: strcpy(status_str, ""); break;
-        case BATTERY_CHARGING: strcpy(status_str, "Charging"); break;
-        case BATTERY_FULL: strcpy(status_str, "Full"); break;
-        default: strcpy(status_str, "Unknown"); break;
+        case BATTERY_CHARGING: strcpy(status_str, "充电中"); break;
+        case BATTERY_FULL: strcpy(status_str, "已充满"); break;
+        default: strcpy(status_str, "未知"); break;
     }
 
     snprintf(battery_text, sizeof(battery_text), LV_SYMBOL_CHARGE "%d%% %s", capacity, status_str);

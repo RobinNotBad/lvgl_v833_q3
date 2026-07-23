@@ -2,17 +2,16 @@
 
 #include "page_demo.h"
 #include "main.h"
-#include "page_upgrade.h"
 #include "platform/str_utils.h"
 #include "platform/audio_ctrl.h"
 #include "platform/config_manager.h"
 #include "views/custom_msgbox.h"
+#include "platform/config_manager.h"
 
 static void btn_demo_click(lv_event_t * e);
 static void btn_about_click(lv_event_t * e);
 static void btn_developer_click(lv_event_t * e);
 static void btn_back_click(lv_event_t * e);
-static void btn_upgrade_click(lv_event_t * e);
 static void slider_brightness_changed(lv_event_t * e);
 static void slider_brightness_set(lv_event_t * e);
 static void slider_volume_changed(lv_event_t * e);
@@ -42,7 +41,7 @@ lv_obj_t * page_settings_main(void)
     lv_obj_add_event_cb(btn_back, btn_back_click, LV_EVENT_CLICKED, NULL);
 
     lv_obj_t * label_brightness = lv_label_create(container);
-    lv_label_set_text(label_brightness, "Brightness");
+    lv_label_set_text(label_brightness, "亮度");
     lv_obj_t * slider_brightness = lv_slider_create(container);
 	lv_obj_set_size(slider_brightness, lv_pct(80), lv_pct(10));
     lv_obj_set_style_translate_x(slider_brightness, lv_obj_get_width_pct(container, 5), LV_STATE_DEFAULT);
@@ -52,7 +51,7 @@ lv_obj_t * page_settings_main(void)
 	lv_obj_add_event_cb(slider_brightness, slider_brightness_set, LV_EVENT_RELEASED, NULL);
 
     lv_obj_t * label_volume = lv_label_create(container);
-    lv_label_set_text(label_volume, "Volume");
+    lv_label_set_text(label_volume, "音量");
     lv_obj_t * slider_volume = lv_slider_create(container);
 	lv_obj_set_size(slider_volume, lv_pct(80), lv_pct(10));
     lv_obj_set_style_translate_x(slider_volume, lv_obj_get_width_pct(container, 5), LV_STATE_DEFAULT);
@@ -65,23 +64,15 @@ lv_obj_t * page_settings_main(void)
     lv_obj_set_size(btn_demo, lv_pct(64), lv_pct(32));
     lv_obj_align(btn_demo, LV_FLEX_ALIGN_START, lv_pct(10), 0);
     lv_obj_t * btn_label_demo = lv_label_create(btn_demo);
-    lv_label_set_text(btn_label_demo, "Test");
+    lv_label_set_text(btn_label_demo, "测试");
     lv_obj_center(btn_label_demo);
     lv_obj_add_event_cb(btn_demo, btn_demo_click, LV_EVENT_CLICKED, NULL);
-
-        lv_obj_t * btn_upgrade = lv_btn_create(container);
-    lv_obj_set_size(btn_upgrade, lv_pct(64), lv_pct(32));
-    lv_obj_align(btn_upgrade, LV_FLEX_ALIGN_CENTER, 0, 0);
-    lv_obj_t * btn_label_upgrade = lv_label_create(btn_upgrade);
-    lv_label_set_text(btn_label_upgrade, "软件更新");
-    lv_obj_center(btn_label_upgrade);
-    lv_obj_add_event_cb(btn_upgrade, btn_upgrade_click, LV_EVENT_CLICKED, NULL);
 
     lv_obj_t * btn_about = lv_btn_create(container);
     lv_obj_set_size(btn_about, lv_pct(64), lv_pct(32));
     lv_obj_align(btn_about, LV_FLEX_ALIGN_START, lv_pct(10), 0);
     lv_obj_t * btn_label_about = lv_label_create(btn_about);
-    lv_label_set_text(btn_label_about, "About Dendro");
+    lv_label_set_text(btn_label_about, "关于Dendro");
     lv_obj_center(btn_label_about);
     lv_obj_add_event_cb(btn_about, btn_about_click, LV_EVENT_CLICKED, NULL);
 
@@ -89,7 +80,7 @@ lv_obj_t * page_settings_main(void)
     lv_obj_set_size(btn_developer, lv_pct(64), lv_pct(32));
     lv_obj_align(btn_developer, LV_FLEX_ALIGN_START, lv_pct(10), 0);
     lv_obj_t * btn_label_developer = lv_label_create(btn_developer);
-    lv_label_set_text(btn_label_developer, "Developers");
+    lv_label_set_text(btn_label_developer, "开发人员");
     lv_obj_center(btn_label_developer);
     lv_obj_add_event_cb(btn_developer, btn_developer_click, LV_EVENT_CLICKED, NULL);
 
@@ -105,12 +96,12 @@ static void btn_demo_click(lv_event_t * e) // static可以防止同名冲突
 
 static void btn_about_click(lv_event_t * e)
 {
-    custom_msgbox_create("About", "Dendro is a simple multimedia provider program with a GUI, targeting unusual Linux devices.", NULL, true);
+    custom_msgbox_create("关于", "Dendro是一个为奇葩Linux嵌入式设备提供多媒体功能的GUI程序。", NULL, true);
 }
 
 static void btn_developer_click(lv_event_t * e)
 {
-    custom_msgbox_create("Developers", "Main Developer: RobinNotBad\nOpen Source: https://github.com/RobinNotBad/lvgl_v833_q3", NULL, true);
+    custom_msgbox_create("开发人员", "主开发者：RobinNotBad\n开源地址：https://github.com/RobinNotBad/lvgl_v833_q3", NULL, true);
 }
 
 static void slider_brightness_changed(lv_event_t * e)
@@ -146,7 +137,3 @@ static void btn_back_click(lv_event_t * e)
     page_back();
 }
 
-static void btn_upgrade_click(lv_event_t * e)
-{
-    page_open(page_upgrade_create(" 请填你version.json的raw格式url "));
-}

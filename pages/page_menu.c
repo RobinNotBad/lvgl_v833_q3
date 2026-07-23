@@ -44,7 +44,7 @@ lv_obj_t * page_menu(void)
     lv_obj_set_size(btn_file_manager, lv_pct(64), lv_pct(32));
     lv_obj_align(btn_file_manager, LV_FLEX_ALIGN_CENTER, 0, 0);
     lv_obj_t * btn_label_file_manager = lv_label_create(btn_file_manager);
-    lv_label_set_text(btn_label_file_manager, "File Manager");
+    lv_label_set_text(btn_label_file_manager, "文件管理");
     lv_obj_center(btn_label_file_manager);
     lv_obj_add_event_cb(btn_file_manager, btn_file_manager_click, LV_EVENT_CLICKED, NULL);
 
@@ -52,7 +52,7 @@ lv_obj_t * page_menu(void)
     lv_obj_set_size(btn_calculator, lv_pct(64), lv_pct(32));
     lv_obj_align(btn_calculator, LV_FLEX_ALIGN_CENTER, 0, 0);
     lv_obj_t * btn_label_calculator = lv_label_create(btn_calculator);
-    lv_label_set_text(btn_label_calculator, "Calculator");
+    lv_label_set_text(btn_label_calculator, "计算器");
     lv_obj_center(btn_label_calculator);
     lv_obj_add_event_cb(btn_calculator, btn_calculator_click, LV_EVENT_CLICKED, NULL);
 
@@ -86,7 +86,7 @@ lv_obj_t * page_menu(void)
     lv_obj_set_size(btn_settings, lv_pct(64), lv_pct(32));
     lv_obj_align(btn_settings, LV_FLEX_ALIGN_CENTER, 0, 0);
     lv_obj_t * btn_label_settings = lv_label_create(btn_settings);
-    lv_label_set_text(btn_label_settings, "Settings");
+    lv_label_set_text(btn_label_settings, "设置");
     lv_obj_center(btn_label_settings);
     lv_obj_add_event_cb(btn_settings, btn_settings_click, LV_EVENT_CLICKED, NULL);
 
