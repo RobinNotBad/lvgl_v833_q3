@@ -175,6 +175,12 @@ int main(int argc, char * argv[])
     if(config_read_bool(MAIN_CONFIG_FILE, CFG_SETUP, false, &setup) == -1 || !setup) {
         config_write_bool(MAIN_CONFIG_FILE, CFG_SETUP, true);
     }
+
+    bool reverse_x, reverse_y;
+    config_read_bool(MAIN_CONFIG_FILE, CFG_REVERSE_X, false, &reverse_x);
+    config_read_bool(MAIN_CONFIG_FILE, CFG_REVERSE_Y, false, &reverse_y);
+    evdev_reverse(reverse_x, reverse_y);
+
     int volume;
     config_read_int(MAIN_CONFIG_FILE, CFG_VOLUME, 0, &volume);
     audio_volume_set(volume);

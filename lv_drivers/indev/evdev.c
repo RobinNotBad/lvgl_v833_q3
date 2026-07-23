@@ -7,20 +7,12 @@
  *      INCLUDES
  *********************/
 #include "evdev.h"
-#if USE_EVDEV != 0 || USE_BSD_EVDEV
+#if USE_EVDEV != 0
 
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
-#if USE_BSD_EVDEV
-#include <dev/evdev/input.h>
-#else
 #include <linux/input.h>
-#endif
-
-#if USE_XKB
-#include "xkb.h"
-#endif /* USE_XKB */
 
 /*********************
  *      DEFINES
@@ -47,6 +39,9 @@ int evdev_key_val;
 
 static struct timeval tv_start;
 static uint64_t press_ts;
+
+bool evdev_reverse_x = 0;
+bool evdev_reverse_y = 0;
 
 /**********************
  *      MACROS
@@ -75,10 +70,6 @@ void evdev_init(void)
     if(!evdev_set_file(EVDEV_NAME)) {
         return;
     }
-
-#if USE_XKB
-    xkb_init();
-#endif
 }
 /**
  * reconfigure the device file for evdev
@@ -91,22 +82,15 @@ bool evdev_set_file(char * dev_name)
     if(evdev_fd != -1) {
         close(evdev_fd);
     }
-#if USE_BSD_EVDEV
-    evdev_fd = open(dev_name, O_RDWR | O_NOCTTY);
-#else
+    
     evdev_fd = open(dev_name, O_NOCTTY); // 修改
-#endif
 
     if(evdev_fd == -1) {
         perror("unable to open evdev interface:");
         return false;
     }
 
-#if USE_BSD_EVDEV
-    fcntl(evdev_fd, F_SETFL, O_NONBLOCK);
-#else
     fcntl(evdev_fd, F_SETFL, O_ASYNC | O_NONBLOCK);
-#endif
 
     evdev_root_x  = 0;
     evdev_root_y  = 0;
@@ -128,9 +112,13 @@ void evdev_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
         int val  = *(int *)(buf + 12);
 
         switch(type) {
-            case 3473411: evdev_root_x = 240 - val; break;
+            case 3473411: 
+                if(evdev_reverse_x) evdev_root_x = val; 
+                else evdev_root_x = 240 - val; 
+                break;
             case 3538947:
-                evdev_root_y = val;
+                if(evdev_reverse_y) evdev_root_y = 240 - val; 
+                else evdev_root_y = val;
                 evdev_button = LV_INDEV_STATE_PR;
                 // printf("[tp]press x=%d, y=%d\n", evdev_root_x, evdev_root_y);
 
@@ -159,6 +147,12 @@ void evdev_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
     if(data->point.y >= drv->disp->driver->ver_res) data->point.y = drv->disp->driver->ver_res - 1;
 
     return;
+}
+
+void evdev_reverse(bool reverse_x, bool reverse_y)
+{
+    evdev_reverse_x = reverse_x;
+    evdev_reverse_y = reverse_y;
 }
 
 /**********************

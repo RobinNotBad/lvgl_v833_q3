@@ -9,6 +9,8 @@
 #define MAIN_CONFIG_FILE "/mnt/UDISK/lvgl/config.json"
 
 #define CFG_SETUP "/dendro/setup"
+#define CFG_REVERSE_X "/evdev/reverse_x"
+#define CFG_REVERSE_Y "/evdev/reverse_y"
 #define CFG_BRIGHTNESS "/system/brightness"
 #define CFG_VOLUME "/system/volume"
 

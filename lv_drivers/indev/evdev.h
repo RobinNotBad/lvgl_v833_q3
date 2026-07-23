@@ -62,6 +62,8 @@ uint64_t evdev_get_press_ts(void);
 
 void evdev_refresh_press_ts(void);
 
+void evdev_reverse(bool reverse_x, bool reverse_y);
+
 /**********************
  *      MACROS
  **********************/
