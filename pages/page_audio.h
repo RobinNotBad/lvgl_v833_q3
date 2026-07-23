@@ -14,9 +14,11 @@ extern "C" {
 #include "platform/ff_player.h"
 #include "platform/audio_ctrl.h"
 #include "views/lv_text_clock.h"
+#include "battery_manager.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdbool.h>
+#include <main.h>
 
 /*********************
  *      DEFINES

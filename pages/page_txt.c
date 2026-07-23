@@ -1,4 +1,12 @@
 #include "page_txt.h"
+#include "main.h"
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <errno.h>
+#include "lvgl/src/misc/lv_txt.h"
+
+#define MAX_LINES   9
 
 typedef struct
 {
@@ -37,7 +45,9 @@ BasePage * page_txt_create(char * filename)
     TxtPage * txt = malloc(sizeof(TxtPage));
     if(!txt) return NULL;
     memset(txt, 0, sizeof(TxtPage));
-
+    
+    sys_set_dont_timeout(true);
+    
     lv_obj_t * screen = lv_obj_create(lv_scr_act());
     lv_obj_remove_style_all(screen);
     lv_obj_set_size(screen, lv_pct(100), lv_pct(100));
@@ -46,8 +56,9 @@ BasePage * page_txt_create(char * filename)
     FILE * fp = fopen(filename, "r");
     if(fp == NULL) {
         lv_obj_t * error_label = lv_label_create(screen);
-        lv_label_set_text(error_label, "error: can not open file!");
+        lv_label_set_text_fmt(error_label, "无法打开此文件\n%s", strerror(errno));
         lv_obj_align(error_label, LV_ALIGN_CENTER, 0, 0);
+        lv_obj_set_style_text_align(error_label, LV_TEXT_ALIGN_CENTER, 0);
 
         lv_obj_t * btn_back = lv_btn_create(screen);
         lv_obj_set_size(btn_back, lv_pct(25), lv_pct(12));
@@ -70,7 +81,7 @@ BasePage * page_txt_create(char * filename)
     if(!txt->file_content) {
         fclose(fp);
         lv_obj_t * error_label = lv_label_create(screen);
-        lv_label_set_text(error_label, "error: no more memory!");
+        lv_label_set_text(error_label, "Error: 没有多余内存!");
         lv_obj_align(error_label, LV_ALIGN_CENTER, 0, 0);
 
         lv_obj_t * btn_back = lv_btn_create(screen);
@@ -123,7 +134,7 @@ BasePage * page_txt_create(char * filename)
     lv_obj_add_event_cb(btn_prev, prev_page_click, LV_EVENT_CLICKED, txt);
 
     lv_obj_t * btn_next = lv_btn_create(screen);
-    lv_obj_set_size(btn_next, 40, 27);
+    lv_obj_set_size(btn_next, 40, 28);
     lv_obj_align(btn_next, LV_ALIGN_BOTTOM_RIGHT, 0, 0);
     lv_obj_t * btn_next_label = lv_label_create(btn_next);
     lv_label_set_text(btn_next_label, ">");
@@ -277,8 +288,7 @@ static void update_display(TxtPage * txt)
     if(!txt->file_content || !txt->text_label || !txt->page_label || !txt->page_starts) return;
 
     long start_pos = txt->page_starts[txt->current_page];
-    long end_pos =
-        (txt->current_page + 1 < txt->total_pages) ? txt->page_starts[txt->current_page + 1] : txt->file_size;
+    long end_pos = (txt->current_page + 1 < txt->total_pages) ? txt->page_starts[txt->current_page + 1] : txt->file_size;
 
     long page_len = end_pos - start_pos;
     if(page_len <= 0) {
@@ -290,7 +300,8 @@ static void update_display(TxtPage * txt)
     lv_coord_t max_width   = lv_obj_get_content_width(txt->text_label);
     lv_coord_t space_width = lv_font_get_glyph_width(font, ' ', 0);
 
-    char display_buffer[2048];
+    static char display_buffer[2048];       // 改为 static，避免栈溢出
+    display_buffer[0] = '\0';              // 每次使用前清空
     int buf_idx           = 0;
     int line_count        = 0;
     lv_coord_t line_width = 0;
@@ -442,4 +453,5 @@ static void txt_page_destroy(void * page)
     TxtPage * txt = (TxtPage *)page;
     if(txt->file_content) free(txt->file_content);
     if(txt->page_starts) free(txt->page_starts);
+    sys_set_dont_timeout(false);
 }
