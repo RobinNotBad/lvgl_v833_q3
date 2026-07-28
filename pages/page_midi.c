@@ -87,7 +87,7 @@ static lv_obj_t * page_midi_obj(MidiPage * page, char * filename)
 
     lv_obj_t * slider_progress = lv_slider_create(screen);
     lv_obj_set_size(slider_progress, lv_pct(80), lv_pct(8));
-    lv_obj_align(slider_progress, LV_ALIGN_TOP_MID, 0, lv_pct(35));
+    lv_obj_align(slider_progress, LV_ALIGN_TOP_MID, 0, lv_pct(32));
     lv_slider_set_range(slider_progress, 0, 100);
     lv_obj_add_event_cb(slider_progress, slider_progress_changed, LV_EVENT_VALUE_CHANGED, page);
     lv_obj_add_event_cb(slider_progress, slider_progress_released, LV_EVENT_RELEASED, page);
@@ -95,7 +95,7 @@ static lv_obj_t * page_midi_obj(MidiPage * page, char * filename)
 
     lv_obj_t * slider_volume = lv_slider_create(screen);
     lv_obj_set_size(slider_volume, lv_pct(80), lv_pct(8));
-    lv_obj_align(slider_volume, LV_ALIGN_TOP_MID, 0, lv_pct(50));
+    lv_obj_align(slider_volume, LV_ALIGN_TOP_MID, 0, lv_pct(48));
     lv_slider_set_range(slider_volume, 0, 100);
     lv_slider_set_value(slider_volume, audio_volume_get(), LV_ANIM_OFF);
     lv_obj_add_event_cb(slider_volume, slider_volume_changed, LV_EVENT_VALUE_CHANGED, page);
