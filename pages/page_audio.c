@@ -10,8 +10,8 @@ typedef struct
     ff_player_t * player;
     lv_timer_t * timer;
     bool cycle;
-    lv_obj_t * title_label;
-    lv_obj_t * battery_label;
+    lv_obj_t * label_title;
+    lv_obj_t * label_battery;
 } AudioPage;
 
 static lv_obj_t * page_audio_obj(AudioPage * page, char * filename);
@@ -57,20 +57,19 @@ static lv_obj_t * page_audio_obj(AudioPage * page, char * filename)
     }
 
     lv_obj_t * clock = lv_text_clock_create(screen);
-    lv_obj_set_size(clock, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
-    lv_obj_align(clock, LV_ALIGN_TOP_LEFT, 10, 5);
+    lv_obj_align(clock, LV_ALIGN_TOP_LEFT, lv_pct(5), lv_pct(2));
 
-    lv_obj_t * battery_label = lv_label_create(screen);
-    lv_obj_align(battery_label, LV_ALIGN_TOP_RIGHT, -12, 5);
+    lv_obj_t * label_battery = lv_label_create(screen);
+    lv_obj_align(label_battery, LV_ALIGN_TOP_RIGHT, lv_pct(-5), lv_pct(2));
     uint8_t cap = battery_get_capacity();
-    lv_label_set_text_fmt(battery_label, "%d%% ", cap);
-    page->battery_label = battery_label;
+    lv_label_set_text_fmt(label_battery, "%d%% ", cap);
+    page->label_battery = label_battery;
 
-    lv_obj_t * title_label = lv_label_create(screen);
-    lv_obj_set_width(title_label, 200);
-    lv_label_set_long_mode(title_label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_style_text_align(title_label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(title_label, LV_ALIGN_TOP_MID, 0, 40);
+    lv_obj_t * label_title = lv_label_create(screen);
+    lv_obj_set_width(label_title, lv_pct(85));
+    lv_label_set_long_mode(label_title, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_obj_set_style_text_align(label_title, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(label_title, LV_ALIGN_TOP_MID, 0, lv_pct(15));
 
     // 用ffmpeg获取一下文件元数据
     const char * title = NULL;
@@ -81,19 +80,20 @@ static lv_obj_t * page_audio_obj(AudioPage * page, char * filename)
         }
     }
     if (title) {
-        lv_label_set_text(title_label, title);
+        // 有元数据，显示曲名
+        lv_label_set_text(label_title, title);
     } else {
-        // 啥也没有，用文件名展示
-        char * base = strrchr(filename, '/'); // 去掉路径
-        if (base) base++;
-        else base = (char *)filename;
-        lv_label_set_text(title_label, base);
+        // 啥也没有，显示文件名
+        char * base = strrchr(filename, '/');
+        if (base)    base++;                // 有斜杠，去掉斜杠
+        else         base = filename;       // 没斜杠，直接用原名
+        lv_label_set_text(label_title, base);
     }
-    page->title_label = title_label;
+    page->label_title = label_title;
 
     lv_obj_t * slider_progress = lv_slider_create(screen);
     lv_obj_set_size(slider_progress, lv_pct(80), lv_pct(8));
-    lv_obj_align(slider_progress, LV_ALIGN_TOP_MID, 0, lv_pct(35));
+    lv_obj_align(slider_progress, LV_ALIGN_TOP_MID, 0, lv_pct(32));
     lv_slider_set_range(slider_progress, 0, 100);
     lv_obj_add_event_cb(slider_progress, slider_progress_changed, LV_EVENT_VALUE_CHANGED, page);
     lv_obj_add_event_cb(slider_progress, slider_progress_released, LV_EVENT_RELEASED, page);
@@ -101,17 +101,16 @@ static lv_obj_t * page_audio_obj(AudioPage * page, char * filename)
 
     lv_obj_t * slider_volume = lv_slider_create(screen);
     lv_obj_set_size(slider_volume, lv_pct(80), lv_pct(8));
-    lv_obj_align(slider_volume, LV_ALIGN_TOP_MID, 0, lv_pct(50));
+    lv_obj_align(slider_volume, LV_ALIGN_TOP_MID, 0, lv_pct(48));
     lv_slider_set_range(slider_volume, 0, 100);
     lv_slider_set_value(slider_volume, audio_volume_get(), LV_ANIM_OFF);
     lv_obj_add_event_cb(slider_volume, slider_volume_changed, LV_EVENT_VALUE_CHANGED, page);
     lv_obj_add_event_cb(slider_volume, slider_volume_released, LV_EVENT_RELEASED, page);
     page->slider_volume = slider_volume;
 
-
     lv_obj_t * btn_control = lv_btn_create(screen);
     lv_obj_set_size(btn_control, lv_pct(40), lv_pct(20));
-    lv_obj_align(btn_control, LV_ALIGN_TOP_MID, 0, lv_pct(65));
+    lv_obj_align(btn_control, LV_ALIGN_TOP_MID, 0, lv_pct(64));
     lv_obj_t * btn_control_label = lv_label_create(btn_control);
     lv_label_set_text(btn_control_label, LV_SYMBOL_PAUSE "");
     lv_obj_center(btn_control_label);
@@ -173,10 +172,7 @@ static void control_click(lv_event_t * e)
     }
 }
 
-static void slider_progress_changed(lv_event_t * e) 
-{
-    // 可留空，拖拽时由 released 处理跳转
-}
+static void slider_progress_changed(lv_event_t * e) {}
 
 static void slider_progress_released(lv_event_t * e)
 {
@@ -214,9 +210,9 @@ static void timer_tick(lv_timer_t * e)
     }
 
     // 更新电量
-    if(page->battery_label) {
+    if(page->label_battery) {
         uint8_t cap = battery_get_capacity();
-        lv_label_set_text_fmt(page->battery_label, "%d%%", cap);
+        lv_label_set_text_fmt(page->label_battery, "%d%%", cap);
     }
 }
 

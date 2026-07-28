@@ -164,7 +164,7 @@ int config_read_string(const char* file_path, const char* json_path, char* def_v
     if (ret == 0) {
         *out_value = str;
     }
-    else *out_value = def_value;
+    else *out_value = strdup(def_value);
     return ret;
 }
 

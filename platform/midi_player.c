@@ -50,9 +50,10 @@ int midi_open(midi_player_t * player, const char * filename)
     int ret = 0;
 
     // 初始化
+    printf("[midi_player] config file is %s\n", player->config_file);
     ret = mid_init(player->config_file);
     if(ret < 0) {
-        fprintf(stderr, "[midi_player]初始化timidity错误\n");
+        fprintf(stderr, "[midi_player] 初始化timidity错误\n");
         ret = -1;
         goto cleanup;
     }
@@ -60,7 +61,7 @@ int midi_open(midi_player_t * player, const char * filename)
     // 打开MIDI文件
     player->midi_stream = mid_istream_open_file(filename);
     if(!player->midi_stream) {
-        fprintf(stderr, "[midi_player]MIDI文件打开失败\n");
+        fprintf(stderr, "[midi_player] MIDI文件打开失败\n");
         ret = -2;
         goto cleanup;
     }
@@ -72,7 +73,7 @@ int midi_open(midi_player_t * player, const char * filename)
 
     player->song = mid_song_load(player->midi_stream, &player->song_options);
     if(!player->song) {
-        fprintf(stderr, "[midi_player]MIDI文件加载失败\n");
+        fprintf(stderr, "[midi_player] MIDI文件加载失败\n");
         ret = -2;
         goto cleanup;
     }
@@ -102,7 +103,7 @@ int midi_init(midi_player_t * player)
     // 打开ALSA设备
     int err;
     if((err = snd_pcm_open(&player->pcm_handle, "default", SND_PCM_STREAM_PLAYBACK, 0)) < 0) {
-        fprintf(stderr, "[midi_player]无法打开PCM设备: %s\n", snd_strerror(err));
+        fprintf(stderr, "[midi_player] 无法打开PCM设备: %s\n", snd_strerror(err));
         ret = -1;
         goto cleanup;
     }
@@ -121,7 +122,7 @@ int midi_init(midi_player_t * player)
     snd_pcm_hw_params_set_period_size_near(player->pcm_handle, hw_params, &period_size, 0);
 
     if((err = snd_pcm_hw_params(player->pcm_handle, hw_params)) < 0) {
-        fprintf(stderr, "[midi_player]无法设置硬件参数: %s\n", snd_strerror(err));
+        fprintf(stderr, "[midi_player] 无法设置硬件参数: %s\n", snd_strerror(err));
         ret = -1;
         goto cleanup;
     }
@@ -130,7 +131,7 @@ int midi_init(midi_player_t * player)
     player->state = MIDI_PAUSED;
 
     if(pthread_create(&player->player_thread, NULL, midi_thread_func, player) != 0) {
-        fprintf(stderr, "[midi_player]无法创建播放线程\n");
+        fprintf(stderr, "[midi_player] 无法创建播放线程\n");
         ret = -1;
         goto cleanup;
     }
@@ -150,7 +151,7 @@ static void * midi_thread_func(void * arg)
 
     sint8 * audio_buffer = malloc(BUFFER_SIZE * player->channels * sizeof(int16_t)); // S16LE
     if(!audio_buffer) {
-        fprintf(stderr, "[midi_player]无法分配音频缓冲区\n");
+        fprintf(stderr, "[midi_player] 无法分配音频缓冲区\n");
         goto cleanup;
     }
 
@@ -197,17 +198,17 @@ static void * midi_thread_func(void * arg)
 
         if(err == -EPIPE) {
             // 缓冲区欠载，尝试恢复
-            fprintf(stderr, "[midi_player]缓冲区欠载，正在恢复\n");
+            fprintf(stderr, "[midi_player] 缓冲区欠载，正在恢复\n");
             snd_pcm_prepare(player->pcm_handle);
 
             // 重试写入
             err = snd_pcm_writei(player->pcm_handle, audio_buffer, frames);
             if(err < 0) {
-                fprintf(stderr, "[midi_player]恢复失败：%s\n", snd_strerror(err));
+                fprintf(stderr, "[midi_player] 恢复失败：%s\n", snd_strerror(err));
                 break;
             }
         } else if(err < 0) {
-            fprintf(stderr, "[midi_player]写入PCM设备失败：%s\n", snd_strerror(err));
+            fprintf(stderr, "[midi_player] 写入PCM设备失败：%s\n", snd_strerror(err));
             break;
         }
     }
@@ -295,7 +296,7 @@ int midi_seek_ms(midi_player_t * player, uint32_t ms)
 {
     if(!player || !player->song) return -1;
 
-    LV_LOG_USER("[midi_player]now=%d, duration=%d\n", ms, midi_get_duration_ms(player));
+    LV_LOG_USER("[midi_player] now=%d, duration=%d\n", ms, midi_get_duration_ms(player));
 
     pthread_mutex_lock(&player->mutex);
     player->seek_pos     = ms;

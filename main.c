@@ -172,19 +172,22 @@ int main(int argc, char * argv[])
 
     // 配置文件
     bool setup;
-    if(config_read_bool(MAIN_CONFIG_FILE, CFG_SETUP, false, &setup) == -1 || !setup) {
-        config_write_bool(MAIN_CONFIG_FILE, CFG_SETUP, true);
+    if(config_read_bool(CFG_FILE_MAIN, CFG_SETUP, false, &setup) == -1 || !setup) {
+        config_write_bool(CFG_FILE_MAIN, CFG_SETUP, true);
+        config_write_string(CFG_FILE_MAIN, CFG_TIMIDITY_CFG, "/mnt/app/dendro/midi/timidity.cfg");
+        config_write_bool(CFG_FILE_MAIN, CFG_REVERSE_X, false);
+        config_write_bool(CFG_FILE_MAIN, CFG_REVERSE_Y, false);
     }
 
     bool reverse_x, reverse_y;
-    config_read_bool(MAIN_CONFIG_FILE, CFG_REVERSE_X, false, &reverse_x);
-    config_read_bool(MAIN_CONFIG_FILE, CFG_REVERSE_Y, false, &reverse_y);
+    config_read_bool(CFG_FILE_MAIN, CFG_REVERSE_X, false, &reverse_x);
+    config_read_bool(CFG_FILE_MAIN, CFG_REVERSE_Y, false, &reverse_y);
     evdev_reverse(reverse_x, reverse_y);
 
     int volume;
-    config_read_int(MAIN_CONFIG_FILE, CFG_VOLUME, 0, &volume);
+    config_read_int(CFG_FILE_MAIN, CFG_VOLUME, 0, &volume);
     audio_volume_set(volume);
-    config_read_int(MAIN_CONFIG_FILE, CFG_BRIGHTNESS, SCREEN_BRIGHTNESS_DEFAULT, &lcd_brightness);
+    config_read_int(CFG_FILE_MAIN, CFG_BRIGHTNESS, SCREEN_BRIGHTNESS_DEFAULT, &lcd_brightness);
     lcd_set_brightness_inner(lcd_brightness);
     
 

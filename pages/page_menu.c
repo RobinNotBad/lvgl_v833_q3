@@ -7,6 +7,7 @@
 #include "page_ftp.h"
 #include "page_usb.h"
 #include "page_settings_main.h"
+#include "page_2048.h"
 #include "main.h"
 
 static void btn_demo_click(lv_event_t * e);
@@ -14,6 +15,7 @@ static void btn_back_click(lv_event_t * e);
 static void btn_file_manager_click(lv_event_t * e);
 static void btn_calculator_click(lv_event_t * e);
 static void btn_bird_click(lv_event_t * e);
+static void btn_2048_click(lv_event_t * e);
 static void btn_ftp_click(lv_event_t * e);
 static void btn_usb_click(lv_event_t * e);
 static void btn_settings_click(lv_event_t * e);
@@ -44,7 +46,7 @@ lv_obj_t * page_menu(void)
     lv_obj_set_size(btn_file_manager, lv_pct(64), lv_pct(32));
     lv_obj_align(btn_file_manager, LV_FLEX_ALIGN_CENTER, 0, 0);
     lv_obj_t * btn_label_file_manager = lv_label_create(btn_file_manager);
-    lv_label_set_text(btn_label_file_manager, "文件管理");
+    lv_label_set_text(btn_label_file_manager, "File Manager");
     lv_obj_center(btn_label_file_manager);
     lv_obj_add_event_cb(btn_file_manager, btn_file_manager_click, LV_EVENT_CLICKED, NULL);
 
@@ -52,7 +54,7 @@ lv_obj_t * page_menu(void)
     lv_obj_set_size(btn_calculator, lv_pct(64), lv_pct(32));
     lv_obj_align(btn_calculator, LV_FLEX_ALIGN_CENTER, 0, 0);
     lv_obj_t * btn_label_calculator = lv_label_create(btn_calculator);
-    lv_label_set_text(btn_label_calculator, "计算器");
+    lv_label_set_text(btn_label_calculator, "Calculator");
     lv_obj_center(btn_label_calculator);
     lv_obj_add_event_cb(btn_calculator, btn_calculator_click, LV_EVENT_CLICKED, NULL);
 
@@ -63,6 +65,14 @@ lv_obj_t * page_menu(void)
     lv_label_set_text(btn_label_bird, "Flappy Bird");
     lv_obj_center(btn_label_bird);
     lv_obj_add_event_cb(btn_bird, btn_bird_click, LV_EVENT_CLICKED, NULL);
+
+    lv_obj_t * btn_2048 = lv_btn_create(container);
+    lv_obj_set_size(btn_2048, lv_pct(64), lv_pct(32));
+    lv_obj_align(btn_2048, LV_FLEX_ALIGN_CENTER, 0, 0);
+    lv_obj_t * btn_label_2048 = lv_label_create(btn_2048);
+    lv_label_set_text(btn_label_2048, "2048");
+    lv_obj_center(btn_label_2048);
+    lv_obj_add_event_cb(btn_2048, btn_2048_click, LV_EVENT_CLICKED, NULL);
 
     lv_obj_t * btn_ftp = lv_btn_create(container);
     lv_obj_set_size(btn_ftp, lv_pct(64), lv_pct(32));
@@ -86,7 +96,7 @@ lv_obj_t * page_menu(void)
     lv_obj_set_size(btn_settings, lv_pct(64), lv_pct(32));
     lv_obj_align(btn_settings, LV_FLEX_ALIGN_CENTER, 0, 0);
     lv_obj_t * btn_label_settings = lv_label_create(btn_settings);
-    lv_label_set_text(btn_label_settings, "设置");
+    lv_label_set_text(btn_label_settings, "Settings");
     lv_obj_center(btn_label_settings);
     lv_obj_add_event_cb(btn_settings, btn_settings_click, LV_EVENT_CLICKED, NULL);
 
@@ -111,6 +121,11 @@ static void btn_calculator_click(lv_event_t * e)
 static void btn_bird_click(lv_event_t * e)
 {
     page_open(page_bird_create());
+}
+
+static void btn_2048_click(lv_event_t * e)
+{
+    page_open(page_2048_create());
 }
 
 static void btn_ftp_click(lv_event_t * e)

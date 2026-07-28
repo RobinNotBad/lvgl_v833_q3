@@ -123,21 +123,21 @@ lv_obj_t * page_file_manager_obj(FileManagerPage * page)
     lv_obj_t * btn_cut = lv_btn_create(list_act);
     lv_obj_set_size(btn_cut, lv_pct(100), lv_pct(22));
     lv_obj_t * btn_label_cut = lv_label_create(btn_cut);
-    lv_label_set_text(btn_label_cut, "剪切");
+    lv_label_set_text(btn_label_cut, "Cut");
     lv_obj_center(btn_label_cut);
     lv_obj_add_event_cb(btn_cut, act_cut_click, LV_EVENT_CLICKED, page);
 
     lv_obj_t * btn_copy = lv_btn_create(list_act);
     lv_obj_set_size(btn_copy, lv_pct(100), lv_pct(22));
     lv_obj_t * btn_label_copy = lv_label_create(btn_copy);
-    lv_label_set_text(btn_label_copy, "复制");
+    lv_label_set_text(btn_label_copy, "Copy");
     lv_obj_center(btn_label_copy);
     lv_obj_add_event_cb(btn_copy, act_copy_click, LV_EVENT_CLICKED, page);
 
     lv_obj_t * btn_paste = lv_btn_create(list_act);
     lv_obj_set_size(btn_paste, lv_pct(100), lv_pct(22));
     lv_obj_t * btn_label_paste = lv_label_create(btn_paste);
-    lv_label_set_text(btn_label_paste, "粘贴");
+    lv_label_set_text(btn_label_paste, "Paste");
     lv_obj_center(btn_label_paste);
     lv_obj_add_event_cb(btn_paste, act_paste_click, LV_EVENT_CLICKED, page);
 
@@ -145,7 +145,7 @@ lv_obj_t * page_file_manager_obj(FileManagerPage * page)
     lv_obj_set_size(btn_delete, lv_pct(100), lv_pct(22));
     lv_obj_set_style_bg_color(btn_delete, lv_palette_main(LV_PALETTE_RED), LV_STATE_DEFAULT);
     lv_obj_t * btn_label_delete = lv_label_create(btn_delete);
-    lv_label_set_text(btn_label_delete, "删除");
+    lv_label_set_text(btn_label_delete, "Delete");
     lv_obj_center(btn_label_delete);
     lv_obj_add_event_cb(btn_delete, act_delete_click, LV_EVENT_CLICKED, page);
 
@@ -233,12 +233,12 @@ static void act_paste_click(lv_event_t * e)
     FileManagerPage * page = (FileManagerPage *)e->user_data;
 
     if(!is_directory(page->file_current)) {
-        custom_toast_create("请长按一个目录来粘贴");
+        custom_toast_create("Long-click a directory to paste.");
         return;
     }
 
     if(!is_directory_safe(page->file_current)) {
-        custom_toast_create("不允许操作！");
+        custom_toast_create("Operation Not Allowed!");
         return;
     }
 
@@ -246,19 +246,19 @@ static void act_paste_click(lv_event_t * e)
     switch (page->file_operation)
     {
     case FILE_OPERATION_CUT:
-        mbox = custom_msgbox_create("移动文件:", 
+        mbox = custom_msgbox_create("Move", 
                 page->file_clipboard,
                 btn_txts, false);
         break;
         
     case FILE_OPERATION_COPY:
-        mbox = custom_msgbox_create("复制文件:", 
+        mbox = custom_msgbox_create("Copy", 
                 page->file_clipboard,
                 btn_txts, false);
         break;
     
     default:
-        custom_toast_create("剪贴板是空的");
+        custom_toast_create("Clipboard is empty.");
         break;
     }
 
@@ -269,10 +269,10 @@ static void act_delete_click(lv_event_t * e)
 {
     FileManagerPage * page = (FileManagerPage *)e->user_data;
     if(!is_file_safe(page->file_current)) {
-        custom_toast_create("不允许操作！");
+        custom_toast_create("Operation Not Allowed!");
         return;
     }
-    lv_obj_t * mbox = custom_msgbox_create("删除文件:", 
+    lv_obj_t * mbox = custom_msgbox_create("Delete", 
                 lv_100ask_file_explorer_get_sel_fn(page->file_explorer),
                 btn_txts, false);
     lv_obj_add_event_cb(mbox, act_msgbox_delete, LV_EVENT_VALUE_CHANGED, page);

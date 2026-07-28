@@ -1,5 +1,6 @@
 #include "page_midi.h"
 #include "main.h"
+#include "config_manager.h"
 #include "battery_manager.h"
 
 typedef struct
@@ -12,8 +13,8 @@ typedef struct
     midi_player_t * player;
     lv_timer_t * timer;
     bool cycle;
-    lv_obj_t * title_label;
-    lv_obj_t * battery_label;
+    lv_obj_t * label_title;
+    lv_obj_t * label_battery;
 } MidiPage;
 
 static lv_obj_t * page_midi_obj(MidiPage * page, char * filename);
@@ -49,34 +50,40 @@ static lv_obj_t * page_midi_obj(MidiPage * page, char * filename)
     page->cycle = false;
     audio_enable();
 
-    midi_player_t * player = midi_create("./setting/timidity.cfg"); // /mnt/app/factory/play_test.wav
+    char * timidity_cfg = NULL;
+    config_read_string(CFG_FILE_MAIN, CFG_TIMIDITY_CFG, "/mnt/app/dendro/midi/timidity.cfg", &timidity_cfg);
+
+    midi_player_t * player = midi_create(timidity_cfg);
     if(midi_open(player, filename) == 0 && midi_init(player) == 0) {
         midi_resume(player);
         midi_set_finish_callback(player, player_finished, page);
         page->player = player;
     } else
         player = NULL;
+    
+    if (timidity_cfg) free(timidity_cfg);
 
     lv_obj_t * clock = lv_text_clock_create(screen);
     lv_obj_set_size(clock, LV_SIZE_CONTENT, LV_SIZE_CONTENT);
     lv_obj_align(clock, LV_ALIGN_TOP_LEFT, 10, 5);
 
-    lv_obj_t * battery_label = lv_label_create(screen);
-    lv_obj_align(battery_label, LV_ALIGN_TOP_RIGHT, -12, 5);
+    lv_obj_t * label_battery = lv_label_create(screen);
+    lv_obj_align(label_battery, LV_ALIGN_TOP_RIGHT, lv_pct(-5), lv_pct(2));
     uint8_t cap = battery_get_capacity();
-    lv_label_set_text_fmt(battery_label, "%d%% ", cap);
-    page->battery_label = battery_label;
+    lv_label_set_text_fmt(label_battery, "%d%% ", cap);
+    page->label_battery = label_battery;
 
-    lv_obj_t * title_label = lv_label_create(screen);
-    lv_obj_set_width(title_label, 200);
-    lv_label_set_long_mode(title_label, LV_LABEL_LONG_SCROLL_CIRCULAR);
-    lv_obj_set_style_text_align(title_label, LV_TEXT_ALIGN_CENTER, 0);
-    lv_obj_align(title_label, LV_ALIGN_TOP_MID, 0, 40);
+    lv_obj_t * label_title = lv_label_create(screen);
+    lv_obj_set_width(label_title, lv_pct(85));
+    lv_label_set_long_mode(label_title, LV_LABEL_LONG_SCROLL_CIRCULAR);
+    lv_obj_set_style_text_align(label_title, LV_TEXT_ALIGN_CENTER, 0);
+    lv_obj_align(label_title, LV_ALIGN_TOP_MID, 0, lv_pct(15));
+
     char * base = strrchr(filename, '/');
     if (base) base++;
-    else base = (char *)filename;
-    lv_label_set_text(title_label, base);
-    page->title_label = title_label;
+    else base = filename;
+    lv_label_set_text(label_title, base);
+    page->label_title = label_title;
 
     lv_obj_t * slider_progress = lv_slider_create(screen);
     lv_obj_set_size(slider_progress, lv_pct(80), lv_pct(8));
@@ -192,9 +199,9 @@ static void timer_tick(lv_timer_t * e){
     if(!page->player) return;
     lv_slider_set_value(page->slider_progress, midi_get_position_pct(page->player), LV_ANIM_OFF);
 
-    if(page->battery_label) {
+    if(page->label_battery) {
         uint8_t cap = battery_get_capacity();
-        lv_label_set_text_fmt(page->battery_label, "%d%%", cap);
+        lv_label_set_text_fmt(page->label_battery, "%d%%", cap);
     }
 }
 
