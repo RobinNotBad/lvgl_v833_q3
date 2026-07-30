@@ -79,9 +79,9 @@ int main(int argc, char * argv[])
         }
     }
 
-    powerd = open("/dev/input/event1", O_RDWR);
+    powerd = open("/dev/input/event2", O_RDWR);
     fcntl(powerd, 4, 2048);
-    homed = open("/dev/input/event2", O_RDWR);
+    homed = open("/dev/input/event1", O_RDWR);
     fcntl(homed, 4, 2048);
 
     bool isDaemonMode = true;
@@ -107,6 +107,7 @@ int main(int argc, char * argv[])
     system("killall robotd");
     system("killall robot_run");
     system("killall robot_run_1");
+    system("killall ocr_service");
     usleep(100000);
 
 
@@ -352,7 +353,7 @@ uint32_t lcd_get_brightness(void)
 void key_read_power(void)
 {
     char buffer[16] = {0};
-    while(read(powerd, buffer, 0x10u) > 0) {
+    while(read(powerd, buffer, sizeof(buffer)) > 0) {
         if(buffer[10] != 0x74) return;
 
         if(buffer[12] == 0x00) {
@@ -382,8 +383,8 @@ void key_read_power(void)
 void key_read_home(void)
 {
     char buffer[16] = {0};
-    while(read(homed, buffer, 0x10u) > 0) {
-        if(buffer[10] != 0x73) return;
+    while(read(homed, buffer, sizeof(buffer)) > 0) {
+        if(buffer[10] != 0x74) return;
 
         if(buffer[12] == 0x00) {
             printf("[key]home_up\n");
@@ -450,8 +451,8 @@ void sys_deep_sleep(void)
 {
     printf("[sys]deep sleep\n");
     char buffer[16] = {0};
-    while(read(powerd, buffer, 0x10u) > 0); // 清空电源键的缓冲区
-    while(read(homed, buffer, 0x10u) > 0);  // 清空HOME键的缓冲区
+    while(read(powerd, buffer, sizeof(buffer)) > 0); // 清空电源键的缓冲区
+    while(read(homed, buffer, sizeof(buffer)) > 0);  // 清空HOME键的缓冲区
 
     // 睡死过去，相当省电
     system("echo \"0\" >/sys/class/rtc/rtc0/wakealarm");
@@ -461,7 +462,7 @@ void sys_deep_sleep(void)
     // 按电源键会醒过来，继续执行下面的代码
 
     sys_wake(); // 那睡觉的起来了嗷（改到这里是为了防止其他醒来的情况，比如插拔usb）
-    while(read(powerd, buffer, 0x10u) > 0); // 再次清空电源键的缓冲区，因为开机按的电源键也算数
+    while(read(powerd, buffer, sizeof(buffer)) > 0); // 再次清空电源键的缓冲区，因为开机按的电源键也算数
 }
 
 /**
