@@ -7,6 +7,8 @@
 #include "platform/config_manager.h"
 #include "views/custom_msgbox.h"
 #include "platform/config_manager.h"
+#include "platform/hw_screen.h"
+#include "platform/lv_utils.h"
 
 static void btn_demo_click(lv_event_t * e);
 static void btn_about_click(lv_event_t * e);

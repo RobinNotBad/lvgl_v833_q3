@@ -7,7 +7,7 @@
  *      INCLUDES
  *********************/
 #include "evdev.h"
-#if USE_EVDEV != 0
+#if USE_EVDEV != 0 && EVDEV_USE_SPECIAL == 1
 
 #include <stdio.h>
 #include <unistd.h>
@@ -40,8 +40,8 @@ int evdev_key_val;
 static struct timeval tv_start;
 static uint64_t press_ts;
 
-bool evdev_reverse_x = 0;
-bool evdev_reverse_y = 0;
+bool evdev_reverse_x = false;
+bool evdev_reverse_y = false;
 
 /**********************
  *      MACROS
@@ -107,23 +107,25 @@ void evdev_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
 {
     uint8_t buf[16];
 
-    while(read(evdev_fd, buf, 16) > 0) {
+    while(read(evdev_fd, buf, sizeof(buf)) > 0) {
         int type = *(int *)(buf + 8);
         int val  = *(int *)(buf + 12);
 
         switch(type) {
             case 3473411: 
                 if(evdev_reverse_x) evdev_root_x = val; 
-                else evdev_root_x = 240 - val; 
+                else evdev_root_x = drv->disp->driver->hor_res - val; 
                 break;
+
             case 3538947:
-                if(evdev_reverse_y) evdev_root_y = 240 - val; 
+                if(evdev_reverse_y) evdev_root_y = drv->disp->driver->ver_res - val; 
                 else evdev_root_y = val;
                 evdev_button = LV_INDEV_STATE_PR;
                 // printf("[tp]press x=%d, y=%d\n", evdev_root_x, evdev_root_y);
 
                 evdev_refresh_press_ts();
                 break;
+
             case 21626881:
                 evdev_button = LV_INDEV_STATE_REL;
                 // printf("[tp]release x=%d, y=%d\n", evdev_root_x, evdev_root_y);

@@ -3,7 +3,9 @@
 #include "platform/battery_manager.h"
 #include "page_menu.h"
 #include "main.h"
+#include "platform/sys_robot.h"
 #include "platform/str_utils.h"
+#include "platform/lv_utils.h"
 
 #define TEXT_CLOCK_COLOR 0xff8fc07c
 
