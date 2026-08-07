@@ -68,8 +68,6 @@ int main(int argc, char * argv[])
         system("echo interactive > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
     #endif
 
-    kill_robot();
-
     bool is_daemon_mode = true;
 
     for(uint32_t i = 0; i < argc; i++) {
@@ -92,6 +90,8 @@ int main(int argc, char * argv[])
     if(is_daemon_mode) daemon(1, 0);
     // daemon函数将本程序置于后台，脱离终端
     // 若要进行调试，请使用-d参数
+    
+    kill_robot();
 
     // 设置时区
     setenv("TZ", "CST-8", 1);

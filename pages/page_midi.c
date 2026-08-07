@@ -51,7 +51,7 @@ static lv_obj_t * page_midi_obj(MidiPage * page, char * filename)
     audio_enable();
 
     char * timidity_cfg = NULL;
-    config_read_string(CFG_FILE_MAIN, CFG_TIMIDITY_CFG, "/mnt/app/dendro/midi/timidity.cfg", &timidity_cfg);
+    config_read_string(CFG_FILE_MAIN, CFG_TIMIDITY_CFG, TIMIDITY_CFG_DEFAULT, &timidity_cfg);
 
     midi_player_t * player = midi_create(timidity_cfg);
     if(midi_open(player, filename) == 0 && midi_init(player) == 0) {
