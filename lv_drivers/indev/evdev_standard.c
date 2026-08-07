@@ -7,20 +7,12 @@
  *      INCLUDES
  *********************/
 #include "evdev.h"
-#if USE_EVDEV != 0 || USE_BSD_EVDEV
+#if USE_EVDEV != 0 && EVDEV_USE_SPECIAL == 0
 
 #include <stdio.h>
 #include <unistd.h>
 #include <fcntl.h>
-#if USE_BSD_EVDEV
-#include <dev/evdev/input.h>
-#else
 #include <linux/input.h>
-#endif
-
-#if USE_XKB
-#include "xkb.h"
-#endif /* USE_XKB */
 
 /*********************
  *      DEFINES
@@ -47,6 +39,9 @@ int evdev_key_val;
 
 static struct timeval tv_start;
 static uint64_t press_ts;
+
+bool evdev_reverse_x = false;
+bool evdev_reverse_y = false;
 
 /**********************
  *      MACROS
@@ -78,10 +73,6 @@ void evdev_init(void)
         return;
     }
     printf("succeeded\n");
-
-#if USE_XKB
-    xkb_init();
-#endif
 }
 /**
  * reconfigure the device file for evdev
@@ -94,22 +85,15 @@ bool evdev_set_file(char * dev_name)
     if(evdev_fd != -1) {
         close(evdev_fd);
     }
-#if USE_BSD_EVDEV
-    evdev_fd = open(dev_name, O_RDWR | O_NOCTTY);
-#else
+    
     evdev_fd = open(dev_name, O_NOCTTY); // 修改
-#endif
 
     if(evdev_fd == -1) {
         perror("unable to open evdev interface:");
         return false;
     }
 
-#if USE_BSD_EVDEV
-    fcntl(evdev_fd, F_SETFL, O_NONBLOCK);
-#else
     fcntl(evdev_fd, F_SETFL, O_ASYNC | O_NONBLOCK);
-#endif
 
     evdev_root_x  = 0;
     evdev_root_y  = 0;
@@ -180,9 +164,6 @@ void evdev_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
                 else if(in.value == 1)
                     evdev_button = LV_INDEV_STATE_PR;
             } else if(drv->type == LV_INDEV_TYPE_KEYPAD) {
-#if USE_XKB
-                data->key = xkb_process_key(in.code, in.value != 0);
-#else
                 switch(in.code) {
                     case KEY_BACKSPACE:
                         data->key = LV_KEY_BACKSPACE;
@@ -215,7 +196,6 @@ void evdev_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
                         data->key = 0;
                         break;
                 }
-#endif /* USE_XKB */
                 if (data->key != 0) {
                     /* Only record button state when actual output is produced to prevent widgets from refreshing */
                     data->state = (in.value) ? LV_INDEV_STATE_PR : LV_INDEV_STATE_REL;
@@ -256,7 +236,16 @@ void evdev_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
     if(data->point.y >= drv->disp->driver->ver_res)
       data->point.y = drv->disp->driver->ver_res - 1;
 
+    if(evdev_reverse_x) data->point.x = drv->disp->driver->hor_res - data->point.x;
+    if(evdev_reverse_y) data->point.y = drv->disp->driver->ver_res - data->point.y;
+
     return ;
+}
+
+void evdev_reverse(bool reverse_x, bool reverse_y)
+{
+    evdev_reverse_x = reverse_x;
+    evdev_reverse_y = reverse_y;
 }
  
 /**********************

@@ -1,0 +1,168 @@
+/**
+ * @file evdev.c
+ *
+ */
+
+/*********************
+ *      INCLUDES
+ *********************/
+#include "evdev.h"
+#if USE_EVDEV != 0 && EVDEV_USE_SPECIAL == 1
+
+#include <stdio.h>
+#include <unistd.h>
+#include <fcntl.h>
+#include <linux/input.h>
+
+/*********************
+ *      DEFINES
+ *********************/
+
+/**********************
+ *      TYPEDEFS
+ **********************/
+
+/**********************
+ *  STATIC PROTOTYPES
+ **********************/
+int map(int x, int in_min, int in_max, int out_min, int out_max);
+
+/**********************
+ *  STATIC VARIABLES
+ **********************/
+int evdev_fd = -1;
+int evdev_root_x;
+int evdev_root_y;
+int evdev_button;
+
+int evdev_key_val;
+
+static struct timeval tv_start;
+static uint64_t press_ts;
+
+bool evdev_reverse_x = false;
+bool evdev_reverse_y = false;
+
+/**********************
+ *      MACROS
+ **********************/
+
+/**********************
+ *   GLOBAL FUNCTIONS
+ **********************/
+uint64_t evdev_get_press_ts(void)
+{
+    return press_ts;
+}
+
+void evdev_refresh_press_ts(void)
+{
+    gettimeofday(&tv_start, NULL);
+    press_ts = (tv_start.tv_sec * 1000000 + tv_start.tv_usec) / 1000;
+}
+
+/**
+ * Initialize the evdev interface
+ */
+void evdev_init(void)
+{
+    evdev_refresh_press_ts();
+    if(!evdev_set_file(EVDEV_NAME)) {
+        return;
+    }
+}
+/**
+ * reconfigure the device file for evdev
+ * @param dev_name set the evdev device filename
+ * @return true: the device file set complete
+ *         false: the device file doesn't exist current system
+ */
+bool evdev_set_file(char * dev_name)
+{
+    if(evdev_fd != -1) {
+        close(evdev_fd);
+    }
+    
+    evdev_fd = open(dev_name, O_NOCTTY); // 修改
+
+    if(evdev_fd == -1) {
+        perror("unable to open evdev interface:");
+        return false;
+    }
+
+    fcntl(evdev_fd, F_SETFL, O_ASYNC | O_NONBLOCK);
+
+    evdev_root_x  = 0;
+    evdev_root_y  = 0;
+    evdev_key_val = 0;
+    evdev_button  = LV_INDEV_STATE_REL;
+
+    return true;
+}
+/**
+ * Get the current position and state of the evdev
+ * @param data store the evdev data here
+ */
+void evdev_read(lv_indev_drv_t * drv, lv_indev_data_t * data)
+{
+    uint8_t buf[16];
+
+    while(read(evdev_fd, buf, sizeof(buf)) > 0) {
+        int type = *(int *)(buf + 8);
+        int val  = *(int *)(buf + 12);
+
+        switch(type) {
+            case 3473411: 
+                if(evdev_reverse_x) evdev_root_x = val; 
+                else evdev_root_x = drv->disp->driver->hor_res - val; 
+                break;
+
+            case 3538947:
+                if(evdev_reverse_y) evdev_root_y = drv->disp->driver->ver_res - val; 
+                else evdev_root_y = val;
+                evdev_button = LV_INDEV_STATE_PR;
+                // printf("[tp]press x=%d, y=%d\n", evdev_root_x, evdev_root_y);
+
+                evdev_refresh_press_ts();
+                break;
+
+            case 21626881:
+                evdev_button = LV_INDEV_STATE_REL;
+                // printf("[tp]release x=%d, y=%d\n", evdev_root_x, evdev_root_y);
+                break;
+        }
+    }
+
+#if EVDEV_CALIBRATE
+    data->point.x = map(evdev_root_x, EVDEV_HOR_MIN, EVDEV_HOR_MAX, 0, drv->disp->driver->hor_res);
+    data->point.y = map(evdev_root_y, EVDEV_VER_MIN, EVDEV_VER_MAX, 0, drv->disp->driver->ver_res);
+#else
+    data->point.x = evdev_root_x;
+    data->point.y = evdev_root_y;
+#endif
+
+    data->state = evdev_button;
+
+    if(data->point.x < 0) data->point.x = 0;
+    if(data->point.y < 0) data->point.y = 0;
+    if(data->point.x >= drv->disp->driver->hor_res) data->point.x = drv->disp->driver->hor_res - 1;
+    if(data->point.y >= drv->disp->driver->ver_res) data->point.y = drv->disp->driver->ver_res - 1;
+
+    return;
+}
+
+void evdev_reverse(bool reverse_x, bool reverse_y)
+{
+    evdev_reverse_x = reverse_x;
+    evdev_reverse_y = reverse_y;
+}
+
+/**********************
+ *   STATIC FUNCTIONS
+ **********************/
+int map(int x, int in_min, int in_max, int out_min, int out_max)
+{
+    return (x - in_min) * (out_max - out_min) / (in_max - in_min) + out_min;
+}
+
+#endif

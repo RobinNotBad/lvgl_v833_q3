@@ -7,6 +7,7 @@
 #include "page_ftp.h"
 #include "page_usb.h"
 #include "page_settings_main.h"
+#include "page_2048.h"
 #include "main.h"
 
 static void btn_demo_click(lv_event_t * e);
@@ -14,6 +15,7 @@ static void btn_back_click(lv_event_t * e);
 static void btn_file_manager_click(lv_event_t * e);
 static void btn_calculator_click(lv_event_t * e);
 static void btn_bird_click(lv_event_t * e);
+static void btn_2048_click(lv_event_t * e);
 static void btn_ftp_click(lv_event_t * e);
 static void btn_usb_click(lv_event_t * e);
 static void btn_settings_click(lv_event_t * e);
@@ -64,6 +66,14 @@ lv_obj_t * page_menu(void)
     lv_obj_center(btn_label_bird);
     lv_obj_add_event_cb(btn_bird, btn_bird_click, LV_EVENT_CLICKED, NULL);
 
+    lv_obj_t * btn_2048 = lv_btn_create(container);
+    lv_obj_set_size(btn_2048, lv_pct(64), lv_pct(32));
+    lv_obj_align(btn_2048, LV_FLEX_ALIGN_CENTER, 0, 0);
+    lv_obj_t * btn_label_2048 = lv_label_create(btn_2048);
+    lv_label_set_text(btn_label_2048, "2048");
+    lv_obj_center(btn_label_2048);
+    lv_obj_add_event_cb(btn_2048, btn_2048_click, LV_EVENT_CLICKED, NULL);
+
     lv_obj_t * btn_ftp = lv_btn_create(container);
     lv_obj_set_size(btn_ftp, lv_pct(64), lv_pct(32));
     lv_obj_align(btn_ftp, LV_FLEX_ALIGN_CENTER, 0, 0);
@@ -72,15 +82,13 @@ lv_obj_t * page_menu(void)
     lv_obj_center(btn_label_ftp);
     lv_obj_add_event_cb(btn_ftp, btn_ftp_click, LV_EVENT_CLICKED, NULL);
 
-    if(1) {
-        lv_obj_t * btn_usb = lv_btn_create(container);
-        lv_obj_set_size(btn_usb, lv_pct(64), lv_pct(32));
-        lv_obj_align(btn_usb, LV_FLEX_ALIGN_CENTER, 0, 0);
-        lv_obj_t * btn_label_usb = lv_label_create(btn_usb);
-        lv_label_set_text(btn_label_usb, "USB");
-        lv_obj_center(btn_label_usb);
-        lv_obj_add_event_cb(btn_usb, btn_usb_click, LV_EVENT_CLICKED, NULL);
-    }
+    lv_obj_t * btn_usb = lv_btn_create(container);
+    lv_obj_set_size(btn_usb, lv_pct(64), lv_pct(32));
+    lv_obj_align(btn_usb, LV_FLEX_ALIGN_CENTER, 0, 0);
+    lv_obj_t * btn_label_usb = lv_label_create(btn_usb);
+    lv_label_set_text(btn_label_usb, "USB");
+    lv_obj_center(btn_label_usb);
+    lv_obj_add_event_cb(btn_usb, btn_usb_click, LV_EVENT_CLICKED, NULL);
 
     lv_obj_t * btn_settings = lv_btn_create(container);
     lv_obj_set_size(btn_settings, lv_pct(64), lv_pct(32));
@@ -111,6 +119,11 @@ static void btn_calculator_click(lv_event_t * e)
 static void btn_bird_click(lv_event_t * e)
 {
     page_open(page_bird_create());
+}
+
+static void btn_2048_click(lv_event_t * e)
+{
+    page_open(page_2048_create());
 }
 
 static void btn_ftp_click(lv_event_t * e)

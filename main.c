@@ -11,12 +11,16 @@
 #include <sys/time.h>
 #include <sys/ioctl.h>
 #include <string.h>
+
+#include "platform/hw_keys.h"
+#include "platform/hw_screen.h"
+#include "platform/sys_robot.h"
 #include "platform/audio_ctrl.h"
 #include "platform/battery_manager.h"
 #include "platform/config_manager.h"
+#include "platform/page_manager.h"
+#include "platform/lv_utils.h"
 
-// 请教DeepSeek实现了简易页面管理器，100ask那个实际上不太好用……
-#include "page_manager.h"
 #include "pages/page_home.h"
 
 /*
@@ -29,46 +33,22 @@
 #include "pages/page_ftp.h"
 */
 
-struct fb_var_screeninfo * vinfo; // 屏幕参数
-
 char homepath[PATH_MAX_LENGTH];
 
-int dispd;  // 背光
-int fbd;    // 帧缓冲设备
-int powerd; // 电源按钮
-int homed;  // 主页按钮
-int scannerd;  // 扫描开关
-
 uint32_t ts_sleep = -1;
-uint32_t ts_home_click = -1;
 uint32_t ts_background = -1;
-uint32_t lcd_brightness = SCREEN_BRIGHTNESS_DEFAULT;
 
 bool is_screen_timeout = false;
 uint8_t dont_deep_sleep_enabled = 0;
 uint8_t dont_timeout_enabled = 0;
 
-void key_read_power(void);
-void key_read_home(void);
-void key_read_scanner(void);
-void lcd_init(void);
-void lcd_on(void);
-void lcd_off(void);
-void lcd_refresh(void);
-void touch_on(void);
-void touch_off(void);
 void lcd_detect_timeout(void);
-void lcd_set_brightness_inner(int brightness);
 
-static lv_style_t style_default;
+lv_style_t * style_default;
 
 int main(int argc, char * argv[])
 {
-
     printf("ciallo lvgl\n");
-#if LV_USE_PERF_MONITOR
-    printf("monitor on\n");
-#endif
 
     // 获取可执行文件目录并直接切换，避免相对路径出错
     ssize_t len = readlink("/proc/self/exe", homepath, sizeof(homepath) - 1);
@@ -81,20 +61,20 @@ int main(int argc, char * argv[])
         }
     }
 
-    powerd = open("/dev/input/event1", O_RDWR);
-    fcntl(powerd, 4, 2048);
-    homed = open("/dev/input/event0", O_RDWR);
-    fcntl(homed, 4, 2048);
-    scannerd = open("/dev/input/event4", O_RDWR);
-    fcntl(scannerd, 4, 2048);
+    key_init_home();
+    key_init_power();
 
-    bool isDaemonMode = true;
+    #if CPU_POWER_CTRL_ENABLED == 1
+        system("echo interactive > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
+    #endif
+
+    bool is_daemon_mode = true;
 
     for(uint32_t i = 0; i < argc; i++) {
         char * arg = argv[i];
         printf("argv[%d] = %s\n", i, arg);
         if(strcmp(arg, "-d") == 0) {
-            isDaemonMode = false;
+            is_daemon_mode = false;
         }
 
         if(strcmp(arg, "-w") == 0) {
@@ -107,91 +87,65 @@ int main(int argc, char * argv[])
         }
     }
 
-    printf("kill qtgui\n");
-    system("killall qtgui_launch.sh");
-    system("killall ClockToy");
-    system("killall control_engine_launch.sh");
-    system("killall control_engine");
-    usleep(100000);
-
-
-    if(isDaemonMode) daemon(1, 0);
+    if(is_daemon_mode) daemon(1, 0);
     // daemon函数将本程序置于后台，脱离终端
     // 若要进行调试，请使用-d参数
 
+    kill_robot();
+
+    // 设置时区
     setenv("TZ", "CST-8", 1);
     tzset();
 
-    dispd = open("/dev/disp", O_RDWR);
-    fbdev_init();
-    fbd = fbdev_get_fbd();
-    lcd_init();
-    lcd_off();
-    lcd_on();
-    lcd_set_brightness(SCREEN_BRIGHTNESS_DEFAULT);
-    touch_on();
-
     lv_init();
 
-    static lv_color_t bufA[DISP_BUF_SIZE];
-    static lv_color_t bufB[DISP_BUF_SIZE];
-
-    static lv_disp_draw_buf_t disp_buf;
-    lv_disp_draw_buf_init(&disp_buf, bufA, bufB, DISP_BUF_SIZE);
-
-    static lv_disp_drv_t disp_drv;
-    lv_disp_drv_init(&disp_drv);
-    disp_drv.draw_buf = &disp_buf;
-    disp_drv.flush_cb = fbdev_flush;
-    disp_drv.hor_res  = vinfo->xres;
-    disp_drv.ver_res  = vinfo->yres;
-    lv_disp_t * disp  = lv_disp_drv_register(&disp_drv);
-    lv_disp_set_default(disp);
-
-    evdev_init();
-    static lv_indev_drv_t indev_drv;
-    lv_indev_drv_init(&indev_drv);
-    indev_drv.type     = LV_INDEV_TYPE_POINTER;
-    indev_drv.read_cb  = evdev_read;
-    /*lv_indev_t *indev =  */lv_indev_drv_register(&indev_drv);
-
-    LV_LOG_USER("%dx%d", vinfo->xres, vinfo->yres);
-
+    // 屏幕（含lcd和触摸）
+    lcd_init();
+    
+    // ffmpeg
     lv_ffmpeg_init();
 
+    // 音频
     audio_init();
 
-
+    // 字体
     lv_freetype_init(128, 4, 0);
 
-    lv_ft_info_t ft_info;
-    ft_info.name   = "./res/font.ttf";
-    ft_info.weight = 16;
-    ft_info.style  = FT_FONT_STYLE_NORMAL;
-    ft_info.mem    = NULL;
+    lv_font_t * font = font_get(16, FT_FONT_STYLE_NORMAL);
 
-    if(lv_ft_font_init(&ft_info)) {
+    if(font) {
         lv_theme_t * theme =
-            lv_theme_default_init(disp, lv_color_hex(THEME_COLOR), lv_color_hex(THEME_COLOR), true, ft_info.font);
-        theme->font_normal = ft_info.font;
-        theme->font_large  = ft_info.font;
-        theme->font_small  = ft_info.font; // 为啥子设置不上？
-        lv_disp_set_theme(disp, theme);
+            lv_theme_default_init(lv_disp_get_default(), lv_color_hex(THEME_COLOR), lv_color_hex(THEME_COLOR), true, font);
+        theme->font_normal = font;
+        theme->font_large  = font;
+        theme->font_small  = font; // 为啥子设置不上？
+        lv_disp_set_theme(lv_disp_get_default(), theme);
 
-        lv_style_init(&style_default);
-        lv_style_set_text_font(&style_default, ft_info.font);
-        lv_obj_add_style(lv_scr_act(), &style_default, 0);
+        style_default = malloc(sizeof(lv_style_t));
+        lv_style_init(style_default);
+        lv_style_set_text_font(style_default, font);
+        lv_obj_add_style(lv_scr_act(), style_default, 0);
     }
 
     // 配置文件
     bool setup;
-    if(config_read_bool(MAIN_CONFIG_FILE, CFG_SETUP, false, &setup) == -1 || !setup) {
-        config_write_bool(MAIN_CONFIG_FILE, CFG_SETUP, true);
+    if(config_read_bool(CFG_FILE_MAIN, CFG_SETUP, false, &setup) == -1 || !setup) {
+        config_write_bool(CFG_FILE_MAIN, CFG_SETUP, true);
+        
+        config_write_string(CFG_FILE_MAIN, CFG_TIMIDITY_CFG, TIMIDITY_CFG_DEFAULT);
+        config_write_bool(CFG_FILE_MAIN, CFG_REVERSE_X, TOUCH_REVERSE_X_DEFAULT);
+        config_write_bool(CFG_FILE_MAIN, CFG_REVERSE_Y, TOUCH_REVERSE_Y_DEFAULT);
     }
+
+    bool reverse_x, reverse_y;
+    config_read_bool(CFG_FILE_MAIN, CFG_REVERSE_X, TOUCH_REVERSE_X_DEFAULT, &reverse_x);
+    config_read_bool(CFG_FILE_MAIN, CFG_REVERSE_Y, TOUCH_REVERSE_Y_DEFAULT, &reverse_y);
+    evdev_reverse(reverse_x, reverse_y);
+
     int volume;
-    config_read_int(MAIN_CONFIG_FILE, CFG_VOLUME, 0, &volume);
+    config_read_int(CFG_FILE_MAIN, CFG_VOLUME, 0, &volume);
     audio_volume_set(volume);
-    config_read_int(MAIN_CONFIG_FILE, CFG_BRIGHTNESS, SCREEN_BRIGHTNESS_DEFAULT, &lcd_brightness);
+    config_read_int(CFG_FILE_MAIN, CFG_BRIGHTNESS, SCREEN_BRIGHTNESS_DEFAULT, &lcd_brightness);
     lcd_set_brightness_inner(lcd_brightness);
     
 
@@ -202,7 +156,6 @@ int main(int argc, char * argv[])
         key_read_home();
         if(ts_background == -1) {
             key_read_power();
-            key_read_scanner();
             if(ts_sleep == -1) {
                 // 亮
                 lv_timer_handler();
@@ -230,10 +183,10 @@ int main(int argc, char * argv[])
         }
     }
 
-    if(fbd) close(fbd);
-    if(dispd) close(dispd);
-    if(homed) close(homed);
-    if(powerd) close(powerd);
+    if(style_default) free(style_default);
+    lcd_close();
+    key_close_home();
+    key_close_power();
     return 0;
 }
 
@@ -266,181 +219,6 @@ uint64_t ms_get(void)
 }
 
 /**
- * 初始化LCD，设置旋转方向
- */
-void lcd_init(void)
-{
-    vinfo         = fbdev_get_vinfo();
-    vinfo->rotate = 3;
-    ioctl(fbd, 0x4601u, vinfo);
-}
-
-/**
- * 点亮LCD
- */
-void lcd_on(void)
-{
-    //return;
-    uint64_t buffer[3];
-    buffer[0] = 0;
-    buffer[1] = 1;
-    buffer[2] = 0;
-    ioctl(dispd, 0xFuLL, buffer);
-    printf("[lcd]on\n");
-}
-
-/**
- * 熄灭LCD
- */
-void lcd_off(void)
-{
-    //return;
-    uint64_t buffer[3];
-    buffer[0] = 0;
-    buffer[1] = 0;
-    buffer[2] = 0;
-    ioctl(dispd, 0xFuLL, buffer);
-    printf("[lcd]off\n");
-}
-
-/**
- * 启用触摸
- */
-void touch_on(void)
-{
-    //return;
-    system("echo 1 > /sys/class/input/input3/enable");
-    printf("[tp]on\n");
-}
-
-/**
- * 关闭触摸
- */
-void touch_off(void)
-{
-    //return;
-    system("echo 0 > /sys/class/input/input3/enable");
-    printf("[tp]off\n");
-}
-
-/**
- * LCD刷屏
- */
-void lcd_refresh(void)
-{
-    ioctl(fbd, 0x4606u, vinfo);
-}
-
-/**
- * 设置LCD背光亮度
- * 内部函数，不保存亮度值
- */
-void lcd_set_brightness_inner(int brightness)
-{
-    char cmd[24] = {0};
-    snprintf(cmd, sizeof(cmd), "setbrightness %d", brightness);
-    system(cmd);
-}
-
-/**
- * 设置LCD背光亮度
- * 对外接口，会保存亮度值
- */
-void lcd_set_brightness(int brightness)
-{
-    lcd_brightness = brightness;
-    lcd_set_brightness_inner(brightness);
-}
-
-/**
- * 获取LCD背光亮度
- */
-uint32_t lcd_get_brightness(void)
-{
-    return lcd_brightness;
-}
-
-/**
- * 读取电源按钮
- */
-void key_read_power(void)
-{
-    //return;
-    char buffer[24] = {0};
-    while(read(powerd, buffer, sizeof(buffer)) > 0) {
-        if(buffer[18] != 0x74) return;
-
-        if(buffer[20] == 0x00) {
-            printf("[key]power_up\n");
-            evdev_refresh_press_ts();
-            if(ts_sleep == -1)
-                if(page_on_key(KEY_CODE_POWER, KEY_ACTION_UP)) continue;
-            // 如果页面处理了按键事件，就不继续执行了
-
-            if(ts_sleep == -1)
-                sys_sleep(); // 没睡的给我睡
-            else
-                sys_wake(); // 睡着的起来
-
-        } else if(buffer[20] == 0x01) {
-            printf("[key]power_down\n");
-            evdev_refresh_press_ts();
-            if(ts_sleep == -1)
-                if(page_on_key(KEY_CODE_POWER, KEY_ACTION_DOWN)) continue;
-        }
-    }
-}
-
-/**
- * 读取圆形HOME按钮
- */
-void key_read_home(void)
-{
-    char buffer[24] = {0};
-    while(read(homed, buffer, sizeof(buffer)) > 0) {
-        
-        if(buffer[18] != 0x73) return;
-
-        if(buffer[20] == 0x00) {
-            printf("[key]home_up\n");
-            evdev_refresh_press_ts();
-            if(ts_sleep == -1)
-                if(page_on_key(KEY_CODE_HOME, KEY_ACTION_UP)) continue;
-            // 如果页面处理了按键事件，就不继续执行了
-
-            uint32_t ts = tick_get();
-            if(ts_home_click != -1 && ts - ts_home_click <= 300) {
-                switch_foreground();
-                ts_home_click = -1;
-            } else {
-                ts_home_click = ts;
-                if(ts_sleep == -1)
-                    page_back(); // 没睡的返回
-                else
-                    sys_wake(); // 睡着的起来
-            }
-        } else if(buffer[20] == 0x01) {
-            printf("[key]home_down\n");
-            evdev_refresh_press_ts();
-            if(ts_sleep == -1)
-                if(page_on_key(KEY_CODE_HOME, KEY_ACTION_DOWN)) continue;
-        }
-    }
-}
-
-/**
- * 读取扫描开关
- */
-void key_read_scanner(void)
-{
-    return;
-    char buffer[24] = {0};
-    while(read(scannerd, buffer, sizeof(buffer)) > 0) {
-        
-    }
-}
-
-/**
  * 亮屏
  */
 void sys_wake(void)
@@ -453,7 +231,9 @@ void sys_wake(void)
         lcd_on();
         lcd_set_brightness_inner(lcd_brightness);
         evdev_refresh_press_ts();
-        system("echo interactive > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
+        #if CPU_POWER_CTRL_ENABLED == 1
+            system("echo interactive > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
+        #endif
     }
 }
 
@@ -467,7 +247,9 @@ void sys_sleep(void)
         ts_sleep = tick_get();
         touch_off();
         lcd_off();
-        if(!dont_deep_sleep_enabled) system("echo powersave > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
+        #if CPU_POWER_CTRL_ENABLED == 1
+            if(!dont_deep_sleep_enabled) system("echo powersave > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
+        #endif
     }
 }
 
@@ -477,9 +259,8 @@ void sys_sleep(void)
 void sys_deep_sleep(void)
 {
     printf("[sys]deep sleep\n");
-    char buffer[24] = {0};
-    while(read(powerd, buffer, sizeof(buffer)) > 0); // 清空电源键的缓冲区
-    while(read(homed, buffer, sizeof(buffer)) > 0);  // 清空HOME键的缓冲区
+    key_clear_power();
+    key_clear_home();
 
     // 睡死过去，相当省电
     system("echo \"0\" >/sys/class/rtc/rtc0/wakealarm");
@@ -489,7 +270,7 @@ void sys_deep_sleep(void)
     // 按电源键会醒过来，继续执行下面的代码
 
     sys_wake(); // 那睡觉的起来了嗷（改到这里是为了防止其他醒来的情况，比如插拔usb）
-    while(read(powerd, buffer, sizeof(buffer)) > 0); // 再次清空电源键的缓冲区，因为开机按的电源键也算数
+    key_clear_power();
 }
 
 /**
@@ -540,84 +321,4 @@ void sys_set_dont_timeout(bool b)
 {
     dont_timeout_enabled += (b ? 1 : -1);
     printf("[sys]dont_timeout=%d\n", dont_timeout_enabled);
-}
-
-/**
- * 切换到robot程序
- */
-void switch_robot(void)
-{
-    switch_background();
-
-    // 现在不需要杀vsftpd了
-    system("chmod 777 ./switch_robot");
-    system("sh ./switch_robot");
-}
-
-/**
- * 进入后台
- */
-void switch_background(void)
-{
-    if(ts_background != -1) return;
-    ts_background = tick_get();
-    ts_sleep      = -1;
-    if(fbd) close(fbd);
-    if(dispd) close(dispd);
-    if(powerd) close(powerd);
-    usleep(100000);
-}
-
-/**
- * 从robot切换回来
- */
-void switch_foreground(void)
-{
-    if(ts_background == -1) return;
-
-    chdir(homepath);
-    system("chmod 777 switch_foreground");
-    system("sh ./switch_foreground &");
-    // 等待自己被脚本杀死，然后开始新的轮回
-    // 因为这里确实处理不好设备占用问题，只能把两个全杀了再重启自己
-    sleep(114514);
-}
-
-/**
- * 获取字体
- */
-lv_font_t * font_get(uint16_t weight, uint16_t font_style)
-{
-    lv_style_t style;
-    lv_style_init(&style);
-
-    lv_ft_info_t ft_info;
-    ft_info.name   = "./res/font.ttf";
-    ft_info.weight = weight;
-    ft_info.style  = font_style;
-    ft_info.mem    = NULL;
-
-    if(lv_ft_font_init(&ft_info)) {
-        return ft_info.font;
-    }
-
-    return NULL;
-}
-
-/**
- * 更新布局并获取该控件的百分比宽度
- */
-lv_coord_t lv_obj_get_width_pct(lv_obj_t * obj, float pct)
-{
-    lv_obj_update_layout(obj);
-    return (lv_coord_t)(lv_obj_get_width(obj) * pct / 100);
-}
-
-/**
- * 更新布局并获取该控件的百分比高度
- */
-lv_coord_t lv_obj_get_height_pct(lv_obj_t * obj, float pct)
-{
-    lv_obj_update_layout(obj);
-    return (lv_coord_t)(lv_obj_get_height(obj) * pct / 100);
 }

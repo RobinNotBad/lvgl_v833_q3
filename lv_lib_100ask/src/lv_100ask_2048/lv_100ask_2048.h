@@ -22,7 +22,7 @@ extern "C" {
  *********************/
 #ifdef LV_100ASK_2048_MATRIX_SIZE
     #define MATRIX_SIZE     LV_100ASK_2048_MATRIX_SIZE
-#elif
+#else
     #define MATRIX_SIZE     4
 #endif
 
@@ -54,12 +54,20 @@ lv_obj_t * lv_100ask_2048_create(lv_obj_t * parent);
  *====================*/
 void lv_100ask_2048_set_new_game(lv_obj_t * obj);
 
+void lv_100ask_2048_set_matrix(lv_obj_t * obj, uint16_t matrix[MATRIX_SIZE][MATRIX_SIZE]);
+
+void lv_100ask_2048_set_score(lv_obj_t * obj, uint16_t score);
+
+void lv_100ask_2048_refresh(lv_obj_t * obj);
+
 /*=====================
  * Getter functions
  *====================*/
 uint16_t lv_100ask_2048_get_best_tile(lv_obj_t * obj);
 
 uint16_t lv_100ask_2048_get_score(lv_obj_t * obj);
+
+void lv_100ask_2048_get_matrix(lv_obj_t * obj, uint16_t out_matrix[MATRIX_SIZE][MATRIX_SIZE]);
 
 bool lv_100ask_2048_get_status(lv_obj_t * obj);
 

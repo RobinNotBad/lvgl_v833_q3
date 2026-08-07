@@ -1,4 +1,5 @@
 #include "page_bird.h"
+#include "platform/hw_keys.h"
 
 typedef struct
 {

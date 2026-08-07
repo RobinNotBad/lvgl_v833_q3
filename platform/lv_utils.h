@@ -1,5 +1,5 @@
-#ifndef PROJ_PAGE_FILE_MANAGER_H
-#define PROJ_PAGE_FILE_MANAGER_H
+#ifndef PLAT_LV_UTILS_H
+#define PLAT_LV_UTILS_H
 
 #ifdef __cplusplus
 extern "C" {
@@ -8,9 +8,12 @@ extern "C" {
 /*********************
  *      INCLUDES
  *********************/
-#include "../lvgl/lvgl.h"
-#include "../lv_lib_100ask/lv_lib_100ask.h"
-#include "page_manager.h"
+#include <unistd.h>
+#include <stdio.h>
+#include <stdbool.h>
+#include <stdint.h>
+#include <string.h>
+#include "lvgl/lvgl.h"
 
 /*********************
  *      DEFINES
@@ -23,7 +26,10 @@ extern "C" {
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
-BasePage * page_file_manager_create(void);
+lv_font_t * font_get(uint16_t weight, uint16_t font_style);
+lv_coord_t lv_obj_get_width_pct(lv_obj_t * obj, float pct);
+lv_coord_t lv_obj_get_height_pct(lv_obj_t * obj, float pct);
+
 
 /**********************
  *      MACROS

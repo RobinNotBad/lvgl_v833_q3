@@ -6,6 +6,9 @@
 #include "platform/audio_ctrl.h"
 #include "platform/config_manager.h"
 #include "views/custom_msgbox.h"
+#include "platform/config_manager.h"
+#include "platform/hw_screen.h"
+#include "platform/lv_utils.h"
 
 static void btn_demo_click(lv_event_t * e);
 static void btn_about_click(lv_event_t * e);
@@ -114,7 +117,7 @@ static void slider_brightness_set(lv_event_t * e)
 {
     lv_obj_t * slider = lv_event_get_target(e);
     int value = lv_slider_get_value(slider);
-    config_write_int(MAIN_CONFIG_FILE, CFG_BRIGHTNESS, value);
+    config_write_int(CFG_FILE_MAIN, CFG_BRIGHTNESS, value);
 }
 
 static void slider_volume_changed(lv_event_t * e)
@@ -128,10 +131,11 @@ static void slider_volume_set(lv_event_t * e)
 {
     lv_obj_t * slider = lv_event_get_target(e);
     int value = lv_slider_get_value(slider);
-    config_write_int(MAIN_CONFIG_FILE, CFG_VOLUME, value);
+    config_write_int(CFG_FILE_MAIN, CFG_VOLUME, value);
 }
 
 static void btn_back_click(lv_event_t * e)
 {
     page_back();
 }
+

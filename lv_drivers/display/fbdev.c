@@ -101,7 +101,7 @@ void fbdev_init(void)
         return;
     }
 
-    LV_LOG_INFO("%dx%d, %dbpp", vinfo.xres, vinfo.yres, vinfo.bits_per_pixel);
+    LV_LOG_USER("%dx%d, %dbpp", vinfo.xres, vinfo.yres, vinfo.bits_per_pixel);
 
     // Figure out the size of the screen in bytes
     screensize =  finfo.smem_len; //finfo.line_length * vinfo.yres;    

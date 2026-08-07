@@ -1,6 +1,8 @@
 #include "page_ftp.h"
 
 #include "main.h"
+#include "platform/hw_keys.h"
+#include "platform/hw_screen.h"
 
 #define VSFTPD_EXE "../ftp/vsftpd"
 #define VSFTPD_CONF "../ftp/vsftpd.conf"
@@ -64,11 +66,11 @@ static void btn_start_click(lv_event_t * e)
         if(cpid == 0) {
             // 此处为子进程
             daemon(1, 0);
-            close(fbd);
-            close(dispd);
-            close(powerd);
-            close(homed);
-
+            
+            lcd_close();
+            key_close_power();
+            key_close_home();
+            
             char * argv[] = {VSFTPD_EXE, VSFTPD_CONF, NULL};
             execv(VSFTPD_EXE, argv);
 

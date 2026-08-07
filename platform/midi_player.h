@@ -15,7 +15,7 @@ typedef enum { MIDI_STOPPED, MIDI_PLAYING, MIDI_PAUSED } midi_state_t;
 
 typedef struct
 {
-    // WildMidi相关
+    // Timidity相关
     MidIStream * midi_stream;
     MidSongOptions song_options;
     MidSong * song;

@@ -9,6 +9,7 @@
 #include "page_image.h"
 #include "page_txt.h"
 #include "platform/str_utils.h"
+#include "platform/hw_keys.h"
 #include "views/custom_msgbox.h"
 
 typedef enum { FILE_OPERATION_NONE = 0, FILE_OPERATION_CUT, FILE_OPERATION_COPY } file_operation_t;
@@ -233,7 +234,7 @@ static void act_paste_click(lv_event_t * e)
     FileManagerPage * page = (FileManagerPage *)e->user_data;
 
     if(!is_directory(page->file_current)) {
-        custom_toast_create("Please Select a Directory to Paste.");
+        custom_toast_create("Long-click a directory to paste.");
         return;
     }
 
@@ -246,19 +247,19 @@ static void act_paste_click(lv_event_t * e)
     switch (page->file_operation)
     {
     case FILE_OPERATION_CUT:
-        mbox = custom_msgbox_create("Move File:", 
+        mbox = custom_msgbox_create("Move", 
                 page->file_clipboard,
                 btn_txts, false);
         break;
         
     case FILE_OPERATION_COPY:
-        mbox = custom_msgbox_create("Copy File:", 
+        mbox = custom_msgbox_create("Copy", 
                 page->file_clipboard,
                 btn_txts, false);
         break;
     
     default:
-        custom_toast_create("Clipboard Is Empty.");
+        custom_toast_create("Clipboard is empty.");
         break;
     }
 
@@ -272,7 +273,7 @@ static void act_delete_click(lv_event_t * e)
         custom_toast_create("Operation Not Allowed!");
         return;
     }
-    lv_obj_t * mbox = custom_msgbox_create("Delete File:", 
+    lv_obj_t * mbox = custom_msgbox_create("Delete", 
                 lv_100ask_file_explorer_get_sel_fn(page->file_explorer),
                 btn_txts, false);
     lv_obj_add_event_cb(mbox, act_msgbox_delete, LV_EVENT_VALUE_CHANGED, page);

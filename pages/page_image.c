@@ -64,7 +64,7 @@ static lv_obj_t * page_image_obj(ImagePage * page, char * src)
         page->bound_y = fmax(0, (img_scaled_h - LV_SCR_HEIGHT) / 2);
 
         lv_obj_set_style_transform_zoom(img, (lv_coord_t)(256 * scale_default), 0);
-        LV_LOG_USER("[page_image]%dx%d, scale=%.8g\n", page->header.w, page->header.h, scale_default);
+        LV_LOG_USER("[page_image] %dx%d, scale=%.8g\n", page->header.w, page->header.h, scale_default);
     }
 
     lv_obj_t * touch_area = lv_obj_create(screen);
