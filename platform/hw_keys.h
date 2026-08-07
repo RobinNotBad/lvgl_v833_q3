@@ -20,6 +20,9 @@ extern "C" {
 #define KEY_DEVICE_POWER "/dev/input/event1"
 #define KEY_DEVICE_HOME "/dev/input/event2"
 
+typedef enum { KEY_CODE_POWER, KEY_CODE_HOME, KEY_CODE_SCANNER } key_code_t;
+typedef enum { KEY_ACTION_DOWN, KEY_ACTION_UP } key_action_t;
+
 extern int powerd; // 电源按钮
 extern int homed;  // 主页按钮
 

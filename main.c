@@ -44,7 +44,7 @@ uint8_t dont_timeout_enabled = 0;
 
 void lcd_detect_timeout(void);
 
-static lv_style_t style_default;
+lv_style_t * style_default;
 
 int main(int argc, char * argv[])
 {
@@ -63,6 +63,10 @@ int main(int argc, char * argv[])
 
     key_init_home();
     key_init_power();
+
+    #if CPU_POWER_CTRL_ENABLED == 1
+        system("echo interactive > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
+    #endif
 
     kill_robot();
 
@@ -117,23 +121,25 @@ int main(int argc, char * argv[])
         theme->font_small  = font; // 为啥子设置不上？
         lv_disp_set_theme(lv_disp_get_default(), theme);
 
-        lv_style_init(&style_default);
-        lv_style_set_text_font(&style_default, font);
-        lv_obj_add_style(lv_scr_act(), &style_default, 0);
+        style_default = malloc(sizeof(lv_style_t));
+        lv_style_init(style_default);
+        lv_style_set_text_font(style_default, font);
+        lv_obj_add_style(lv_scr_act(), style_default, 0);
     }
 
     // 配置文件
     bool setup;
     if(config_read_bool(CFG_FILE_MAIN, CFG_SETUP, false, &setup) == -1 || !setup) {
         config_write_bool(CFG_FILE_MAIN, CFG_SETUP, true);
+        
         config_write_string(CFG_FILE_MAIN, CFG_TIMIDITY_CFG, TIMIDITY_CFG_DEFAULT);
-        config_write_bool(CFG_FILE_MAIN, CFG_REVERSE_X, false);
-        config_write_bool(CFG_FILE_MAIN, CFG_REVERSE_Y, false);
+        config_write_bool(CFG_FILE_MAIN, CFG_REVERSE_X, TOUCH_REVERSE_X_DEFAULT);
+        config_write_bool(CFG_FILE_MAIN, CFG_REVERSE_Y, TOUCH_REVERSE_Y_DEFAULT);
     }
 
     bool reverse_x, reverse_y;
-    config_read_bool(CFG_FILE_MAIN, CFG_REVERSE_X, false, &reverse_x);
-    config_read_bool(CFG_FILE_MAIN, CFG_REVERSE_Y, false, &reverse_y);
+    config_read_bool(CFG_FILE_MAIN, CFG_REVERSE_X, TOUCH_REVERSE_X_DEFAULT, &reverse_x);
+    config_read_bool(CFG_FILE_MAIN, CFG_REVERSE_Y, TOUCH_REVERSE_Y_DEFAULT, &reverse_y);
     evdev_reverse(reverse_x, reverse_y);
 
     int volume;
@@ -177,6 +183,7 @@ int main(int argc, char * argv[])
         }
     }
 
+    if(style_default) free(style_default);
     lcd_close();
     key_close_home();
     key_close_power();
@@ -224,7 +231,9 @@ void sys_wake(void)
         lcd_on();
         lcd_set_brightness_inner(lcd_brightness);
         evdev_refresh_press_ts();
-        //system("echo interactive > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
+        #if CPU_POWER_CTRL_ENABLED == 1
+            system("echo interactive > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
+        #endif
     }
 }
 
@@ -238,7 +247,9 @@ void sys_sleep(void)
         ts_sleep = tick_get();
         touch_off();
         lcd_off();
-        //if(!dont_deep_sleep_enabled) system("echo powersave > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
+        #if CPU_POWER_CTRL_ENABLED == 1
+            if(!dont_deep_sleep_enabled) system("echo powersave > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
+        #endif
     }
 }
 

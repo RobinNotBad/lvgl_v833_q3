@@ -14,14 +14,13 @@ extern "C" {
 #include <stdlib.h>
 #include <unistd.h>
 #include <stdbool.h>
+#include "hw_keys.h"
 
 /*********************
  *      DEFINES
  *********************/
 #define MAX_PAGE_STACK 32 // 最大页面堆栈深度
 
-typedef enum { KEY_CODE_POWER, KEY_CODE_HOME, KEY_CODE_SCANNER } key_code_t;
-typedef enum { KEY_ACTION_DOWN, KEY_ACTION_UP } key_action_t;
 typedef enum { PAGE_TYPE_DEFAULT = 0, PAGE_TYPE_DIALOG = 1 } page_type_t;
 
 /**********************
