@@ -26,22 +26,32 @@ void ime_helper_init(void) {
 static void page_ime_show(lv_obj_t * textarea) {
 
     lv_obj_t * ime_container = lv_obj_create(lv_scr_act());
-    lv_obj_remove_style_all(ime_container);
+    lv_obj_set_style_pad_all(ime_container, 0, LV_STATE_DEFAULT);
+    lv_obj_set_style_border_width(ime_container, 0, LV_STATE_DEFAULT);
     lv_obj_clear_flag(ime_container, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(ime_container, lv_pct(100), lv_pct(100));
-    //lv_obj_set_style_bg_opa(ime_container, LV_OPA_60, LV_STATE_DEFAULT);
-    //lv_obj_set_style_bg_color(ime_container, lv_color_black(), LV_STATE_DEFAULT);
 
     lv_obj_t * ime_input = lv_textarea_create(ime_container);
-    lv_obj_set_size(ime_input, lv_pct(25), lv_pct(100));
-    lv_obj_add_state(ime_input, LV_STATE_FOCUSED);
-    lv_textarea_set_text(ime_input, lv_textarea_get_text(textarea));
-    ime_input->flags = textarea->flags;
-
     lv_obj_t * pinyin_ime = lv_100ask_pinyin_ime_create(ime_container);
+
+#if IME_LAYOUT_DIRECTION == 0
+    // HORIZONTAL
+    lv_obj_set_size(ime_input, lv_pct(25), lv_pct(100));
+    lv_obj_align(ime_input, LV_ALIGN_LEFT_MID, 0, 0);
     lv_obj_set_size(pinyin_ime, lv_pct(75), lv_pct(100));
     lv_obj_align(pinyin_ime, LV_ALIGN_RIGHT_MID, 0, 0);
+#else
+    // VERTICAL
+    lv_obj_set_size(ime_input, lv_pct(100), lv_pct(25));
+    lv_obj_align(ime_input, LV_ALIGN_TOP_MID, 0, 0);
+    lv_obj_set_size(pinyin_ime, lv_pct(100), lv_pct(75));
+    lv_obj_align(pinyin_ime, LV_ALIGN_BOTTOM_MID, 0, 0);
+#endif  // IME_FULLSCREEN_LAYOUT == 0
+
+    ime_input->flags = textarea->flags;
+    lv_textarea_set_text(ime_input, lv_textarea_get_text(textarea));
     lv_obj_t * keyboard = lv_100ask_pinyin_ime_get_kb(pinyin_ime);
+    lv_obj_add_state(ime_input, LV_STATE_FOCUSED);
     
     lv_keyboard_set_textarea(keyboard, ime_input);
 

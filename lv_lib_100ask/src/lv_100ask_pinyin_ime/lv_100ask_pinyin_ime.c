@@ -565,13 +565,14 @@ static void lv_100ask_pinyin_ime_constructor(const lv_obj_class_t * class_p, lv_
 
     lv_obj_align(pinyin_ime, LV_ALIGN_BOTTOM_MID, 0, 0);
 
+    pinyin_ime->cand_panel = lv_btnmatrix_create(pinyin_ime);
     pinyin_ime->kb = lv_keyboard_create(pinyin_ime);
+    
     lv_obj_set_size(pinyin_ime->kb, LV_PCT(100), LV_PCT(85));
 
     init_pinyin_dict(pinyin_ime, lv_100ask_def_pinyin_dict);
 
     /* Init pinyin_ime->cand_panel */
-    pinyin_ime->cand_panel = lv_btnmatrix_create(pinyin_ime);
     lv_btnmatrix_set_map(pinyin_ime->cand_panel, (const char **)btnm_def_pinyin_sel_map);
     lv_obj_set_size(pinyin_ime->cand_panel, LV_PCT(100), LV_PCT(15));
     lv_obj_align_to(pinyin_ime->cand_panel, pinyin_ime->kb, LV_ALIGN_OUT_TOP_MID, 0, 0);

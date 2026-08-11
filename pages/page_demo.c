@@ -11,7 +11,6 @@ typedef struct {
 
 static lv_obj_t * page_demo_obj(DemoPage * page);
 static void btn_back_click(lv_event_t * e);
-static void textarea_event_cb(lv_event_t * e);
 
 BasePage * demo_page_create(void)
 {

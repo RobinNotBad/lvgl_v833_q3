@@ -26,6 +26,14 @@ extern "C" {
  */ 
 #define IME_USE_FULLSCREEN 1
 
+#if IME_USE_FULLSCREEN
+    /**
+     * 0：横向
+     * 1：纵向
+     */
+    #define IME_LAYOUT_DIRECTION 0
+#endif
+
 /**********************
  *      TYPEDEFS
  **********************/
