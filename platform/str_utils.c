@@ -1,6 +1,20 @@
 #include "str_utils.h"
 
-const char * days_of_week[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+const char * DAYS_OF_WEEK[] = {"Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"};
+
+const char * AUDIO_FILE_EXT[] = {".mp3", ".wav", ".ogg", ".m4a", ".aac", ".pcm", NULL};
+const char * IMAGE_FILE_EXT[] = {".png", ".jpg", ".jpeg", ".bmp", ".gif", NULL};
+const char * VIDEO_FILE_EXT[] = {".mp4", ".avi", ".mov", ".mkv", ".flv", ".rm", ".rmvb", NULL};
+const char * MIDI_FILE_EXT[] = {".mid", ".midi", NULL};
+const char * TEXT_FILE_EXT[] = {".txt", ".json", ".conf", ".log", ".cfg", NULL};
+
+bool file_ext_match(const char * file_name, const char * file_ext[])
+{
+    for(int i = 0; file_ext[i] != NULL; i++) {
+        if(str_end_with(file_name, file_ext[i], false)) return true;
+    }
+    return false;
+}
 
 bool str_begin_with(const char * str, const char * begin, bool case_sensitivity)
 {

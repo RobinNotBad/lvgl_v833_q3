@@ -17,7 +17,13 @@ extern "C" {
 /*********************
  *      DEFINES
  *********************/
-extern const char * days_of_week[];
+extern const char * DAYS_OF_WEEK[];
+
+extern const char * AUDIO_FILE_EXT[];
+extern const char * IMAGE_FILE_EXT[];
+extern const char * VIDEO_FILE_EXT[];
+extern const char * MIDI_FILE_EXT[];
+extern const char * TEXT_FILE_EXT[];
 
 /**********************
  *      TYPEDEFS
@@ -26,6 +32,7 @@ extern const char * days_of_week[];
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
+bool file_ext_match(const char * file_name, const char * file_ext[]);
 bool str_begin_with(const char * str, const char * begin, bool case_sensitivity);
 bool str_end_with(const char * str, const char * begin, bool case_sensitivity);
 char to_upper_case(char c);
