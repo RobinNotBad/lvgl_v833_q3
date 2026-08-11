@@ -169,33 +169,18 @@ static void explorer_event_handler(lv_event_t * e)
     if(code == LV_EVENT_CLICKED) {
         printf("[file_manager] clicked %s\n", file_name);
 
-        if(str_end_with(file_name, ".png", false) || str_end_with(file_name, ".jpg", false) ||
-            str_end_with(file_name, ".jpeg", false) || str_end_with(file_name, ".bmp", false) ||
-            str_end_with(file_name, ".gif", false)) 
-            {
-                page_open(page_image_create(file_name));
-            }
-
-        if(str_end_with(file_name, ".mp3", false) || str_end_with(file_name, ".wav", false) ||
-            str_end_with(file_name, ".ogg", false) || str_end_with(file_name, ".m4a", false) ||
-            str_end_with(file_name, ".aac", false) || str_end_with(file_name, ".pcm", false))
-            {
-                page_open(page_audio_create(file_name));
-            }
-            
-        if(str_end_with(file_name, ".mp4", false) || str_end_with(file_name, ".avi", false)) {
+        if(file_ext_match(file_name, IMAGE_FILE_EXT)) {
+            page_open(page_image_create(file_name));
+        } else if(file_ext_match(file_name, AUDIO_FILE_EXT)) {
+            page_open(page_audio_create(file_name));
+        } else if(file_ext_match(file_name, VIDEO_FILE_EXT)) {
             page_open(page_video_create(file_name));
-        }
-
-        if(str_end_with(file_name, ".mid", false) || str_end_with(file_name, ".midi", false)) {
+        } else if(file_ext_match(file_name, MIDI_FILE_EXT)) {
             page_open(page_midi_create(file_name));
-        }
-
-        if(str_end_with(file_name, ".txt", false) || str_end_with(file_name, ".json", false) || 
-            str_end_with(file_name, ".conf", false) || str_end_with(file_name, ".log", false) ||
-            str_end_with(file_name, ".cfg", false)) {
+        } else if(file_ext_match(file_name, TEXT_FILE_EXT)) {
             page_open(page_txt_create(file_name));
-        }   
+        }
+        
     }
 
     if(code == LV_EVENT_LONG_PRESSED) {

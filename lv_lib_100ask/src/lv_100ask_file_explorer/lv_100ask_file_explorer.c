@@ -20,6 +20,13 @@
 #define FILE_EXPLORER_QUICK_ACCESS_AREA_WIDTH   (22)
 #define FILE_EXPLORER_BROWER_AREA_WIDTH         (100 - FILE_EXPLORER_QUICK_ACCESS_AREA_WIDTH)
 
+// 我不想引用我自己的头文件，尽量保持独立性，所以这里也定义了一遍
+static const char * AUDIO_FILE_EXT[] = {".mp3", ".wav", ".ogg", ".m4a", ".aac", ".pcm", NULL};
+static const char * IMAGE_FILE_EXT[] = {".png", ".jpg", ".jpeg", ".bmp", ".gif", NULL};
+static const char * VIDEO_FILE_EXT[] = {".mp4", ".avi", ".mov", ".mkv", ".flv", ".rm", ".rmvb", NULL};
+static const char * MIDI_FILE_EXT[] = {".mid", ".midi", NULL};
+static const char * TEXT_FILE_EXT[] = {".txt", ".json", ".conf", ".log", ".cfg", NULL};
+
 /**********************
  *      TYPEDEFS
  **********************/
@@ -41,6 +48,8 @@ static void show_dir(lv_obj_t * obj, char * path);
 static void strip_ext(char * dir);
 static void sort_table_items(lv_obj_t * tb, int16_t lo, int16_t hi);
 static void exch_table_item(lv_obj_t * tb, int16_t i, int16_t j);
+
+static bool file_ext_match(const char * file_name, const char * file_ext[]);
 static bool is_begin_with(const char * str1, const char * str2, bool case_sensitivity);
 static bool is_end_with(const char * str1, const char * str2, bool case_sensitivity);
 
@@ -682,20 +691,21 @@ static void show_dir(lv_obj_t * obj, char * path)
         }
 
         // 识别并展示文件
-        if(is_end_with(fn, ".png", false) || is_end_with(fn, ".jpg", false) ||
-           is_end_with(fn, ".jpeg", false) || is_end_with(fn, ".bmp", false) ||
-           is_end_with(fn, ".gif", false)) {
+        if(file_ext_match(fn, IMAGE_FILE_EXT)) {
             lv_table_set_cell_value_fmt(explorer->file_list, index, 0, LV_SYMBOL_IMAGE "  %s", fn);
-            lv_table_set_cell_value(explorer->file_list, index, 1, "1");
-        } else if(is_end_with(fn, ".mp3", false) || is_end_with(fn, ".wav", false) ||
-                  is_end_with(fn, ".ogg", false) || is_end_with(fn, ".m4a", false) ||
-                  is_end_with(fn, ".aac", false) || is_end_with(fn, ".pcm", false) ||
-                  is_end_with(fn, ".mid", false) || is_end_with(fn, ".midi", false)) {
-            lv_table_set_cell_value_fmt(explorer->file_list, index, 0, LV_SYMBOL_AUDIO "  %s", fn);
             lv_table_set_cell_value(explorer->file_list, index, 1, "2");
-        } else if(is_end_with(fn, ".mp4", false) || is_end_with(fn, ".avi", false)) {
-            lv_table_set_cell_value_fmt(explorer->file_list, index, 0, LV_SYMBOL_VIDEO "  %s", fn);
+        } else if(file_ext_match(fn, AUDIO_FILE_EXT)) {
+            lv_table_set_cell_value_fmt(explorer->file_list, index, 0, LV_SYMBOL_AUDIO "  %s", fn);
             lv_table_set_cell_value(explorer->file_list, index, 1, "3");
+        } else if(file_ext_match(fn, VIDEO_FILE_EXT)) {
+            lv_table_set_cell_value_fmt(explorer->file_list, index, 0, LV_SYMBOL_VIDEO "  %s", fn);
+            lv_table_set_cell_value(explorer->file_list, index, 1, "4");
+        } else if(file_ext_match(fn, MIDI_FILE_EXT)) {
+            lv_table_set_cell_value_fmt(explorer->file_list, index, 0, LV_SYMBOL_AUDIO "  %s", fn);
+            lv_table_set_cell_value(explorer->file_list, index, 1, "5");
+        } else if(file_ext_match(fn, TEXT_FILE_EXT)) {
+            lv_table_set_cell_value_fmt(explorer->file_list, index, 0, LV_SYMBOL_FILE "  %s", fn);
+            lv_table_set_cell_value(explorer->file_list, index, 1, "6");
         } else if(is_end_with(fn, ".", false) || is_end_with(fn, "..", false)) {
             /*is dir*/
             //lv_table_set_cell_value_fmt(explorer->file_list, index, 0, LV_SYMBOL_DIRECTORY "  %s", fn);
@@ -705,7 +715,7 @@ static void show_dir(lv_obj_t * obj, char * path)
             lv_table_set_cell_value(explorer->file_list, index, 1, "0");
         } else {
             lv_table_set_cell_value_fmt(explorer->file_list, index, 0, LV_SYMBOL_FILE "  %s", fn);
-            lv_table_set_cell_value(explorer->file_list, index, 1, "4");
+            lv_table_set_cell_value(explorer->file_list, index, 1, "1");
         }
 
         index++;
@@ -787,6 +797,14 @@ static void sort_table_items(lv_obj_t * tb, int16_t lo, int16_t hi )
     //lt-gt的元素已经排定，只需对it左边和gt右边的元素进行递归求解
     sort_table_items(tb, lo, lt-1);
     sort_table_items(tb, gt+1, hi);
+}
+
+static bool file_ext_match(const char * file_name, const char * file_ext[])
+{
+    for(int i = 0; file_ext[i] != NULL; i++) {
+        if(str_end_with(file_name, file_ext[i], false)) return true;
+    }
+    return false;
 }
 
 static bool is_begin_with(const char * str1, const char * str2, bool case_sensitivity)

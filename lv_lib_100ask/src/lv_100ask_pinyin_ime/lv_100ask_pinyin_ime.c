@@ -42,7 +42,7 @@ const lv_obj_class_t lv_100ask_pinyin_ime_class = {
     .constructor_cb = lv_100ask_pinyin_ime_constructor,
     .destructor_cb  = lv_100ask_pinyin_ime_destructor,
     .width_def      = LV_PCT(100),
-    .height_def     = LV_PCT(50),
+    .height_def     = LV_PCT(70),
     .group_def      = LV_OBJ_CLASS_GROUP_DEF_TRUE,
     .instance_size  = sizeof(lv_100ask_pinyin_ime_t),
     .base_class     = &lv_obj_class
@@ -53,34 +53,34 @@ static char * btnm_def_pinyin_sel_map[LV_100ASK_PINYIN_IME_CAND_TEXT_NUM + 3];
 
 #if 1
 lv_100ask_pinyin_dict_t lv_100ask_def_pinyin_dict[] = {
-            { "a", "啊阿呵吖" },
-            { "ai", "埃挨哎唉哀皑蔼矮碍爱隘癌艾" },
-            { "an", "按安暗岸俺案鞍氨胺厂广庵揞犴铵桉谙鹌埯黯" },
-            { "ang", "昂肮盎仰" },
+            { "a", "啊阿" },
+            { "ai", "爱哎唉挨矮哀埃皑蔼艾碍隘癌" },
+            { "an", "按安暗岸俺案鞍氨胺庵揞犴铵桉谙鹌埯黯" },
+            { "ang", "昂肮盎" },
             { "ao", "凹敖熬翱袄傲奥懊澳" },
-            { "ba", "芭捌叭吧笆八疤巴拔跋靶把坝霸罢爸扒耙" },
+            { "ba", "吧八巴捌叭芭笆疤拔跋靶把坝霸罢爸扒耙" },
             { "bai", "白摆佰败拜柏百稗伯" },
-            { "ban", "斑班搬扳颁板版扮拌伴瓣半办绊般" },
+            { "ban", "半办绊扮拌伴瓣般斑班搬扳颁板版" },
             { "bang", "邦帮梆榜绑棒镑傍谤膀磅蚌" },
-            { "bao", "苞胞包褒雹保饱宝抱报豹鲍爆剥薄暴刨炮曝瀑堡" },
+            { "bao", "包保饱宝抱报豹鲍爆剥薄暴刨炮曝堡苞胞褒雹" },
             { "bei", "杯碑悲卑北辈背贝钡倍狈备惫焙被" },
             { "ben", "奔苯本笨" },
             { "beng", "崩绷甭泵蹦迸蚌" },
             { "bi", "逼鼻比鄙笔彼碧蓖蔽毕毙毖币庇痹闭敝弊必壁避陛辟臂秘" },
-            { "bian", "鞭边编贬变卞辨辩辫扁便遍" },
-            { "biao", "标彪膘表" },
+            { "bian", "扁便遍边编变贬辨辩辫鞭卞" },
+            { "biao", "标彪膘表飙镖婊裱" },
             { "bie", "鳖憋别瘪" },
             { "bin", "彬斌濒滨宾摈" },
             { "bing", "兵冰柄丙秉饼炳病并屏" },
             { "bo", "玻菠播拨钵博勃搏铂箔帛舶脖膊渤驳柏剥薄波泊卜般伯" },
             { "bu", "捕哺补埠布步簿部怖卜不埔堡" },
-            { "ca", "擦" },
+            { "ca", "擦嚓" },
             { "cai", "猜裁材才财睬踩采彩菜蔡" },
             { "can", "餐残惭惨灿蚕参掺" },
             { "cang", "苍舱仓沧藏" },
             { "cao", "操糙槽曹草" },
             { "ce", "策册测厕侧" },
-            { "cen", "参" },
+            { "cen", "参岑" },
             { "ceng", "层蹭曾" },
             { "cha", "插叉茶碴搽察岔诧茬查刹喳差" },
             { "chai", "柴豺拆差" },
@@ -108,13 +108,13 @@ lv_100ask_pinyin_dict_t lv_100ask_def_pinyin_dict[] = {
             { "cui", "摧崔催脆瘁粹淬翠" },
             { "cun", "村存寸" },
             { "cuo", "磋搓措挫错撮" },
-            { "da", "搭达答瘩打大" },
-            { "dai", "歹傣戴带殆代贷袋待逮怠大呆" },
+            { "da", "大打达搭答哒妲耷沓" },
+            { "dai", "戴带待代呆袋歹贷傣殆逮怠" },
             { "dan", "耽担丹郸胆旦氮但惮淡诞蛋掸弹石单" },
             { "dang", "当挡党荡档" },
             { "dao", "刀捣蹈倒岛祷导到稻悼道盗" },
             { "de", "德得的地" },
-            { "dei", "" },
+            { "dei", "得" },
             { "deng", "蹬灯登等瞪凳邓澄" },
             { "di", "低滴迪敌笛狄涤嫡抵蒂第帝弟递缔的堤翟底地提" },
             { "dian", "颠掂滇碘点典靛垫电甸店惦奠淀殿佃" },
@@ -137,9 +137,9 @@ lv_100ask_pinyin_dict_t lv_100ask_def_pinyin_dict[] = {
             { "fang", "坊芳方肪房防妨仿访纺放" },
             { "fei", "菲非啡飞肥匪诽吠肺废沸费" },
             { "fen", "芬酚吩氛分纷坟焚汾粉奋份忿愤粪" },
-            { "feng", "丰封枫蜂峰锋风疯烽逢缝讽奉凤冯" },
+            { "feng", "风丰封枫蜂峰锋疯烽逢缝讽奉凤冯" },
             { "fo", "佛" },
-            { "fou", "否" },
+            { "fou", "否缶" },
             { "fu", "夫敷肤孵扶辐幅氟符伏俘服浮涪福袱弗甫抚辅俯釜斧腑府腐赴副覆赋复傅付阜父腹负富讣附妇缚咐佛拂脯" },
             { "ga", "噶嘎夹咖" },
             { "gai", "该改概钙溉盖芥" },
@@ -178,7 +178,7 @@ lv_100ask_pinyin_dict_t lv_100ask_def_pinyin_dict[] = {
             { "huang", "荒慌黄磺蝗簧皇凰惶煌晃幌恍谎" },
             { "hui", "灰挥辉徽恢蛔回毁悔慧卉惠晦贿秽烩汇讳诲绘会" },
             { "hun", "昏婚魂浑混荤" },
-            { "huo", "活伙火获或惑霍货祸豁和" },
+            { "huo", "或活伙火和获惑霍货祸豁" },
             { "i", "" },
             { "ji", "击圾基机畸积箕肌饥迹激讥鸡姬绩吉极棘辑籍集及急疾汲即嫉级挤几脊己蓟技冀季伎剂悸济寄寂计记既忌际妓继纪给稽缉祭藉期奇齐系" },
             { "jia", "嘉枷佳加荚颊甲钾假稼架驾嫁夹贾价搅茄缴家" },
@@ -188,27 +188,27 @@ lv_100ask_pinyin_dict_t lv_100ask_def_pinyin_dict[] = {
             { "jie", "揭接皆秸街阶截劫节杰捷睫竭洁结姐戒界借介疥诫届桔解藉芥" },
             { "jin", "巾筋斤金今津襟紧锦仅谨进靳晋禁近烬浸尽劲" },
             { "jing", "荆兢茎睛晶鲸京惊精经井警静境敬镜径痉靖竟竞净劲粳景颈" },
-            { "jiong", "炯窘" },
-            { "jiu", "揪究纠玖韭久灸九酒厩救旧臼舅咎就疚" },
-            { "ju", "鞠拘狙疽驹菊局矩举沮聚拒据巨具距踞锯俱惧炬剧车桔居咀句蛆足" },
+            { "jiong", "炯窘囧" },
+            { "jiu", "就揪究纠玖韭久灸九酒厩救旧臼舅咎疚" },
+            { "ju", "句居咀拘剧车桔狙菊局矩举沮聚拒据巨具距踞锯俱惧炬鞠疽驹" },
             { "juan", "捐鹃娟倦眷绢卷圈" },
             { "jue", "撅攫抉掘倔爵决诀绝嚼觉角" },
             { "jun", "菌钧军君峻俊竣郡骏均浚" },
-            { "ka", "喀咖卡咯" },
+            { "ka", "喀咖卡咔" },
             { "kai", "开揩凯慨楷" },
-            { "kan", "刊堪勘坎砍看槛嵌" },
+            { "kan", "看刊堪勘坎侃砍槛龛瞰" },
             { "kang", "康慷糠抗亢炕扛" },
-            { "kao", "考拷烤靠" },
-            { "ke", "坷苛柯棵磕颗科可渴克刻客课壳呵咳" },
+            { "kao", "考拷烤靠尻铐犒" },
+            { "ke", "可科坷苛柯棵磕颗渴克刻客课壳咳嗑" },
             { "ken", "肯啃垦恳" },
-            { "keng", "坑吭" },
-            { "kong", "空恐孔控" },
-            { "kou", "抠口扣寇" },
+            { "keng", "坑吭铿" },
+            { "kong", "空恐孔控箜" },
+            { "kou", "抠口扣寇叩蔻" },
             { "ku", "枯哭窟苦酷库裤" },
             { "kua", "夸垮挎跨胯" },
-            { "kuai", "块筷侩快会" },
-            { "kuan", "宽款" },
-            { "kuang", "匡筐狂框矿眶旷况" },
+            { "kuai", "块筷侩快会脍" },
+            { "kuan", "宽款髋" },
+            { "kuang", "匡筐狂框矿眶旷况哐诓" },
             { "kui", "亏盔岿窥葵奎魁馈愧傀溃" },
             { "kun", "坤昆捆困" },
             { "kuo", "扩廓阔括" },
@@ -243,11 +243,11 @@ lv_100ask_pinyin_dict_t lv_100ask_def_pinyin_dict[] = {
             { "mao", "猫茅锚毛矛铆卯茂帽貌贸冒" },
             { "me", "么" },
             { "mei", "玫枚梅酶霉煤眉媒镁每美昧寐妹媚没糜" },
-            { "men", "门闷们" },
+            { "men", "们门焖闷" },
             { "meng", "萌蒙檬锰猛梦孟盟" },
             { "mi", "眯醚靡迷弥米觅蜜密幂糜谜泌秘" },
             { "mian", "棉眠绵冕免勉缅面娩" },
-            { "miao", "苗描瞄藐秒渺庙妙" },
+            { "miao", "喵苗描瞄藐秒渺庙妙" },
             { "mie", "蔑灭" },
             { "min", "民抿皿敏悯闽" },
             { "ming", "明螟鸣铭名命" },
@@ -262,7 +262,7 @@ lv_100ask_pinyin_dict_t lv_100ask_def_pinyin_dict[] = {
             { "nao", "挠脑恼闹淖" },
             { "ne", "呢哪" },
             { "nei", "馁内那哪" },
-            { "nen", "嫩" },
+            { "nen", "嫩恁" },
             { "neng", "能" },
             { "ni", "妮霓倪泥尼拟你匿腻逆溺呢" },
             { "nian", "蔫拈年碾撵捻念粘" },
@@ -335,14 +335,14 @@ lv_100ask_pinyin_dict_t lv_100ask_def_pinyin_dict[] = {
             { "seng", "僧" },
             { "sha", "砂杀沙纱傻啥煞莎刹杉厦" },
             { "shai", "筛晒色" },
-            { "shan", "珊苫山删煽衫闪陕擅赡膳善汕扇缮杉栅掺单" },
-            { "shang", "墒伤商赏晌上尚裳汤" },
+            { "shan", "山删煽衫闪陕擅赡膳善汕扇缮杉栅掺单珊苫" },
+            { "shang", "伤商赏晌上尚裳汤墒殇觞熵" },
             { "shao", "捎稍烧芍勺韶少哨邵绍鞘梢召" },
             { "she", "奢赊舌舍赦摄慑涉社设蛇拾折射" },
             { "shei", "谁" },
             { "shen", "砷申呻伸身深绅神审婶肾慎渗沈甚参娠什" },
             { "sheng", "声生甥牲升绳剩胜圣乘省盛" },
-            { "shi", "师失狮施湿诗尸虱十时蚀实史矢使屎驶始式示士世柿事拭誓逝势是嗜噬适仕侍释饰市恃室视试匙石拾食识氏似嘘殖峙什" },
+            { "shi", "是十失事世始式示师狮施湿诗尸虱时蚀实史矢使屎驶士柿拭誓逝势嗜噬适仕侍释饰市恃室视试匙石拾食识氏似嘘殖峙什" },
             { "shou", "收手首守寿授售受瘦兽熟" },
             { "shu", "蔬枢梳殊抒输叔舒淑疏书赎孰薯暑曙署蜀黍鼠述树束戍竖墅庶漱恕熟属术数" },
             { "shua", "刷耍" },
@@ -445,12 +445,12 @@ lv_100ask_pinyin_dict_t lv_100ask_def_pinyin_dict[] = {
             { "zhuan", "专砖撰篆传转赚" },
             { "zhuang", "桩庄装妆壮状幢撞" },
             { "zhui", "锥追赘坠缀椎" },
-            { "zhun", "谆准" },
+            { "zhun", "准谆" },
             { "zhuo", "捉拙卓桌茁酌啄灼浊琢缴着" },
             { "zi", "咨资姿滋淄孜紫籽滓子自渍字吱兹仔" },
             { "zong", "鬃棕踪宗总纵综" },
             { "zou", "邹走奏揍" },
-            { "zu", "租族祖诅阻组足卒" },
+            { "zu", "阻组足卒租族祖诅" },
             { "zuan", "钻纂" },
             { "zui", "嘴醉最罪" },
             { "zun", "尊遵" },
@@ -563,18 +563,18 @@ static void lv_100ask_pinyin_ime_constructor(const lv_obj_class_t * class_p, lv_
     lv_memset_00(pinyin_ime->py_num, sizeof(pinyin_ime->py_num));
     lv_memset_00(pinyin_ime->py_pos, sizeof(pinyin_ime->py_pos));
 
-    lv_obj_set_size(obj, LV_PCT(100), LV_PCT(55));
-    lv_obj_align(obj, LV_ALIGN_BOTTOM_MID, 0, 0);
+    lv_obj_align(pinyin_ime, LV_ALIGN_BOTTOM_MID, 0, 0);
 
-    pinyin_ime->kb = lv_keyboard_create(lv_scr_act());
-    lv_obj_align_to(pinyin_ime->kb, obj, LV_ALIGN_BOTTOM_MID, 0, 0);
+    pinyin_ime->cand_panel = lv_btnmatrix_create(pinyin_ime);
+    pinyin_ime->kb = lv_keyboard_create(pinyin_ime);
+    
+    lv_obj_set_size(pinyin_ime->kb, LV_PCT(100), LV_PCT(85));
 
-    init_pinyin_dict(obj, lv_100ask_def_pinyin_dict);
+    init_pinyin_dict(pinyin_ime, lv_100ask_def_pinyin_dict);
 
     /* Init pinyin_ime->cand_panel */
-    pinyin_ime->cand_panel = lv_btnmatrix_create(lv_scr_act());
     lv_btnmatrix_set_map(pinyin_ime->cand_panel, (const char **)btnm_def_pinyin_sel_map);
-    lv_obj_set_size(pinyin_ime->cand_panel, LV_PCT(100), LV_PCT(5));
+    lv_obj_set_size(pinyin_ime->cand_panel, LV_PCT(100), LV_PCT(15));
     lv_obj_align_to(pinyin_ime->cand_panel, pinyin_ime->kb, LV_ALIGN_OUT_TOP_MID, 0, 0);
     lv_obj_add_flag(pinyin_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);
 
@@ -582,7 +582,7 @@ static void lv_100ask_pinyin_ime_constructor(const lv_obj_class_t * class_p, lv_
 
     /* Set cand_panel style*/
     // Default style
-    lv_obj_set_style_bg_opa(pinyin_ime->cand_panel, LV_OPA_0, 0);
+    //lv_obj_set_style_bg_opa(pinyin_ime->cand_panel, LV_OPA_20, 0);
     lv_obj_set_style_border_width(pinyin_ime->cand_panel, 0, 0);
     lv_obj_set_style_pad_all(pinyin_ime->cand_panel, 8, 0);
     lv_obj_set_style_pad_gap(pinyin_ime->cand_panel, 0, 0);
@@ -601,9 +601,9 @@ static void lv_100ask_pinyin_ime_constructor(const lv_obj_class_t * class_p, lv_
     lv_obj_set_style_bg_color(pinyin_ime->cand_panel, lv_color_white(), LV_PART_ITEMS | LV_STATE_PRESSED);
 
     /* event handler */
-    lv_obj_add_event_cb(pinyin_ime->cand_panel, pinyin_select_event_handler, LV_EVENT_VALUE_CHANGED, obj);
-    lv_obj_add_event_cb(pinyin_ime->kb, lv_100ask_pinyin_ime_event, LV_EVENT_VALUE_CHANGED, obj);
-    lv_obj_add_event_cb(obj, lv_100ask_pinyin_ime_style_change_event, LV_EVENT_STYLE_CHANGED, NULL);
+    lv_obj_add_event_cb(pinyin_ime->cand_panel, pinyin_select_event_handler, LV_EVENT_VALUE_CHANGED, pinyin_ime);
+    lv_obj_add_event_cb(pinyin_ime->kb, lv_100ask_pinyin_ime_event, LV_EVENT_VALUE_CHANGED, pinyin_ime);
+    lv_obj_add_event_cb(pinyin_ime, lv_100ask_pinyin_ime_style_change_event, LV_EVENT_STYLE_CHANGED, NULL);
 }
 
 
@@ -611,10 +611,11 @@ static void lv_100ask_pinyin_ime_destructor(const lv_obj_class_t * class_p, lv_o
 {
     LV_UNUSED(class_p);
 
-    lv_100ask_pinyin_ime_t * pinyin_ime = (lv_100ask_pinyin_ime_t *)obj;
+    //lv_100ask_pinyin_ime_t * pinyin_ime = (lv_100ask_pinyin_ime_t *)obj;
 
-    if (pinyin_ime->kb) lv_obj_del(pinyin_ime->kb);
-    if (pinyin_ime->cand_panel) lv_obj_del(pinyin_ime->cand_panel);
+    // 修改：把这两个挂在obj上，销毁时会连带着一起跑路的
+    //if (lv_obj_is_valid(pinyin_ime->kb)) lv_obj_del(pinyin_ime->kb);
+    //if (lv_obj_is_valid(pinyin_ime->cand_panel)) lv_obj_del(pinyin_ime->cand_panel);
 }
 
 
@@ -636,31 +637,49 @@ static void lv_100ask_pinyin_ime_event(lv_event_t * e)
 
         if(strcmp(txt, "Enter") == 0 || strcmp(txt, LV_SYMBOL_NEW_LINE) == 0)
         {
-            lv_memset_00(pinyin_str, (sizeof(pinyin_str)));
             pinyin_ime->ta_count = 0;
+            lv_memset_00(pinyin_str, (sizeof(pinyin_str)));
             lv_memset_00(pinyin_ime->input_char, sizeof(pinyin_ime->input_char));
+            lv_obj_add_flag(pinyin_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);
         }
         else if(strcmp(txt, LV_SYMBOL_BACKSPACE) == 0)
         {
-            // del input char
-            for (int i = strlen(pinyin_ime->input_char) - 1; i >= 0; i--){
-                if (pinyin_ime->input_char[i] != '\0'){
-                    pinyin_ime->input_char[i] = '\0';
-                    break;
-                }
-            }
-            pinyin_input_proc(obj);
             pinyin_ime->ta_count--;
+            if (pinyin_ime->ta_count > 0) {// del input char
+                for (int i = strlen(pinyin_ime->input_char) - 1; i >= 0; i--){
+                    if (pinyin_ime->input_char[i] != '\0'){
+                        pinyin_ime->input_char[i] = '\0';
+                        break;
+                    }
+                }
+                pinyin_input_proc(obj);
+            }
+            else {
+                pinyin_ime->ta_count = 0;
+                lv_memset_00(pinyin_str, (sizeof(pinyin_str)));
+                lv_memset_00(pinyin_ime->input_char, sizeof(pinyin_ime->input_char));
+                lv_obj_add_flag(pinyin_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);
+            }
+        }
+        else if (strcmp(txt, " ") == 0)
+        {
+            pinyin_ime->ta_count = 0;
+            lv_memset_00(pinyin_str, (sizeof(pinyin_str)));
+            lv_memset_00(pinyin_ime->input_char, sizeof(pinyin_ime->input_char));
+            lv_obj_add_flag(pinyin_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);
         }
         else if ((strcmp(txt, "ABC") == 0) || (strcmp(txt, "abc") == 0) || (strcmp(txt, "1#") == 0))
         {
             pinyin_ime->ta_count = 0;
+            lv_memset_00(pinyin_str, (sizeof(pinyin_str)));
             lv_memset_00(pinyin_ime->input_char, sizeof(pinyin_ime->input_char));
+            lv_obj_add_flag(pinyin_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);
             return;
         }
-        else if((strcmp(txt, LV_SYMBOL_KEYBOARD) == 0) || (strcmp(txt, LV_SYMBOL_OK) == 0))
+        else if((strcmp(txt, LV_SYMBOL_OK) == 0) || (strcmp(txt, LV_SYMBOL_KEYBOARD) == 0))
         {
             pinyin_ime->ta_count = 0;
+            lv_memset_00(pinyin_str, (sizeof(pinyin_str)));
             lv_memset_00(pinyin_ime->input_char, sizeof(pinyin_ime->input_char));
             lv_obj_add_flag(pinyin_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);
         }
@@ -851,9 +870,13 @@ static char * pinyin_search_matching(lv_obj_t * obj, char * strInput_py_str, uin
     volatile uint8_t count = 0;
 
     if(*strInput_py_str == '\0')    return NULL;
+    if(*strInput_py_str == ' ')    return NULL;
     if(*strInput_py_str == 'i')     return NULL;
     if(*strInput_py_str == 'u')     return NULL;
     if(*strInput_py_str == 'v')     return NULL;
+    if(*strInput_py_str == 'I')     return NULL;
+    if(*strInput_py_str == 'U')     return NULL;
+    if(*strInput_py_str == 'V')     return NULL;
 
     offset = strInput_py_str[0] - 'a';
     cInputStrLength = strlen(strInput_py_str);

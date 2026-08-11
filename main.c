@@ -20,6 +20,7 @@
 #include "platform/config_manager.h"
 #include "platform/page_manager.h"
 #include "platform/lv_utils.h"
+#include "views/ime_helper.h"
 
 #include "pages/page_home.h"
 
@@ -90,7 +91,7 @@ int main(int argc, char * argv[])
     if(is_daemon_mode) daemon(1, 0);
     // daemon函数将本程序置于后台，脱离终端
     // 若要进行调试，请使用-d参数
-    
+
     kill_robot();
 
     // 设置时区
@@ -148,6 +149,7 @@ int main(int argc, char * argv[])
     config_read_int(CFG_FILE_MAIN, CFG_BRIGHTNESS, SCREEN_BRIGHTNESS_DEFAULT, &lcd_brightness);
     lcd_set_brightness_inner(lcd_brightness);
     
+    ime_helper_init();
 
     page_manager_init();
     page_open(page_home_create());
