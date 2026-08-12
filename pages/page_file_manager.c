@@ -3,6 +3,7 @@
 #include <stdio.h>
 #include <sys/stat.h>
 #include <stdbool.h>
+#include "page_selector.h"
 #include "page_apple.h"
 #include "page_audio.h"
 #include "page_midi.h"
@@ -31,6 +32,7 @@ static lv_obj_t * page_file_manager_obj(FileManagerPage * page);
 static void explorer_event_handler(lv_event_t * e);
 static void back_click(lv_event_t * e);
 static void container_act_click(lv_event_t * e);
+static void act_open_with_click(lv_event_t * e);
 static void act_cut_click(lv_event_t * e);
 static void act_copy_click(lv_event_t * e);
 static void act_paste_click(lv_event_t * e);
@@ -121,6 +123,13 @@ lv_obj_t * page_file_manager_obj(FileManagerPage * page)
     lv_obj_set_width(label_file_name, lv_pct(100));
     page->label_file_name = label_file_name;
 
+    lv_obj_t * btn_open_with = lv_btn_create(list_act);
+    lv_obj_set_size(btn_open_with, lv_pct(100), lv_pct(22));
+    lv_obj_t * btn_label_open_with = lv_label_create(btn_open_with);
+    lv_label_set_text(btn_label_open_with, "Open");
+    lv_obj_center(btn_label_open_with);
+    lv_obj_add_event_cb(btn_open_with, act_open_with_click, LV_EVENT_CLICKED, page);
+
     lv_obj_t * btn_cut = lv_btn_create(list_act);
     lv_obj_set_size(btn_cut, lv_pct(100), lv_pct(22));
     lv_obj_t * btn_label_cut = lv_label_create(btn_cut);
@@ -188,6 +197,12 @@ static void explorer_event_handler(lv_event_t * e)
         lv_label_set_text(page->label_file_name, sel_fn);
         lv_obj_clear_flag(page->container_act, LV_OBJ_FLAG_HIDDEN);
     }
+}
+
+static void act_open_with_click(lv_event_t * e)
+{
+    FileManagerPage * page = (FileManagerPage *)e->user_data;
+    page_open(page_selector_create(page->file_current));
 }
 
 static void act_cut_click(lv_event_t * e)
