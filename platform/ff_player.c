@@ -49,10 +49,12 @@ int player_open(ff_player_t * player, const char * filename)
     }
 
     player->filename = strdup(filename);
+    player->video_stream_index = -1;
+    player->audio_stream_index = -1;
 
     int ret = 0;
 
-    // 打开音频文件
+    // 打开文件
     if(avformat_open_input(&player->format_ctx, player->filename, NULL, NULL) < 0) {
         fprintf(stderr, "[ff_player]无法打开文件\n");
         ret = -1;
@@ -69,8 +71,8 @@ int player_open(ff_player_t * player, const char * filename)
     return 0;
 
 cleanup:
-    player_stop(player);
     pthread_mutex_unlock(&player->mutex);
+    player_stop(player);
     return ret;
 }
 
@@ -193,8 +195,8 @@ int player_init_audio(ff_player_t * player)
     return 0;
 
 cleanup:
-    player_stop(player);
     pthread_mutex_unlock(&player->mutex);
+    player_stop(player);
     return ret;
 }
 
