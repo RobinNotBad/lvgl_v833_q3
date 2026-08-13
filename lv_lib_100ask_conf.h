@@ -26,7 +26,7 @@
 /* Simplified Pinyin input method */
 #if LV_USE_KEYBOARD
     /* Requires LV_USE_KEYBOARD = 1 */
-    #define LV_USE_100ASK_PINYIN_IME                    1
+    #define LV_USE_100ASK_PINYIN_IME                    0
 #endif
 
 #if LV_USE_100ASK_PINYIN_IME

@@ -7,6 +7,7 @@
 #if IME_USE_FULLSCREEN == 0
 
 #include "main.h"
+#include "lv_ime_pinyin.h"
 
 static lv_obj_t * pinyin_ime = NULL;
 static void textarea_ime_event_cb(lv_event_t * e);
@@ -17,10 +18,10 @@ static void textarea_ime_event_cb(lv_event_t * e);
 void ime_helper_init(void) {
     if (pinyin_ime != NULL) return;
 
-    pinyin_ime = lv_100ask_pinyin_ime_create(lv_scr_act());
-    lv_obj_align(pinyin_ime, LV_ALIGN_BOTTOM_MID, 0, 0);
-    lv_obj_t * keyboard = lv_100ask_pinyin_ime_get_kb(pinyin_ime);
-    lv_obj_t * cand_panel = lv_100ask_pinyin_ime_get_cand_panel(pinyin_ime);
+    pinyin_ime = lv_ime_pinyin_create(lv_scr_act());
+    lv_obj_set_size(pinyin_ime, lv_pct(100), lv_pct(64));
+    //lv_obj_t * keyboard = lv_ime_pinyin_get_kb(pinyin_ime);
+    //lv_obj_t * cand_panel = lv_ime_pinyin_get_cand_panel(pinyin_ime);
     lv_obj_add_flag(pinyin_ime, LV_OBJ_FLAG_HIDDEN);
 }
 
@@ -41,8 +42,8 @@ static void textarea_ime_event_cb(lv_event_t * e) {
 
     if(pinyin_ime == NULL || textarea == NULL) return;
 
-    lv_obj_t * keyboard = lv_100ask_pinyin_ime_get_kb(pinyin_ime);
-    lv_obj_t * cand_panel = lv_100ask_pinyin_ime_get_cand_panel(pinyin_ime);
+    lv_obj_t * keyboard = lv_ime_pinyin_get_kb(pinyin_ime);
+    //lv_obj_t * cand_panel = lv_ime_pinyin_get_cand_panel(pinyin_ime);
 
     if(code == LV_EVENT_CLICKED) {
         lv_keyboard_set_textarea(keyboard, textarea);
@@ -50,7 +51,7 @@ static void textarea_ime_event_cb(lv_event_t * e) {
         lv_obj_move_foreground(pinyin_ime);
         printf("[ime_helper] show keyboard\n");
     }
-    else if(code == LV_EVENT_READY || code == LV_EVENT_CANCEL || code == LV_EVENT_DELETE) {
+    else if(code == LV_EVENT_READY || code == LV_EVENT_DELETE /*|| code == LV_EVENT_CANCEL*/) {
         lv_obj_add_flag(pinyin_ime, LV_OBJ_FLAG_HIDDEN);
         lv_obj_clear_state(textarea, LV_STATE_FOCUSED);
         lv_indev_reset(NULL, textarea);   /*To forget the last clicked object to make it focusable again*/
