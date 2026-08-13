@@ -77,422 +77,422 @@ static char * lv_btnm_def_pinyin_sel_map[LV_IME_PINYIN_CAND_TEXT_NUM + 3];
 #if LV_IME_PINYIN_USE_DEFAULT_DICT
 lv_pinyin_dict_t lv_ime_pinyin_def_dict[] = {
     {"a", "啊阿"},
-    {"ai", "爱哎唉挨矮哀埃皑蔼艾碍隘癌"},
-    {"an", "按安暗岸俺案鞍氨胺庵揞犴铵桉谙鹌埯黯"},
+    {"ai", "爱哎唉矮挨哀癌碍艾埃隘蔼皑"},
+    {"an", "安按暗案岸俺黯鞍氨胺铵桉谙鹌庵埯揞犴"},
     {"ang", "昂肮盎"},
-    {"ao", "凹敖熬翱袄傲奥懊澳"},
-    {"b", "不吧把被本"},
-    {"ba", "吧八巴捌叭芭笆疤拔跋靶把坝霸罢爸扒耙"},
-    {"bai", "白摆佰败拜柏百稗伯"},
-    {"ban", "半办绊扮拌伴瓣般斑班搬扳颁板版"},
-    {"bang", "邦帮梆榜绑棒镑傍谤膀磅蚌"},
-    {"bao", "包保饱宝抱报豹鲍爆剥薄暴刨炮曝堡苞胞褒雹"},
-    {"bei", "杯碑悲卑北辈背贝钡倍狈备惫焙被"},
+    {"ao", "奥傲熬凹袄澳懊翱敖嗷"},
+    {"b", "不被把本吧"},
+    {"ba", "把八爸吧巴罢拔霸坝疤靶扒跋芭叭捌笆耙"},
+    {"bai", "白百摆败拜伯柏佰稗"},
+    {"ban", "办半班般版板搬伴拌扮斑瓣绊扳颁"},
+    {"bang", "帮棒榜绑磅邦膀傍镑蚌梆谤"},
+    {"bao", "报保包宝抱爆暴薄饱堡炮胞剥鲍豹苞雹褒刨曝"},
+    {"bei", "被北背杯备倍悲辈碑贝卑惫钡狈焙"},
     {"ben", "本奔笨苯犇"},
-    {"beng", "崩绷甭泵蹦迸蚌"},
-    {"bi", "逼鼻比鄙笔彼碧蓖蔽毕毙毖币庇痹闭敝弊必壁避陛辟臂秘"},
-    {"bian", "扁便遍边编变贬辨辩辫鞭卞"},
-    {"biao", "标彪膘表飙镖婊裱"},
-    {"bie", "鳖憋别瘪"},
-    {"bin", "彬斌濒滨宾摈"},
-    {"bing", "兵冰柄丙秉饼炳病并屏"},
-    {"bo", "玻菠播拨钵博勃搏铂箔帛舶脖膊渤驳柏剥薄波泊卜般伯"},
-    {"bu", "不捕哺补埠布步簿部怖卜埔"},
-    {"c", "从次此才存"},
-    {"ca", "擦嚓拆"},
-    {"cai", "猜裁材才财睬踩采彩菜蔡"},
-    {"can", "参餐残惭惨灿蚕掺"},
-    {"cang", "苍舱仓沧藏"},
-    {"cao", "操糙槽曹草"},
-    {"ce", "策册测厕侧"},
+    {"beng", "蹦崩绷泵甭迸蚌"},
+    {"bi", "比必笔壁避毕闭币鼻逼臂弊彼秘辟碧蔽鄙陛毙庇痹敝蓖毖"},
+    {"bian", "边变便编遍辨辩鞭贬辫扁卞"},
+    {"biao", "表标彪镖婊飙膘裱"},
+    {"bie", "别憋瘪鳖"},
+    {"bin", "滨宾彬斌濒摈"},
+    {"bing", "并病兵冰饼丙屏柄秉炳"},
+    {"bo", "播博伯波薄拨脖驳泊卜剥玻勃搏菠膊渤钵柏般铂箔帛舶"},
+    {"bu", "不部布步补捕簿怖哺埠卜埔"},
+    {"c", "从此才次存"},
+    {"ca", "擦拆嚓"},
+    {"cai", "才菜采彩财材猜裁踩蔡睬"},
+    {"can", "参餐残惨灿蚕惭掺"},
+    {"cang", "藏仓苍舱沧"},
+    {"cao", "草操曹槽糙"},
+    {"ce", "测策侧册厕恻"},
     {"cen", "参岑"},
-    {"ceng", "层蹭曾"},
-    {"cha", "插叉茶碴搽察岔诧茬查刹喳差"},
-    {"chai", "柴豺拆差"},
-    {"chan", "搀蝉馋谗缠铲产阐颤掺单"},
-    {"chang", "昌猖场尝常偿肠厂畅唱倡长敞裳"},
-    {"chao", "超抄钞潮巢吵炒朝嘲绰剿"},
-    {"che", "扯撤掣彻澈车"},
-    {"chen", "郴臣辰尘晨忱沉陈趁衬橙沈称秤"},
-    {"cheng", "撑城成呈程惩诚承逞骋橙乘澄盛称秤"},
-    {"chi", "痴持池迟弛驰耻齿侈赤翅斥炽吃匙尺"},
-    {"chong", "充冲崇宠虫重"},
-    {"chou", "抽酬畴踌稠愁筹仇绸瞅丑臭"},
-    {"chu", "初出橱厨躇锄雏滁除楚础储矗搐触处畜"},
-    {"chuai", "揣"},
-    {"chuan", "川穿椽船喘串传"},
-    {"chuang", "疮窗床闯创"},
-    {"chui", "吹炊捶锤垂椎"},
-    {"chun", "春椿醇唇淳纯蠢"},
-    {"chuo", "戳绰"},
-    {"ci", "疵茨磁雌辞慈瓷词此刺赐次伺兹差"},
-    {"cong", "聪葱囱匆从丛"},
+    {"ceng", "曾层蹭"},
+    {"cha", "查差插察茶叉刹岔茬诧碴搽"},
+    {"chai", "拆柴差豺"},
+    {"chan", "产缠铲颤蝉掺搀馋阐谗单"},
+    {"chang", "长常场唱厂畅尝偿肠倡昌敞裳猖"},
+    {"chao", "超吵朝潮炒抄钞嘲巢绰剿"},
+    {"che", "车彻撤扯澈掣"},
+    {"chen", "陈沉晨臣趁尘衬辰忱郴宸琛嗔谶"},
+    {"cheng", "成程城称承乘诚盛橙撑惩呈澄骋逞秤"},
+    {"chi", "吃尺持迟池赤齿翅斥痴耻驰匙炽弛侈"},
+    {"chong", "重冲充虫宠崇"},
+    {"chou", "抽愁丑臭筹仇酬瞅绸稠踌畴"},
+    {"chu", "出处除初触楚础储厨锄雏畜橱矗搐滁躇"},
+    {"chuai", "揣踹搋"},
+    {"chuan", "传船穿串川喘椽"},
+    {"chuang", "创窗床闯疮"},
+    {"chui", "吹垂锤捶炊椎"},
+    {"chun", "春纯唇蠢醇淳椿"},
+    {"chuo", "戳绰龊啜辍绰"},
+    {"ci", "次此词刺辞慈磁赐瓷雌伺兹疵差茨"},
+    {"cong", "从聪丛匆葱囱"},
     {"cou", "凑"},
-    {"cu", "粗醋簇促卒"},
-    {"cuan", "蹿篡窜攒"},
-    {"cui", "摧崔催脆瘁粹淬翠"},
+    {"cu", "粗促醋簇卒"},
+    {"cuan", "窜攒篡蹿"},
+    {"cui", "催翠脆摧崔粹淬瘁"},
     {"cun", "村存寸"},
-    {"cuo", "磋搓措挫错撮"},
-    {"d", "的得地都多"},
-    {"da", "大打达搭答哒妲耷沓"},
-    {"dai", "戴带待代呆袋歹贷傣殆逮怠"},
-    {"dan", "耽担丹郸胆旦氮但惮淡诞蛋掸弹石单"},
-    {"dang", "当挡党荡档"},
-    {"dao", "刀捣蹈倒岛祷导到稻悼道盗"},
-    {"de", "德得的地の"},
+    {"cuo", "错措搓挫磋撮"},
+    {"d", "的地得都多"},
+    {"da", "大打达答搭哒沓妲耷"},
+    {"dai", "带代待戴袋呆逮贷歹殆怠傣"},
+    {"dan", "但单蛋担淡弹胆旦诞氮耽惮掸石丹郸"},
+    {"dang", "当党档挡荡"},
+    {"dao", "到道倒导刀岛稻盗悼蹈捣祷"},
+    {"de", "的得地德の"},
     {"dei", "得嘚"},
-    {"deng", "蹬灯登等瞪凳邓澄"},
-    {"di", "低滴迪敌笛狄涤嫡抵蒂第帝弟递缔的堤翟底地提"},
-    {"dian", "颠掂滇碘点典靛垫电甸店惦奠淀殿佃"},
-    {"diao", "碉叼雕凋刁掉吊钓调"},
-    {"die", "跌爹碟蝶迭谍叠"},
-    {"ding", "盯叮钉顶鼎锭定订丁"},
+    {"deng", "等灯登邓凳瞪蹬澄"},
+    {"di", "地的第低弟帝递底敌滴抵堤迪蒂缔嫡涤笛狄翟提"},
+    {"dian", "电点店典垫殿甸淀掂碘颠惦奠佃靛滇"},
+    {"diao", "调掉吊钓雕叼刁凋碉"},
+    {"die", "跌叠爹蝶碟迭谍"},
+    {"ding", "定丁顶订钉盯叮鼎锭"},
     {"diu", "丢"},
-    {"dong", "东冬董懂动栋冻洞侗恫"},
-    {"dou", "兜抖斗陡豆逗痘都"},
-    {"du", "督毒犊独堵睹赌杜镀肚渡妒都读度"},
-    {"duan", "端短锻段断缎"},
-    {"dui", "兑队对堆"},
-    {"dun", "墩吨钝遁蹲敦顿囤盾"},
-    {"duo", "掇哆多夺垛躲朵跺剁惰度舵堕"},
-    {"e", "额饿峨鹅俄讹娥厄扼遏鄂阿蛾恶"},
-    {"en", "嗯恩摁"},
-    {"er", "二而耳尔儿饵洱贰"},
-    {"f", "发法方分放"},
-    {"fa", "发罚筏伐乏阀法珐"},
-    {"fan", "返反饭帆翻番蕃犯繁泛樊矾钒凡烦范贩犯"},
-    {"fang", "坊芳方肪房防妨仿访纺放"},
-    {"fei", "菲非啡飞肥匪诽吠肺废沸费"},
-    {"fen", "芬酚吩氛分纷坟焚汾粉奋份忿愤粪"},
-    {"feng", "风丰封枫蜂峰锋疯烽逢缝讽奉凤冯"},
+    {"dong", "动东懂冬洞冻栋董侗恫"},
+    {"dou", "都豆斗抖逗陡兜痘"},
+    {"du", "都度读独毒肚渡赌堵杜镀睹妒督犊"},
+    {"duan", "段短断端锻缎"},
+    {"dui", "对队堆兑"},
+    {"dun", "顿蹲盾吨敦钝墩囤遁"},
+    {"duo", "多朵躲夺度舵堕剁跺垛惰哆掇"},
+    {"e", "恶额饿鹅俄阿扼蛾鄂娥厄讹遏峨"},
+    {"en", "嗯恩摁蒽"},
+    {"er", "儿而二耳尔贰洱饵"},
+    {"f", "发分方法放"},
+    {"fa", "发法罚阀乏伐筏珐"},
+    {"fan", "反饭烦翻范凡犯繁泛贩返帆番樊矾钒蕃犯"},
+    {"fang", "方放房防访仿纺芳坊妨肪"},
+    {"fei", "非飞费废肺肥匪沸啡菲诽吠"},
+    {"fen", "分粉份奋愤纷氛坟焚芬酚吩忿汾粪"},
+    {"feng", "风封丰蜂峰锋疯缝逢奉讽冯凤烽枫"},
     {"fo", "佛"},
     {"fou", "否缶"},
-    {"fu", "夫敷肤孵扶辐幅氟符伏俘服浮涪福袱弗甫抚辅俯釜斧腑府腐赴副覆赋复傅付阜父腹负富讣附妇缚咐佛拂脯"},
-    {"g", "个过更工高"},
-    {"ga", "噶嘎夹咖"},
-    {"gai", "该改概钙溉盖芥"},
-    {"gan", "干甘杆柑竿肝赶感秆敢赣乾"},
-    {"gang", "冈刚钢缸肛纲岗港杠扛"},
-    {"gao", "篙皋高膏羔糕搞稿镐告"},
-    {"ge", "哥歌搁戈鸽疙割葛格阁隔铬个各胳革蛤咯"},
+    {"fu", "服复付副负富父福府妇扶浮符幅伏附腐腹咐敷肤辅抚赴覆赋傅俘拂辐弗俯甫脯斧腑釜阜袱讣佛涪"},
+    {"g", "个工高过更"},
+    {"ga", "嘎咖夹噶"},
+    {"gai", "该改盖概钙溉芥"},
+    {"gan", "感干敢赶肝杆甘乾赣竿秆柑"},
+    {"gang", "刚钢港岗纲杠缸扛冈肛"},
+    {"gao", "高告搞稿糕膏羔镐皋篙"},
+    {"ge", "个各歌格哥割隔革阁胳搁鸽葛蛤咯戈铬疙"},
     {"gei", "给"},
-    {"gen", "根跟亘艮哏"},
-    {"geng", "更梗耕庚羹耿埂粳颈"},
-    {"gong", "工共公功恭弓龚供躬宫巩拱贡汞"},
-    {"gou", "钩勾沟苟狗垢构购够"},
-    {"gu", "辜菇咕箍估沽孤姑古蛊骨股故顾固雇鼓谷贾"},
-    {"gua", "刮瓜剐寡挂褂"},
-    {"guai", "乖拐怪"},
-    {"guan", "棺关官冠观管馆罐惯灌贯纶"},
-    {"guang", "光逛广胱咣"},
-    {"gui", "瑰规圭归闺轨鬼诡癸桂柜跪贵刽硅傀炔龟"},
+    {"gen", "跟根亘哏艮"},
+    {"geng", "更耕梗庚颈耿羹埂粳"},
+    {"gong", "工公共供功宫恭贡拱巩弓躬汞龚"},
+    {"gou", "够狗购构勾沟钩苟垢"},
+    {"gu", "古故顾骨鼓股谷姑固雇孤估咕菇沽辜箍蛊贾"},
+    {"gua", "挂瓜刮寡褂剐"},
+    {"guai", "怪拐乖"},
+    {"guan", "关观管官馆惯冠灌贯罐纶棺"},
+    {"guang", "光广逛咣胱"},
+    {"gui", "贵归鬼规柜龟硅桂跪轨闺瑰诡癸傀刽圭炔"},
     {"gun", "滚棍辊"},
-    {"guo", "锅郭国果裹过涡"},
-    {"g", "和好会还后"},
-    {"ha", "蛤哈"},
-    {"hai", "还孩海害氦骸亥骇咳"},
-    {"han", "汉汗焊酣憨邯韩含涵寒函喊罕翰撼捍旱憾"},
-    {"hang", "杭航夯吭巷行"},
-    {"hao", "好号壕嚎豪毫郝浩耗镐貉"},
-    {"he", "喝荷菏禾何盒阂河赫褐鹤贺核合涸吓呵貉和"},
+    {"guo", "国过果锅郭裹涡"},
+    {"g", "好会和还后"},
+    {"ha", "哈蛤"},
+    {"hai", "还海孩害咳骇亥氦骸"},
+    {"han", "含汉寒韩喊汗函旱憾涵罕翰撼捍憨酣焊邯"},
+    {"hang", "行航杭巷夯吭"},
+    {"hao", "好号豪浩耗毫郝壕嚎镐貉"},
+    {"he", "和合何河喝核贺荷盒呵吓褐鹤赫禾菏阂涸貉"},
     {"hei", "黑嘿"},
-    {"hen", "痕很狠恨"},
-    {"heng", "亨横衡恒哼行"},
-    {"hong", "轰哄烘虹鸿洪宏弘红"},
-    {"hou", "后候喉侯猴吼厚"},
-    {"hu", "呼乎忽瑚壶葫胡蝴狐糊湖弧虎护互沪户唬和"},
-    {"hua", "花华猾画化话哗滑划"},
-    {"huai", "槐怀淮徊坏"},
-    {"huan", "欢环还桓缓换患唤痪豢焕涣宦幻"},
-    {"huang", "荒慌黄磺蝗簧皇凰惶煌晃幌恍谎"},
-    {"hui", "灰挥辉徽恢蛔回毁悔慧卉惠晦贿秽烩汇讳诲绘会"},
-    {"hun", "昏婚魂浑混荤"},
-    {"huo", "或活伙火和获惑霍货祸豁"},
+    {"hen", "很恨狠痕"},
+    {"heng", "行横恒衡哼亨"},
+    {"hong", "红宏洪轰虹鸿哄弘烘"},
+    {"hou", "后候厚猴吼侯喉"},
+    {"hu", "和护湖虎户互胡呼乎糊壶狐沪忽唬葫蝴瑚弧"},
+    {"hua", "化花话画华划滑哗猾"},
+    {"huai", "坏怀淮槐徊"},
+    {"huan", "还换欢环缓幻患唤焕涣桓宦痪豢"},
+    {"huang", "黄荒皇慌晃谎惶煌恍凰蝗磺簧幌"},
+    {"hui", "会回灰汇挥绘惠辉悔毁慧徽恢讳诲贿晦秽卉烩蛔"},
+    {"hun", "混婚魂浑昏荤"},
+    {"huo", "火活或和获货伙霍祸惑豁"},
     {"i", ""},
-    {"ji", "击圾基机畸积箕肌饥迹激讥鸡姬绩吉极棘辑籍集及急疾汲即嫉级挤几脊己蓟技冀季伎剂悸济寄寂计记既忌际妓继纪给稽缉祭藉期奇齐系"},
-    {"jia", "加假夹家佳甲架价驾嘉荚颊枷钾稼嫁贾茄缴"},
-    {"jian", "歼监坚尖笺间煎兼肩艰奸缄茧检柬碱拣捡简俭剪减荐鉴践贱键箭件健舰剑饯渐溅涧建槛见浅"},
-    {"jiang", "将讲江降酱奖匠浆僵姜桨疆蒋强"},
-    {"jiao", "角较叫脚交觉教椒礁焦胶郊浇骄娇轿窖蕉嚼搅铰狡饺绞酵校矫侥缴剿"},
-    {"jie", "揭接皆秸街阶截劫节杰捷睫竭洁结姐戒界借介疥诫届桔解藉芥"},
-    {"jin", "今仅尽斤金进禁近巾筋津劲襟紧锦谨晋烬浸靳"},
-    {"jing", "惊精敬警静境净茎睛晶鲸京经井镜径痉靖竟竞劲荆兢粳景颈"},
-    {"jiong", "炯窘囧"},
-    {"jiu", "就揪究纠玖韭久灸九酒厩救旧臼舅咎疚"},
-    {"ju", "句居咀拘剧车桔狙菊局矩举沮聚拒据巨具距踞锯俱惧炬鞠疽驹"},
-    {"juan", "捐鹃娟倦眷绢卷圈"},
-    {"jue", "撅攫抉掘倔爵决诀绝嚼觉角"},
-    {"jun", "菌钧军君峻俊竣郡骏均浚"},
-    {"ka", "卡喀咖咔"},
-    {"kai", "开揩凯慨楷"},
-    {"kan", "看刊堪勘坎侃砍槛龛瞰"},
-    {"kang", "康慷糠抗亢炕扛"},
-    {"kao", "考拷烤靠尻铐犒"},
-    {"ke", "可科坷苛柯棵磕颗渴克刻客课壳咳嗑"},
-    {"ken", "肯啃垦恳"},
+    {"ji", "机己及即计记系济级积极集激急继际纪基击鸡技寄既季迹挤肌籍疾吉忌剂祭冀稽给畸嫉汲脊伎悸妓蓟缉藉齐奇期"},
+    {"jia", "家加价假架甲驾佳嫁夹嘉钾贾颊荚枷稼茄缴"},
+    {"jian", "见间件建简坚检减健键渐荐剑鉴兼肩监尖煎剪捡拣舰箭践贱溅俭艰奸笺茧柬碱缄槛涧饯浅"},
+    {"jiang", "江将讲降奖姜酱蒋强匠疆浆桨僵"},
+    {"jiao", "叫交教觉角较脚焦胶娇骄饺郊浇搅绞校轿狡矫酵缴剿蕉椒礁铰嚼侥窖"},
+    {"jie", "结解街接节界借阶姐介截杰揭戒届洁捷竭诫皆桔睫芥藉秸疥"},
+    {"jin", "进金今近尽紧仅斤禁津锦劲谨巾筋晋浸襟靳烬"},
+    {"jing", "经精京竟井景境静净警镜敬睛颈竞径晶鲸荆劲靖茎惊痉兢粳"},
+    {"jiong", "囧窘炯"},
+    {"jiu", "就九久旧救酒究纠舅揪臼灸疚咎韭玖厩"},
+    {"ju", "举局据具距句居巨剧聚拒俱惧锯菊拘矩狙沮桔鞠踞炬车驹咀疽"},
+    {"juan", "卷圈捐娟眷倦绢鹃"},
+    {"jue", "觉绝决角掘诀爵倔嚼抉撅攫"},
+    {"jun", "军均君俊菌郡竣峻骏钧浚"},
+    {"ka", "卡咖咔喀"},
+    {"kai", "开凯楷慨揩"},
+    {"kan", "看砍刊坎勘堪侃槛瞰龛"},
+    {"kang", "抗康扛炕慷亢糠"},
+    {"kao", "靠考烤拷铐犒尻"},
+    {"ke", "可课客克科刻渴颗壳咳棵柯磕苛坷嗑"},
+    {"ken", "肯恳垦啃"},
     {"keng", "坑吭铿"},
-    {"kong", "空恐孔控箜"},
-    {"kou", "抠口扣寇叩蔻"},
-    {"ku", "枯哭窟苦酷库裤"},
-    {"kua", "夸垮挎跨胯"},
-    {"kuai", "块筷侩快会脍"},
+    {"kong", "空控孔恐箜"},
+    {"kou", "口扣抠叩寇蔻"},
+    {"ku", "苦库哭酷裤枯窟"},
+    {"kua", "夸跨垮挎胯"},
+    {"kuai", "快块会筷侩脍"},
     {"kuan", "宽款髋"},
-    {"kuang", "匡筐狂框矿眶旷况哐诓"},
-    {"kui", "亏盔岿窥葵奎魁馈愧傀溃"},
-    {"kun", "坤昆捆困"},
-    {"kuo", "扩廓阔括"},
+    {"kuang", "况狂矿框旷眶筐匡哐诓"},
+    {"kui", "亏窥魁溃愧葵盔馈奎傀岿"},
+    {"kun", "困昆捆坤"},
+    {"kuo", "扩阔括廓"},
     {"l", "了来里两来"},
-    {"la", "垃拉喇辣啦蜡腊落"},
-    {"lai", "莱来赖"},
-    {"lan", "婪栏拦篮阑兰澜谰揽览懒缆烂滥蓝"},
-    {"lang", "琅榔狼廊郎朗浪"},
-    {"lao", "捞劳牢老佬涝姥酪烙潦落"},
-    {"le", "勒乐肋了"},
-    {"lei", "雷镭蕾磊累儡垒擂类泪勒肋"},
-    {"leng", "楞冷棱"},
-    {"li", "厘梨犁黎篱狸离漓理李里鲤礼莉荔吏栗丽厉励砾历利例俐痢立粒沥隶力璃哩"},
-    {"lian", "联莲连镰廉涟帘敛脸链恋炼练怜"},
-    {"liang", "粮凉梁粱良两辆量晾亮谅俩"},
-    {"liao", "撩聊僚疗燎寥辽撂镣廖料潦了"},
-    {"lie", "列裂烈劣猎"},
-    {"lin", "琳林磷霖临邻鳞淋凛赁吝拎"},
-    {"ling", "玲菱零龄铃伶羚凌灵陵岭领另令棱怜"},
-    {"liu", "溜琉榴硫馏留刘瘤流柳六陆"},
-    {"long", "龙聋咙笼窿隆垄拢陇弄"},
-    {"lou", "楼娄搂篓漏陋露"},
-    {"lu", "芦卢颅庐炉掳卤虏鲁麓路赂鹿潞禄录戮吕六碌露陆绿"},
-    {"lv", "驴铝侣旅履屡缕虑氯律滤绿率"},
-    {"lve", "掠略"},
-    {"luan", "峦挛孪滦卵乱"},
-    {"lun", "抡轮伦仑沦论纶"},
-    {"luo", "萝螺罗逻锣箩骡裸洛骆烙络落咯"},
-    {"m", "么没们名民"},
-    {"ma", "妈麻玛码蚂马骂嘛吗摩抹么"},
-    {"mai", "买麦卖迈埋脉"},
-    {"man", "瞒馒蛮满曼慢漫谩埋蔓"},
-    {"mang", "茫盲氓忙莽芒"},
-    {"mao", "猫茅锚毛矛铆卯茂帽貌贸冒"},
+    {"la", "拉啦辣落腊蜡喇垃"},
+    {"lai", "来赖莱"},
+    {"lan", "蓝兰烂懒栏览揽篮拦缆滥澜阑谰婪"},
+    {"lang", "浪郎狼朗廊榔琅"},
+    {"lao", "老劳落牢捞姥佬烙酪涝潦"},
+    {"le", "了乐勒肋"},
+    {"lei", "累类雷泪垒勒肋蕾擂磊镭儡"},
+    {"leng", "冷棱楞"},
+    {"li", "力里理利立离李例丽历礼粒莉栗励隶璃厘黎梨狸篱鲤砾沥荔哩痢俐吏厉"},
+    {"lian", "连联脸练恋炼链怜廉莲帘敛镰涟"},
+    {"liang", "两量亮良凉梁粮辆谅俩晾粱"},
+    {"liao", "了料聊疗辽廖撩僚镣燎寥撂潦"},
+    {"lie", "列烈裂猎劣"},
+    {"lin", "林临邻淋琳霖磷鳞凛吝拎赁"},
+    {"ling", "领令灵另零岭玲铃凌龄陵伶怜棱羚菱"},
+    {"liu", "六流刘留柳陆溜瘤硫榴琉馏"},
+    {"long", "龙弄隆笼聋拢垄陇窿咙"},
+    {"lou", "楼漏露搂娄篓陋"},
+    {"lu", "路录陆露六鹿炉芦鲁绿卢卤禄虏潞麓赂碌戮颅庐掳吕"},
+    {"lv", "绿律旅率虑屡滤铝侣履缕驴氯"},
+    {"lve", "略掠"},
+    {"luan", "乱卵孪峦挛滦"},
+    {"lun", "论轮伦沦抡仑纶"},
+    {"luo", "落罗络洛螺萝裸骆烙逻锣咯骡箩"},
+    {"m", "么没们民名"},
+    {"ma", "吗妈马麻嘛码骂玛蚂摩抹么"},
+    {"mai", "买卖麦埋迈脉"},
+    {"man", "满慢漫蛮埋曼瞒蔓馒谩"},
+    {"mang", "忙盲芒茫莽氓"},
+    {"mao", "毛猫冒帽贸貌茂茅矛锚铆卯"},
     {"me", "么"},
-    {"mei", "玫枚梅酶霉煤眉媒镁每美昧寐妹媚没糜"},
-    {"men", "们门焖闷"},
-    {"meng", "萌蒙檬锰猛梦孟盟"},
-    {"mi", "眯醚靡迷弥米觅蜜密幂糜谜泌秘"},
-    {"mian", "棉眠绵冕免勉缅面娩"},
-    {"miao", "喵苗描瞄藐秒渺庙妙"},
-    {"mie", "蔑灭"},
-    {"min", "民抿皿敏悯闽"},
-    {"ming", "明螟鸣铭名命"},
-    {"miu", "谬"},
-    {"mo", "摸摹蘑膜磨魔末莫墨默沫漠寞陌脉没模摩抹"},
-    {"mou", "谋某牟"},
-    {"mu", "拇牡亩姆母墓暮幕募慕木目睦牧穆姥模牟"},
-    {"n", "你呢那能年"},
-    {"na", "拿钠纳呐那娜哪"},
-    {"nai", "氖乃奶耐奈哪"},
-    {"nan", "南男难"},
-    {"nang", "囊"},
-    {"nao", "挠脑恼闹淖"},
-    {"ne", "呢哪"},
-    {"nei", "馁内那哪"},
+    {"mei", "没每美妹眉梅媒煤霉媚镁枚玫酶昧寐糜"},
+    {"men", "门们闷焖"},
+    {"meng", "梦猛盟萌蒙孟锰檬"},
+    {"mi", "米密迷秘蜜弥谜觅幂眯糜靡醚泌"},
+    {"mian", "面免棉眠绵勉缅冕娩"},
+    {"miao", "秒妙苗描庙瞄喵渺藐"},
+    {"mie", "灭蔑"},
+    {"min", "民敏闽抿皿悯"},
+    {"ming", "名明命鸣铭螟"},
+    {"miu", "谬缪"},
+    {"mo", "摸模末莫默魔磨摩膜墨抹没沫陌漠寞脉摹蘑"},
+    {"mou", "某谋牟"},
+    {"mu", "目木母亩幕牧慕穆模墓姆募拇牡暮睦姥牟"},
+    {"n", "你能那呢年"},
+    {"na", "那哪拿纳娜呐钠"},
+    {"nai", "乃奶耐奈哪氖"},
+    {"nan", "难男南"},
+    {"nang", "囊馕囔攮"},
+    {"nao", "闹脑恼挠孬瑙呶猱铙淖"},
+    {"ne", "呢讷"},
+    {"nei", "内那哪馁"},
     {"nen", "嫩恁"},
     {"neng", "能"},
-    {"ni", "你逆拟泥匿妮霓倪尼腻溺呢"},
-    {"nian", "蔫拈年碾撵捻念粘"},
+    {"ni", "你泥呢拟腻尼溺逆妮倪匿霓"},
+    {"nian", "年念拈碾捻撵粘蔫"},
     {"niang", "娘酿"},
-    {"niao", "鸟尿"},
-    {"nie", "捏聂孽啮镊镍涅"},
+    {"niao", "鸟尿袅脲"},
+    {"nie", "捏聂孽涅镍镊啮"},
     {"nin", "您"},
-    {"ning", "柠狞凝宁拧泞"},
-    {"niu", "牛扭钮纽"},
-    {"nong", "脓浓农弄"},
-    {"nu", "奴怒努"},
-    {"nv", "女"},
-    {"nve", "虐疟"},
+    {"ning", "宁凝拧柠狞泞"},
+    {"niu", "牛扭纽钮"},
+    {"nong", "农弄浓脓"},
+    {"nu", "努怒奴"},
+    {"nv", "女钕"},
+    {"nue", "虐疟"},
     {"nuan", "暖"},
-    {"nuo", "挪懦糯诺娜"},
+    {"nuo", "诺挪糯懦娜"},
     {"o", "哦喔噢"},
-    {"ou", "欧鸥殴藕呕偶沤区"},
-    {"pa", "啪趴爬帕怕扒耙琶"},
-    {"pai", "拍排牌徘湃派迫"},
-    {"pan", "攀潘盘磐盼畔判叛番胖般"},
-    {"pang", "乓庞耪膀磅旁胖"},
-    {"pao", "抛咆袍跑泡刨炮"},
-    {"pei", "呸胚培裴赔陪配佩沛坏"},
+    {"ou", "偶欧呕区藕殴鸥沤"},
+    {"pa", "怕爬啪趴帕扒耙琶"},
+    {"pai", "排派拍牌迫徘湃"},
+    {"pan", "盘判盼潘攀畔叛胖般番磐"},
+    {"pang", "旁胖庞磅膀乓耪"},
+    {"pao", "跑炮泡抛袍刨咆"},
+    {"pei", "配陪培赔佩坏裴沛呸胚"},
     {"pen", "喷盆"},
-    {"peng", "砰抨烹澎彭蓬棚硼篷膨朋鹏捧碰"},
-    {"pi", "坯砒霹批披劈琵毗啤脾疲皮痞僻屁譬辟否匹坏"},
-    {"pian", "篇偏片骗扁便"},
-    {"piao", "飘漂瓢票朴"},
+    {"peng", "碰朋鹏捧彭蓬膨篷棚砰烹抨硼澎"},
+    {"pi", "批皮屁披辟匹疲脾劈啤坯否坏痞僻譬霹毗琵砒"},
+    {"pian", "片便篇偏骗扁"},
+    {"piao", "票漂飘瓢朴"},
     {"pie", "撇瞥"},
-    {"pin", "拼频贫品聘"},
-    {"ping", "乒坪萍平凭瓶评苹屏"},
-    {"po", "坡泼颇婆破粕泊迫魄朴"},
+    {"pin", "品频贫拼聘"},
+    {"ping", "平评瓶屏凭苹萍坪乒"},
+    {"po", "破婆迫坡泼颇泊魄朴粕"},
     {"pou", "剖"},
-    {"pu", "扑铺仆莆葡菩蒲圃普浦谱脯埔曝瀑堡朴"},
-    {"qi", "七起岂启弃齐乞其奇期欺戚妻凄柒沏棋脐旗祈祁骑企器气迄汽讫栖砌泣漆契歧崎畦"},
-    {"qia", "恰卡掐洽"},
-    {"qian", "牵扦钎千迁签仟谦黔钱钳前潜遣谴堑欠歉铅乾浅嵌纤"},
-    {"qiang", "强抢墙呛枪腔羌蔷"},
-    {"qiao", "锹敲悄桥乔侨巧撬翘峭俏窍壳橇瞧鞘"},
-    {"qie", "且切窃茄怯"},
-    {"qin", "钦侵秦琴勤芹擒禽寝亲沁"},
-    {"qing", "请轻倾庆亲清情氢青卿擎晴氰顷"},
+    {"pu", "普扑铺谱浦朴脯曝瀑仆蒲葡圃莆菩埔堡"},
+    {"qi", "其起气七期器企齐奇骑妻弃旗汽泣欺戚漆启契棋岂祈歧栖崎沏脐凄柒砌讫祁迄畦"},
+    {"qia", "恰卡洽掐"},
+    {"qian", "前千钱签欠浅潜牵迁铅歉纤谦乾嵌遣钳黔谴堑仟扦钎"},
+    {"qiang", "强枪墙抢腔呛羌蔷"},
+    {"qiao", "巧桥悄敲壳瞧俏翘窍乔侨峭鞘撬橇锹"},
+    {"qie", "切且茄窃怯"},
+    {"qin", "亲勤琴秦侵禽寝芹钦擒沁"},
+    {"qing", "情清请青庆轻倾晴氢亲卿擎顷氰"},
     {"qiong", "穷琼穹"},
-    {"qiu", "秋丘邱球求囚酋泅"},
-    {"qu", "趋曲躯屈驱渠取娶龋去区蛆趣"},
-    {"quan", "颧权醛泉全痊拳犬券劝卷圈"},
-    {"que", "缺瘸却鹊榷确炔雀"},
-    {"qun", "裙群逡"},
-    {"r", "人然让日任"},
-    {"ran", "然燃冉染"},
-    {"rang", "瓤壤攘嚷让"},
-    {"rao", "饶扰绕"},
-    {"re", "惹热"},
-    {"ren", "壬仁人忍韧任认刃妊纫亻"},
+    {"qiu", "球求秋丘邱囚酋泅"},
+    {"qu", "去区取曲趣驱屈渠娶趋躯龋蛆"},
+    {"quan", "全权圈劝拳券犬泉卷醛痊颧"},
+    {"que", "确却缺雀鹊瘸榷炔"},
+    {"qun", "群裙逡"},
+    {"r", "人日然让任"},
+    {"ran", "然染燃冉"},
+    {"rang", "让嚷壤攘瓤"},
+    {"rao", "绕扰饶"},
+    {"re", "热惹"},
+    {"ren", "人认任忍仁韧刃妊纫壬亻"},
     {"reng", "扔仍"},
     {"ri", "日"},
-    {"rong", "容荣融熔溶冗戎茸蓉绒"},
-    {"rou", "揉柔肉"},
-    {"ru", "如入茹辱乳汝褥蠕儒孺"},
+    {"rong", "容荣绒融溶熔蓉茸戎冗"},
+    {"rou", "肉柔揉"},
+    {"ru", "如入乳儒汝辱蠕茹褥孺"},
     {"ruan", "软阮"},
-    {"rui", "锐蕊瑞睿芮枘"},
+    {"rui", "瑞锐睿蕊芮枘"},
     {"run", "闰润"},
     {"ruo", "弱若偌叒"},
-    {"s", "三四什是时似说"},
+    {"s", "是时说三四什似"},
     {"sa", "撒洒萨仨"},
-    {"sai", "赛塞鳃腮"},
-    {"san", "三叁伞散"},
+    {"sai", "赛塞腮鳃"},
+    {"san", "三散伞叁"},
     {"sang", "桑嗓丧"},
-    {"sao", "搔骚扫嫂梢臊缫瘙"},
-    {"se", "瑟涩塞色铯啬"},
+    {"sao", "扫骚嫂梢臊搔缫瘙"},
+    {"se", "色塞涩瑟啬铯"},
     {"sen", "森"},
     {"seng", "僧"},
-    {"sha", "啥杀沙纱傻砂煞莎刹杉厦"},
-    {"shai", "筛晒色"},
-    {"shan", "单山闪删善扇衫讪擅陕煽赡膳汕缮杉栅珊苫姗疝鳝膻"},
-    {"shang", "伤商赏晌上尚裳汤墒殇觞熵"},
-    {"shao", "捎稍烧芍勺韶少哨邵绍鞘梢召"},
-    {"she", "奢赊舌舍赦摄慑涉社设蛇拾折射"},
+    {"sha", "杀沙傻啥纱砂厦刹杉煞莎"},
+    {"shai", "晒色筛"},
+    {"shan", "山闪善扇删陕单衫珊擅煽赡栅汕缮杉膳姗苫讪疝鳝膻"},
+    {"shang", "上商尚伤赏晌裳汤墒殇觞熵"},
+    {"shao", "少烧稍勺绍哨梢邵韶召鞘芍捎"},
+    {"she", "设社射舌涉蛇摄舍折赦拾奢赊慑"},
     {"shei", "谁"},
-    {"shen", "什申伸身深神甚参肾慎绅审婶渗沈娠砷呻"},
-    {"sheng", "声生甥牲升绳剩胜圣乘省盛"},
-    {"shi", "是十失事世始式示实时试石拾食识市室适势师施湿诗什尸狮虱蚀史矢使屎驶士柿拭誓逝嗜噬仕侍释饰恃视匙氏似嘘殖峙"},
-    {"shou", "受收手首守寿授售瘦兽熟"},
-    {"shu", "蔬枢梳殊抒输叔舒淑疏书赎孰薯暑曙署蜀黍鼠述树束戍竖墅庶漱恕熟属术数"},
+    {"shen", "什深身神甚审沈伸申慎参婶绅渗肾呻娠砷"},
+    {"sheng", "生声省胜升圣剩盛乘绳牲甥"},
+    {"shi", "是时事使实十试世识市师室施石失势食视士始适诗示释湿史氏似什驶逝誓饰嗜侍仕蚀矢拭匙噬屎柿虱狮峙殖嘘"},
+    {"shou", "手收受首守熟售授兽寿瘦"},
+    {"shu", "数书术属树熟输述束叔舒殊疏鼠署暑竖恕蜀蔬漱梳庶黍抒赎戍曙孰枢薯墅淑"},
     {"shua", "刷耍"},
-    {"shuai", "摔甩帅衰率蟀"},
+    {"shuai", "率帅甩摔衰蟀"},
     {"shuan", "栓拴涮闩"},
-    {"shuang", "霜双爽孀"},
-    {"shui", "水睡税谁说氵"},
-    {"shun", "顺瞬吮舜"},
-    {"shuo", "硕朔烁数说槊蒴铄"},
-    {"si", "四似撕嘶私司丝死斯肆寺嗣饲巳食思伺"},
-    {"song", "松耸怂颂送宋讼诵嵩淞"},
-    {"sou", "嗖搜擞嗽艘馊叟薮飕"},
-    {"su", "苏酥俗素速粟塑溯诉肃宿夙簌窣愫稣僳"},
-    {"suan", "酸蒜算"},
-    {"sui", "虽遂随碎岁隧穗祟绥髓尿隋"},
+    {"shuang", "双爽霜孀"},
+    {"shui", "水睡谁说税氵"},
+    {"shun", "顺瞬舜吮"},
+    {"shuo", "说数硕烁朔铄槊蒴"},
+    {"si", "四死思似斯司私丝寺食撕肆伺饲嗣嘶巳"},
+    {"song", "送宋松颂诵耸怂讼嵩淞"},
+    {"sou", "搜艘嗽嗖馊叟擞飕薮"},
+    {"su", "素速诉苏俗宿肃塑溯粟夙酥簌愫僳稣窣"},
+    {"suan", "算酸蒜"},
+    {"sui", "随岁虽碎遂穗隧隋髓绥尿祟"},
     {"sun", "孙损笋隼榫狲"},
-    {"suo", "所缩锁唆索琐莎蓑梭娑羧嗦惢"},
-    {"ta", "他她它踏塔塌獭挞蹋沓拓祂榻铊"},
-    {"tai", "太抬态台泰胎苔汰钛跆酞肽薹呔"},
-    {"tan", "探叹弹摊谈坍贪瘫滩坛檀痰潭谭坦毯袒碳炭"},
-    {"tang", "躺烫汤趟堂糖塘搪淌棠膛唐敞倘"},
-    {"tao", "桃逃掏讨套涛滔陶萄淘韬绦"},
+    {"suo", "所缩锁索唆梭琐莎嗦蓑娑羧惢"},
+    {"ta", "他她它踏塔塌榻拓蹋沓獭挞铊祂"},
+    {"tai", "太台态抬泰胎汰苔钛肽跆酞薹呔"},
+    {"tan", "谈探弹摊坦贪滩叹炭碳痰谭潭毯坛檀袒坍瘫"},
+    {"tang", "唐糖汤躺堂烫塘趟倘膛淌搪棠敞"},
+    {"tao", "套讨淘桃逃陶涛掏萄滔韬绦"},
     {"te", "特忒忑"},
-    {"teng", "藤腾疼誊滕"},
-    {"ti", "提体替梯题蹄啼踢剔锑惕嚏涕剃屉"},
-    {"tian", "天添填田甜恬舔腆兲殄钿"},
-    {"tiao", "调挑条眺跳迢窕"},
-    {"tie", "贴铁帖餮"},
-    {"ting", "停挺听厅婷霆亭庭町廷艇烃汀"},
-    {"tong", "同通统痛铜瞳彤童桶捅筒侗恫桐酮"},
-    {"tou", "偷投头透骰"},
-    {"tu", "突图徒途涂土吐凸屠兔秃余荼"},
-    {"tuan", "湍团抟"},
-    {"tui", "推退腿颓褪蜕"},
-    {"tun", "吞屯臀囤鲀豚"},
-    {"tuo", "拖托脱坨拓椭妥唾驮沱鸵陀驼砣"},
+    {"teng", "疼腾藤滕誊"},
+    {"ti", "提体替题踢梯剃惕涕蹄啼剔屉嚏锑"},
+    {"tian", "天甜田填添舔恬腆钿殄兲"},
+    {"tiao", "条跳调挑眺迢窕"},
+    {"tie", "铁贴帖餮"},
+    {"ting", "听停挺厅庭亭廷艇婷町汀烃霆"},
+    {"tong", "同通统痛童桶铜筒桐瞳彤捅侗恫酮"},
+    {"tou", "头投透偷骰"},
+    {"tu", "图土突途徒涂吐兔凸屠秃余荼"},
+    {"tuan", "团湍抟"},
+    {"tui", "推退腿褪颓蜕"},
+    {"tun", "吞屯臀囤豚鲀"},
+    {"tuo", "托脱拖拓妥驼唾椭陀驮鸵坨沱砣"},
     {"u", ""},
     {"v", ""},
-    {"w", "我为无玩完五万"},
-    {"wa", "挖哇蛙洼娃瓦袜佤娲凹"},
+    {"w", "我为无五万完玩"},
+    {"wa", "哇瓦娃挖袜蛙洼凹佤娲"},
     {"wai", "外歪崴"},
-    {"wan", "万弯完晚挽湾玩碗顽丸宛蜿惋婉腕蔓皖烷豌"},
-    {"wang", "望忘网亡汪王枉往旺妄罔惘魍"},
-    {"wei", "为未微危维尾味唯惟围委伟慰伪违威卫韦苇萎纬畏胃喂魏位渭谓蔚尉桅潍巍"},
-    {"wen", "问闻温蚊文稳纹吻紊瘟雯汶"},
+    {"wan", "万完玩晚湾碗挽腕弯顽婉宛丸蔓皖豌惋蜿烷"},
+    {"wang", "王往望忘网亡汪旺枉妄罔惘魍"},
+    {"wei", "为位未围委伟卫味微危威唯谓维违尾喂胃畏魏慰伪惟尉纬蔚渭萎苇韦潍巍桅"},
+    {"wen", "文问温闻稳纹吻蚊瘟紊雯汶"},
     {"weng", "嗡翁瓮"},
-    {"wo", "我喔握窝卧沃涡挝蜗斡"},
-    {"wu", "五无勿呜物务乌污屋芜吾吴武捂午舞伍侮坞戊雾晤悟误毋巫诬恶梧钨"},
-    {"x", "下学想小现"},
-    {"xi", "西系嘻喜洗戏细昔惜习席息希吸析晰稀夕悉栖熙袭牺汐茜硒矽烯曦犀檄铣"},
-    {"xia", "下夏侠吓瞎匣霞辖暇峡狭虾厦"},
-    {"xian", "先现贤显闲鲜咸仙衔线纤弦嫌险献县腺馅羡宪陷限舷涎掀锨铣"},
-    {"xiang", "相厢镶香箱襄湘乡翔祥详想响享项橡像向象降巷"},
-    {"xiao", "小笑消校宵晓效削哮销孝肖啸嚣淆萧硝霄"},
-    {"xie", "些写歇鞋协血携胁谐械卸泄泻谢屑解挟邪斜楔蝎懈蟹"},
-    {"xin", "心信新欣辛芯衅薪锌忻"},
-    {"xing", "行兴醒星型刑形幸杏性姓省邢腥猩惺"},
-    {"xiong", "兄凶胸匈汹雄熊"},
-    {"xiu", "休修羞朽嗅锈秀袖绣臭宿"},
-    {"xu", "许须需虚续徐嘘序叙墟蓄酗恤絮绪戌畜吁旭婿"},
-    {"xuan", "选悬旋宣轩喧眩绚玄癣"},
-    {"xue", "雪削血学穴靴薛"},
-    {"xun", "寻勋循旬询巡汛训讯熏驯逊迅殉浚"},
+    {"wo", "我握窝卧沃涡蜗喔斡挝"},
+    {"wu", "无五物务武误舞屋午吴污雾悟乌吾勿伍诬捂呜巫恶戊钨梧毋坞晤芜"},
+    {"x", "下小学想现"},
+    {"xi", "系西希习细喜吸息洗戏席稀惜袭析昔悉夕熙栖牺晰犀烯硒矽铣曦汐檄茜"},
+    {"xia", "下夏吓虾狭峡侠霞瞎厦辖暇匣"},
+    {"xian", "先现显线县险献鲜限陷咸闲仙嫌弦纤贤馅腺宪掀羡衔涎舷锨铣"},
+    {"xiang", "想相向象香响乡像项详享祥箱翔橡湘降巷襄镶厢"},
+    {"xiao", "小笑校消效晓销萧孝削肖宵啸硝霄哮嚣淆"},
+    {"xie", "写谢些血解鞋斜协携卸邪泄泻歇屑谐械胁挟懈蟹楔蝎"},
+    {"xin", "心新信欣辛薪芯锌衅忻"},
+    {"xing", "行性星形兴醒型姓幸省刑杏邢腥猩惺"},
+    {"xiong", "雄熊胸兄凶汹匈"},
+    {"xiu", "休修秀袖绣锈羞嗅臭宿朽"},
+    {"xu", "需许续须序徐虚绪畜蓄吁絮嘘叙旭戌恤婿墟酗"},
+    {"xuan", "选宣玄旋悬轩喧绚眩癣"},
+    {"xue", "学血雪穴削靴薛"},
+    {"xun", "讯寻训迅询巡循旬熏逊勋殉驯汛浚"},
     {"y", "一有也要与"},
-    {"ya", "呀压押鸦鸭丫牙蚜衙涯雅哑亚讶芽崖轧"},
-    {"yan", "焉阉淹盐严研蜒岩延言颜阎炎沿奄掩眼衍演艳堰燕厌砚雁唁彦焰宴谚验铅咽烟殷"},
-    {"yang", "样阳养洋扬羊杨央氧仰秧殃鸯佯疡漾"},
-    {"yao", "要药邀腰妖瑶摇尧遥窑谣姚咬舀耀约钥侥"},
-    {"ye", "椰噎耶爷野冶也页业夜咽掖叶腋液拽曳"},
-    {"yi", "一已以遗壹医依易伊衣夷乙艺忆亿亦移仪疑宜姨椅倚矣抑邑役臆逸意毅义益溢诣议谊译异揖蚁沂颐胰肄疫铱裔彝翼翌绎屹"},
-    {"yin", "引印因音迎阴吟银饮隐淫寅姻殷尹茵荫"},
-    {"ying", "应硬英赢映鹰缨莹营荧盈影蝇颖樱萤婴"},
+    {"ya", "亚呀牙压雅鸭丫哑押芽崖涯讶衙轧鸦蚜"},
+    {"yan", "眼烟言严研演验盐延颜沿燕厌炎宴掩咽衍淹艳雁砚谚彦焰阎焉奄堰蜒阉唁"},
+    {"yang", "样杨阳养洋扬羊央氧仰秧漾殃佯鸯疡"},
+    {"yao", "要药摇咬邀耀约遥腰谣姚钥妖窑尧瑶舀侥"},
+    {"ye", "也业夜爷叶野页液咽耶冶椰掖曳腋噎"},
+    {"yi", "一以已义意议依医易衣亿益艺移乙宜异亦遗仪疑忆役译疫翼毅逸椅姨抑倚谊溢伊矣揖沂裔颐胰屹夷臆翌绎彝铱肄"},
+    {"yin", "因音印银引饮阴隐迎吟姻尹殷寅淫茵荫"},
+    {"ying", "应影英赢营硬映婴樱盈蝇鹰颖莹荧萤缨"},
     {"yo", "哟唷"},
-    {"yong", "用勇永泳拥佣咏臃痈庸雍踊蛹恿涌"},
-    {"you", "又有右友由幽优悠忧尤邮铀犹油游酉佑釉诱"},
-    {"yu", "于与语雨鱼育遇欲预余愉愚玉域羽宇浴裕誉吁迂盂榆虞舆逾渝渔隅予娱屿禹羽芋郁喻峪御愈狱寓驭尉俞"},
-    {"yuan", "鸳渊冤元垣袁原援辕园圆猿源缘远苑愿怨院员"},
-    {"yue", "曰越跃岳粤月悦阅乐约钥"},
-    {"yun", "耘云郧匀陨允运蕴酝晕韵孕均"},
-    {"z", "在这总只中"},
-    {"za", "匝砸杂扎咱咋"},
-    {"zai", "栽哉灾宰载再在仔"},
-    {"zan", "暂赞攒咱"},
-    {"zang", "赃脏葬藏"},
-    {"zao", "遭糟藻枣早澡蚤躁噪造皂灶燥凿"},
-    {"ze", "责则泽择啧仄"},
+    {"yong", "用永拥涌勇泳庸佣咏雍踊痈臃蛹恿"},
+    {"you", "有又由优油游友右尤邮忧犹悠诱幽佑铀釉酉"},
+    {"yu", "于与语鱼育遇欲预余玉雨宇羽域娱渔愈狱御郁寓誉裕浴屿予俞逾愉愚喻虞舆迂芋禹瑜峪驭尉盂渝隅羽"},
+    {"yuan", "员原元远园愿院圆源缘袁怨援渊冤猿苑辕垣鸳"},
+    {"yue", "月约越阅乐悦跃岳粤钥曰"},
+    {"yun", "云运均晕允匀蕴韵孕陨酝耘郧"},
+    {"z", "在中这只总"},
+    {"za", "咋杂砸扎咱匝"},
+    {"zai", "在再载灾宰仔栽哉"},
+    {"zan", "咱赞暂攒"},
+    {"zang", "脏藏葬赃"},
+    {"zao", "早造遭糟燥躁噪澡皂枣灶凿藻蚤"},
+    {"ze", "则责择泽啧仄"},
     {"zei", "贼"},
     {"zen", "怎"},
-    {"zeng", "增憎赠曾综"},
-    {"zha", "渣炸铡咋闸眨榨乍诈查扎喳栅柞札轧"},
-    {"zhai", "斋债寨翟祭择摘宅窄侧"},
-    {"zhan", "瞻毡詹沾盏斩辗崭展蘸栈占战站湛绽颤粘"},
-    {"zhang", "樟章彰漳张掌涨杖丈帐账仗胀瘴障长"},
-    {"zhao", "招昭找沼赵照罩兆肇朝召爪着"},
-    {"zhe", "遮哲蛰辙者蔗浙折锗这着"},
-    {"zhen", "珍斟真甄砧臻贞针侦枕疹诊震振镇阵帧"},
-    {"zheng", "蒸挣睁征狰争怔整拯正政症郑证"},
-    {"zhi", "芝支蜘知肢脂汁之织职直植执值侄址指止趾只旨纸志挚掷至致置帜制智秩稚质炙痔滞治窒识枝吱殖峙"},
-    {"zhong", "中种重众钟衷终肿忠仲盅"},
-    {"zhou", "周州洲舟诌轴肘帚咒皱宙昼骤粥"},
-    {"zhu", "助住珠祝逐主株朱猪诸诛竹烛煮拄瞩嘱柱蛛蛀贮铸筑注驻属著"},
+    {"zeng", "曾增赠综憎"},
+    {"zha", "扎炸诈查眨咋闸榨渣乍栅札轧喳铡柞"},
+    {"zhai", "摘宅窄债寨择祭斋翟侧"},
+    {"zhan", "战站占展斩粘沾栈颤瞻崭绽盏湛毡詹蘸辗"},
+    {"zhang", "长张章掌帐账涨障丈仗胀杖彰漳樟瘴"},
+    {"zhao", "找着照招朝兆赵召罩爪沼昭肇"},
+    {"zhe", "这者着折浙哲遮辙蔗蛰锗"},
+    {"zhen", "真阵镇针振震侦诊贞珍枕斟帧甄臻疹砧"},
+    {"zheng", "正证整争政征挣睁郑症蒸拯怔狰"},
+    {"zhi", "只之知直指至制志值职质治置止纸支芝植执识织枝汁侄致址趾旨智帜秩滞炙掷挚窒稚痔蜘吱殖峙脂肢"},
+    {"zhong", "中重种众终钟忠仲肿衷盅"},
+    {"zhou", "周州洲舟皱昼咒宙轴骤肘帚粥诌"},
+    {"zhu", "主住注助珠朱猪逐竹祝诸筑属著驻铸嘱烛煮柱贮株蛛蛀诛瞩拄"},
     {"zhua", "抓爪"},
     {"zhuai", "拽"},
-    {"zhuan", "专转砖传赚撰篆"},
-    {"zhuang", "装撞状庄壮桩幢妆"},
-    {"zhui", "追坠缀椎锥赘"},
+    {"zhuan", "转专传赚砖撰篆"},
+    {"zhuang", "装壮状庄撞妆桩幢"},
+    {"zhui", "追坠锥缀椎赘"},
     {"zhun", "准谆"},
-    {"zhuo", "着捉卓拙桌茁啄灼浊琢酌"},
-    {"zi", "自子字紫仔兹咨资姿滋淄孜籽滓渍"},
-    {"zong", "总踪综宗纵棕鬃"},
-    {"zou", "走奏揍邹"},
-    {"zu", "足阻组卒租族祖诅"},
+    {"zhuo", "桌着捉卓浊拙啄琢灼茁酌"},
+    {"zi", "自子字资仔姿紫滋咨兹孜籽渍滓淄"},
+    {"zong", "总宗综纵踪棕鬃"},
+    {"zou", "走邹奏揍"},
+    {"zu", "组族足租阻祖卒诅"},
     {"zuan", "钻纂攥"},
-    {"zui", "嘴醉最罪"},
+    {"zui", "最嘴醉罪"},
     {"zun", "尊遵樽鳟"},
-    {"zuo", "做作昨左坐座佐撮琢柞"},
+    {"zuo", "做作坐座左昨佐琢撮柞"},
     {NULL, NULL}
 };
 #endif
@@ -734,24 +734,35 @@ static void lv_ime_pinyin_destructor(const lv_obj_class_t * class_p, lv_obj_t * 
     */
 }
 
+/**
+ * 键盘按键事件回调（输入法核心入口）。
+ * 用户在软键盘上每按下一个按键都会触发一次 LV_EVENT_VALUE_CHANGED，
+ * 本函数根据按键文本 txt 分发到不同的处理分支：
+ *   - 回车 / 换行：清空输入数据
+ *   - 退格：删除输入缓冲区最后一个字符并重新检索候选字
+ *   - 字母键（K26 全键盘）：追加到拼音串并触发候选字检索
+ *   - 字母键（K9 九宫格）：按键位映射到 2~9 数字编码，再枚举合法拼音
+ *   - 功能键（切换模式 / 确认 / 左右翻页等）
+ */
 static void lv_ime_pinyin_kb_event(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * kb = lv_event_get_target(e);
-    lv_obj_t * obj = lv_event_get_user_data(e);
+    lv_obj_t * kb = lv_event_get_target(e);         /* 触发事件的键盘对象 */
+    lv_obj_t * obj = lv_event_get_user_data(e);     /* 绑定时传入的输入法对象 */
 
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
 
 #if LV_IME_PINYIN_USE_K9_MODE
+    /* K9 九宫格按键编号(数字键 2~9)到对应字母集合的映射表 */
     static const char * k9_py_map[8] = {"abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
 #endif
 
     if(code == LV_EVENT_VALUE_CHANGED) {
-        uint16_t btn_id  = lv_btnmatrix_get_selected_btn(kb);
-        if(btn_id == LV_BTNMATRIX_BTN_NONE) return;
+        uint16_t btn_id  = lv_btnmatrix_get_selected_btn(kb);   /* 被按下按键的索引 */
+        if(btn_id == LV_BTNMATRIX_BTN_NONE) return;             /* 无按键被按下则直接返回 */
 
         const char * txt = lv_btnmatrix_get_btn_text(kb, lv_btnmatrix_get_selected_btn(kb));
-        if(txt == NULL) return;
+        if(txt == NULL) return;                                  /* 按键文本为空则直接返回 */
 
 #if LV_IME_PINYIN_USE_K9_MODE
         if(pinyin_ime->mode == LV_IME_PINYIN_MODE_K9) {
@@ -776,42 +787,52 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
         }
 #endif
 
+        /* 回车键，空格: 结束本次输入，清空输入法内部数据 */
         if(strcmp(txt, "Enter") == 0 || strcmp(txt, LV_SYMBOL_NEW_LINE) == 0) {
             pinyin_ime_clear_data(obj);
-            lv_obj_add_flag(pinyin_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);
         }
+        else if(strcmp(txt, " ") == 0) {
+            pinyin_ime_clear_data(obj);
+        }
+        /* 退格键: 删除输入缓冲区中的最后一个字符 */
         else if(strcmp(txt, LV_SYMBOL_BACKSPACE) == 0) {
-            // del input char
             if(pinyin_ime->ta_count > 0) {
+                /* K26 模式删除拼音串末尾字符 */
                 if(pinyin_ime->mode == LV_IME_PINYIN_MODE_K26)
                     pinyin_ime->input_char[pinyin_ime->ta_count - 1] = '\0';
+                /* K9 模式删除数字编码串末尾字符 */
 #if LV_IME_PINYIN_USE_K9_MODE
                 else if (pinyin_ime->mode == LV_IME_PINYIN_MODE_K9)
                     pinyin_ime->k9_input_str[pinyin_ime->ta_count - 1] = '\0';
 #endif
 
-                pinyin_ime->ta_count -= 1;
-                printf("[ime] ta_count=%d\n", pinyin_ime->ta_count);
+                pinyin_ime->ta_count--;
+                /* 输入缓冲区已清空: 隐藏候选面板，重置候选区 */
                 if(pinyin_ime->ta_count <= 0) {
                     pinyin_ime_clear_data(obj);
                 }
+                /* K26 模式: 还有剩余拼音，重新检索候选字 */
                 else if(pinyin_ime->mode == LV_IME_PINYIN_MODE_K26) {
                     pinyin_input_proc(obj);
                 }
+                /* K9 模式: 重新枚举剩余数字编码对应的合法拼音并刷新候选 */
 #if LV_IME_PINYIN_USE_K9_MODE
                 else if(pinyin_ime->mode == LV_IME_PINYIN_MODE_K9) {
                     pinyin_ime->k9_input_str_len = strlen(pinyin_ime->input_char) - 1;
                     pinyin_k9_get_legal_py(obj, pinyin_ime->k9_input_str, k9_py_map);
                     pinyin_k9_fill_cand(obj);
                     pinyin_input_proc(obj);
+                    pinyin_ime->ta_count--;
                 }
 #endif
             }
         }
+        /* 大小写切换键 / K9 数字键 "1#" */
         else if((strcmp(txt, "ABC") == 0) || (strcmp(txt, "abc") == 0) || (strcmp(txt, "1#") == 0)) {
             pinyin_ime_clear_data(obj);
             return;
         }
+        /* 键盘切换键: 在 K26 与 K9 之间切换 */
         else if(strcmp(txt, LV_SYMBOL_KEYBOARD) == 0) {
             if(pinyin_ime->mode == LV_IME_PINYIN_MODE_K26) {
                 lv_ime_pinyin_set_mode(obj, LV_IME_PINYIN_MODE_K9);
@@ -822,20 +843,25 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
             }
             pinyin_ime_clear_data(obj);
         }
+        /* 确认键: 结束输入，清空数据 */
         else if(strcmp(txt, LV_SYMBOL_OK) == 0) {
             pinyin_ime_clear_data(obj);
         }
+        /* K26 模式下的字母键: 把字母追加到拼音串末尾，然后检索候选字 */
         else if((pinyin_ime->mode == LV_IME_PINYIN_MODE_K26) && (txt[0] >= 'a' && txt[0] <= 'z')) {
             strcat(pinyin_ime->input_char, txt);
             pinyin_input_proc(obj);
             pinyin_ime->ta_count++;
         }
+        /* K9 模式下的数字键(字母组)输入: 按键映射为数字编码 2~9 存入 k9_input_str */
 #if LV_IME_PINYIN_USE_K9_MODE
         else if((pinyin_ime->mode == LV_IME_PINYIN_MODE_K9) && (txt[0] >= 'a' && txt[0] <= 'z')) {
             for(uint16_t i = 0; i < 8; i++) {
                 if((strcmp(txt, k9_py_map[i]) == 0) || (strcmp(txt, "abc ") == 0)) {
+                    /* "abc " 带空格表示作为独立的拼音分隔；否则累加当前键的字母数 */
                     if(strcmp(txt, "abc ") == 0)    pinyin_ime->k9_input_str_len += strlen(k9_py_map[i]) + 1;
                     else                            pinyin_ime->k9_input_str_len += strlen(k9_py_map[i]);
+                    /* '2' 的 ASCII 码为 50，故 50 + i 得到按键编号 2~9 */
                     pinyin_ime->k9_input_str[pinyin_ime->ta_count] = 50 + i;
 
                     break;
@@ -845,6 +871,7 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
             pinyin_k9_fill_cand(obj);
             pinyin_input_proc(obj);
         }
+        /* K9 模式左右翻页键: dir=0 上一页, dir=1 下一页 */
         else if(strcmp(txt, LV_SYMBOL_LEFT) == 0) {
             pinyin_k9_cand_page_proc(obj, 0);
         }
@@ -852,95 +879,124 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
             pinyin_k9_cand_page_proc(obj, 1);
         }
 #endif
+        else {
+            pinyin_ime_clear_data(obj);
+        }
     }
 }
 
+/**
+ * 候选面板按键事件回调。
+ * 候选面板是一个按钮矩阵，首尾两个按钮分别是 "<"(上一页) 和 ">"(下一页)，
+ * 中间的按钮是候选汉字。用户点击候选汉字后，用该字替换 textarea 中的拼音串。
+ */
 static void lv_ime_pinyin_cand_panel_event(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * cand_panel = lv_event_get_target(e);
+    lv_obj_t * cand_panel = lv_event_get_target(e);   /* 候选面板对象 */
     lv_obj_t * obj = (lv_obj_t *)lv_event_get_user_data(e);
 
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
 
     if(code == LV_EVENT_VALUE_CHANGED) {
         uint32_t id = lv_btnmatrix_get_selected_btn(cand_panel);
+        /* 点击 "<": 翻到上一页候选 */
         if(id == 0) {
             pinyin_page_proc(obj, 0);
             return;
         }
+        /* 点击 ">": 翻到下一页候选 */
         if(id == (LV_IME_PINYIN_CAND_TEXT_NUM + 1)) {
             pinyin_page_proc(obj, 1);
             return;
         }
 
+        /* 点击了某个候选汉字: 把拼音串从 textarea 中删除，替换为选中的汉字 */
         const char * txt = lv_btnmatrix_get_btn_text(cand_panel, id);
         lv_obj_t * ta = lv_keyboard_get_textarea(pinyin_ime->kb);
         uint16_t index = 0;
         for(index = 0; index < pinyin_ime->ta_count; index++)
-            lv_textarea_del_char(ta);
+            lv_textarea_del_char(ta);   /* 逐个删除当前已输入的拼音字母 */
 
-        lv_textarea_add_text(ta, txt);
+        lv_textarea_add_text(ta, txt);   /* 把选中的汉字写入 textarea */
 
-        pinyin_ime_clear_data(obj);
+        pinyin_ime_clear_data(obj);      /* 一次选择完成，清空输入法内部数据 */
     }
 }
 
+/**
+ * 拼音输入处理（K26 全键盘模式的核心检索逻辑）。
+ * 1. 在字典中查找以当前 input_char 为前缀的条目；
+ * 2. 若找到，则把该条目的候选汉字字符串按每 3 字节(一个 UTF-8 汉字)拆分，
+ *    填入候选面板的按钮数组，并显示候选面板。
+ */
 static void pinyin_input_proc(lv_obj_t * obj)
 {
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
 
+    /* 检索字典：cand_str 指向匹配条目的汉字串，cand_num 为该串中的汉字个数 */
     pinyin_ime->cand_str = pinyin_search_matching(obj, pinyin_ime->input_char, &pinyin_ime->cand_num);
     if(pinyin_ime->cand_str == NULL) {
-        return;
+        return;   /* 未找到匹配，保持候选面板不变 */
     }
 
-    pinyin_ime->py_page = 0;
+    pinyin_ime->py_page = 0;   /* 每次重新检索后回到第一页 */
 
+    /* 清空候选按钮的显示缓冲，并为每个候选位置预填一个空格占位 */
     for(uint8_t i = 0; i < LV_IME_PINYIN_CAND_TEXT_NUM; i++) {
         memset(lv_pinyin_cand_str[i], 0x00, sizeof(lv_pinyin_cand_str[i]));
         lv_pinyin_cand_str[i][0] = ' ';
     }
 
-    // fill buf
+    /* 把匹配到的汉字按顺序填入候选按钮(每个汉字 3 字节，最多填满一屏) */
     for(uint8_t i = 0; (i < pinyin_ime->cand_num && i < LV_IME_PINYIN_CAND_TEXT_NUM); i++) {
         for(uint8_t j = 0; j < 3; j++) {
             lv_pinyin_cand_str[i][j] = pinyin_ime->cand_str[i * 3 + j];
         }
     }
 
-    lv_obj_clear_flag(pinyin_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(pinyin_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);   /* 显示候选面板 */
 }
 
+/**
+ * 候选字翻页处理。
+ * @param dir 0 = 上一页，1 = 下一页
+ * 计算总页数(page_num)和最后一页剩余的候选数(sur)，
+ * 更新 py_page 后按当前页偏移重新填充候选按钮。
+ */
 static void pinyin_page_proc(lv_obj_t * obj, uint16_t dir)
 {
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
-    uint16_t page_num = pinyin_ime->cand_num / LV_IME_PINYIN_CAND_TEXT_NUM;
-    uint16_t sur = pinyin_ime->cand_num % LV_IME_PINYIN_CAND_TEXT_NUM;
+    uint16_t page_num = pinyin_ime->cand_num / LV_IME_PINYIN_CAND_TEXT_NUM;   /* 完整页数 */
+    uint16_t sur = pinyin_ime->cand_num % LV_IME_PINYIN_CAND_TEXT_NUM;        /* 最后一页剩余候选数 */
 
     if(dir == 0) {
+        /* 上一页：页号减一(下限为 0) */
         if(pinyin_ime->py_page) {
             pinyin_ime->py_page--;
         }
     }
     else {
+        /* 下一页：先修正总页数(无余数时减一)，再判断是否还能翻页 */
         if(sur == 0) {
             page_num -= 1;
         }
         if(pinyin_ime->py_page < page_num) {
             pinyin_ime->py_page++;
         }
-        else return;
+        else return;   /* 已是最后一页，无法继续翻页 */
     }
 
+    /* 清空候选显示缓冲 */
     for(uint8_t i = 0; i < LV_IME_PINYIN_CAND_TEXT_NUM; i++) {
         memset(lv_pinyin_cand_str[i], 0x00, sizeof(lv_pinyin_cand_str[i]));
         lv_pinyin_cand_str[i][0] = ' ';
     }
 
-    // fill buf
+    /* 按当前页偏移重新填充候选汉字 */
     uint16_t offset = pinyin_ime->py_page * (3 * LV_IME_PINYIN_CAND_TEXT_NUM);
     for(uint8_t i = 0; (i < pinyin_ime->cand_num && i < LV_IME_PINYIN_CAND_TEXT_NUM); i++) {
+        /* 最后一页且有余数时，只填充到 sur 为止，避免越界读 */
         if((sur > 0) && (pinyin_ime->py_page == page_num)) {
             if(i > sur)
                 break;
@@ -964,18 +1020,27 @@ static void lv_ime_pinyin_style_change_event(lv_event_t * e)
     }
 }
 
+/**
+ * 初始化字典并建立首字母索引。
+ * 遍历字典(以 NULL 条目结尾)，按首字母 a~z 分组统计：
+ *   - py_num[x]  记录首字母为 ('a'+x) 的条目数量
+ *   - py_pos[x]  记录首字母为 ('a'+x) 的第一个条目在字典中的偏移
+ * 后续 pinyin_search_matching 通过这些索引快速定位到对应首字母的区段，
+ * 从而避免每次都从头线性扫描整个字典。
+ */
 static void init_pinyin_dict(lv_obj_t * obj, lv_pinyin_dict_t * dict)
 {
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
 
-    char headletter = 'a';
-    uint16_t offset_sum = 0;
-    uint16_t offset_count = 0;
-    uint16_t letter_calc = 0;
+    char headletter = 'a';          /* 当前正在统计的首字母 */
+    uint16_t offset_sum = 0;        /* 已统计条目的累计总数，用于计算区段起始偏移 */
+    uint16_t offset_count = 0;      /* 当前首字母区段内的条目计数 */
+    uint16_t letter_calc = 0;       /* 首字母映射到数组下标的临时变量 */
 
     pinyin_ime->dict = dict;
 
     for(uint16_t i = 0; ; i++) {
+        /* 遇到结尾哨兵条目(NULL)，记录最后一个字母区段的条目数并结束 */
         if((NULL == (dict[i].py)) || (NULL == (dict[i].py_mb))) {
             headletter = dict[i - 1].py[0];
             letter_calc = headletter - 'a';
@@ -983,21 +1048,33 @@ static void init_pinyin_dict(lv_obj_t * obj, lv_pinyin_dict_t * dict)
             break;
         }
 
+        /* 当前条目首字母与上一分组相同，计数加一 */
         if(headletter == (dict[i].py[0])) {
             offset_count++;
         }
         else {
+            /* 遇到新的首字母：结算上一分组，并记录新分组的起始偏移 */
             headletter = dict[i].py[0];
             letter_calc = headletter - 'a';
-            pinyin_ime->py_num[letter_calc - 1] = offset_count;
+            pinyin_ime->py_num[letter_calc - 1] = offset_count;   /* 上一字母区段的条目数 */
             offset_sum += offset_count;
-            pinyin_ime->py_pos[letter_calc] = offset_sum;
+            pinyin_ime->py_pos[letter_calc] = offset_sum;          /* 当前字母区段的起始偏移 */
 
-            offset_count = 1;
+            offset_count = 1;   /* 当前条目计入新分组 */
         }
     }
 }
 
+/**
+ * 在字典中查找以 py_str 为前缀的拼音条目。
+ * 利用 init_pinyin_dict 预先建立的首字母索引(py_num/py_pos)快速定位
+ * 到 py_str 首字母对应的字典区段，然后线性扫描该区段做前缀匹配。
+ *
+ * @param obj     输入法对象
+ * @param py_str  待匹配的拼音串(如 "zhong")
+ * @param cand_num 输出参数，返回匹配条目所包含的汉字个数
+ * @return        匹配条目的汉字字符串指针，未找到返回 NULL
+ */
 static char * pinyin_search_matching(lv_obj_t * obj, char * py_str, uint16_t * cand_num)
 {
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
@@ -1006,40 +1083,48 @@ static char * pinyin_search_matching(lv_obj_t * obj, char * py_str, uint16_t * c
     uint8_t index, len = 0, offset;
     volatile uint8_t count = 0;
 
+    /* 空串以及 i/u/v 开头的串无对应拼音，直接返回 */
     if(*py_str == '\0')    return NULL;
     if(*py_str == 'i')     return NULL;
     if(*py_str == 'u')     return NULL;
     if(*py_str == 'v')     return NULL;
 
+    /* 用首字母定位到字典区段：offset = 首字母 - 'a' */
     offset = py_str[0] - 'a';
     len = strlen(py_str);
 
-    cpHZ  = &pinyin_ime->dict[pinyin_ime->py_pos[offset]];
-    count = pinyin_ime->py_num[offset];
+    cpHZ  = &pinyin_ime->dict[pinyin_ime->py_pos[offset]];   /* 该首字母区段的起始条目 */
+    count = pinyin_ime->py_num[offset];                      /* 该首字母区段的条目数量 */
 
     while(count--) {
+        /* 逐字符比较 py_str 与当前条目的拼音，做前缀匹配 */
         for(index = 0; index < len; index++) {
             if(*(py_str + index) != *((cpHZ->py) + index)) {
-                break;
+                break;   /* 出现不匹配字符，提前退出 */
             }
         }
 
-        // perfect match
+        /* 完全匹配(单字母输入或逐字符全部匹配成功) */
         if(len == 1 || index == len) {
-            // The Chinese character in UTF-8 encoding format is 3 bytes
+            /* UTF-8 编码下每个汉字占 3 字节，因此汉字个数 = 字符串字节长度 / 3 */
             * cand_num = strlen((const char *)(cpHZ->py_mb)) / 3;
             return (char *)(cpHZ->py_mb);
         }
-        cpHZ++;
+        cpHZ++;   /* 移动到下一个字典条目 */
     }
     return NULL;
 }
 
+/**
+ * 清空输入法内部状态：重置计数、清空输入缓冲与候选缓冲，并隐藏候选面板。
+ * 通常在完成一次选字、回车、确认或切换键盘模式时调用。
+ */
 static void pinyin_ime_clear_data(lv_obj_t * obj)
 {
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
 
 #if LV_IME_PINYIN_USE_K9_MODE
+    /* K9 模式额外需要清理九宫格编码串与合法拼音链表相关状态 */
     if(pinyin_ime->mode == LV_IME_PINYIN_MODE_K9) {
         pinyin_ime->k9_input_str_len = 0;
         pinyin_ime->k9_py_ll_pos = 0;
@@ -1090,6 +1175,12 @@ static void pinyin_k9_init_data(lv_obj_t * obj)
     default_kb_ctrl_k9_map[LV_IME_PINYIN_K9_CAND_TEXT_NUM + 16] = LV_KEYBOARD_CTRL_BTN_FLAGS | 1;
 }
 
+/**
+ * K9 九宫格模式：根据用户按下的数字键序列(k9_input)，枚举所有可能的拼音组合。
+ * 每个数字键(2~9)对应 3~4 个字母(py9_map)，使用回溯法生成所有字母组合，
+ * 并调用 pinyin_k9_is_valid_py 过滤出字典中真实存在的合法拼音，
+ * 合法的拼音串通过链表 k9_legal_py_ll 保存，供候选填充使用。
+ */
 static void pinyin_k9_get_legal_py(lv_obj_t * obj, char * k9_input, const char * py9_map[])
 {
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
@@ -1097,14 +1188,14 @@ static void pinyin_k9_get_legal_py(lv_obj_t * obj, char * k9_input, const char *
     uint16_t len = strlen(k9_input);
 
     if((len == 0) || (len >= LV_IME_PINYIN_K9_MAX_INPUT)) {
-        return;
+        return;   /* 空输入或超过最大长度，直接返回 */
     }
 
-    char py_comp[LV_IME_PINYIN_K9_MAX_INPUT] = {0};
-    int mark[LV_IME_PINYIN_K9_MAX_INPUT] = {0};
-    int index = 0;
+    char py_comp[LV_IME_PINYIN_K9_MAX_INPUT] = {0};   /* 当前正在组合的拼音缓冲区 */
+    int mark[LV_IME_PINYIN_K9_MAX_INPUT] = {0};       /* 记录每一位数字键已尝试到第几个字母 */
+    int index = 0;                                     /* 当前正在填写的位数 */
     int flag = 0;
-    int count = 0;
+    int count = 0;                                     /* 已找到的合法拼音个数 */
 
     uint32_t ll_len = 0;
     ime_pinyin_k9_py_str_t * ll_index = NULL;
@@ -1112,49 +1203,58 @@ static void pinyin_k9_get_legal_py(lv_obj_t * obj, char * k9_input, const char *
     ll_len = _lv_ll_get_len(&pinyin_ime->k9_legal_py_ll);
     ll_index = _lv_ll_get_head(&pinyin_ime->k9_legal_py_ll);
 
+    /* 回溯法枚举：index 表示当前处理到第几位，-1 表示回溯结束 */
     while(index != -1) {
         if(index == len) {
+            /* 已填满所有位，得到一个完整拼音组合，校验其是否为合法拼音 */
             if(pinyin_k9_is_valid_py(obj, py_comp)) {
                 if((count >= ll_len) || (ll_len == 0)) {
+                    /* 链表容量不足则在尾部新建节点 */
                     ll_index = _lv_ll_ins_tail(&pinyin_ime->k9_legal_py_ll);
                     strcpy(ll_index->py_str, py_comp);
                 }
                 else if((count < ll_len)) {
+                    /* 复用已有节点，覆盖旧的拼音串 */
                     strcpy(ll_index->py_str, py_comp);
                     ll_index = _lv_ll_get_next(&pinyin_ime->k9_legal_py_ll, ll_index);
                 }
                 count++;
             }
-            index--;
+            index--;   /* 回溯到上一位 */
         }
         else {
             flag = mark[index];
             if(flag < strlen(py9_map[k9_input[index] - '2'])) {
+                /* 该位还有未尝试的字母，取当前字母继续向低位推进 */
                 py_comp[index] = py9_map[k9_input[index] - '2'][flag];
                 mark[index] = mark[index] + 1;
                 index++;
             }
             else {
+                /* 该位字母已穷尽，重置标记并回溯到上一位 */
                 mark[index] = 0;
                 index--;
             }
         }
     }
 
+    /* 找到合法拼音后，更新已输入字符计数与合法拼音总数 */
     if(count > 0) {
         pinyin_ime->ta_count++;
         pinyin_ime->k9_legal_py_count = count;
     }
 }
 
-/*true: visible; false: not visible*/
+/**
+ * 校验一个拼音串是否存在于字典中(前缀匹配)。
+ * 实现与 pinyin_search_matching 类似，但只返回是否存在(true/false)。
+ */
 static bool pinyin_k9_is_valid_py(lv_obj_t * obj, char * py_str)
 {
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
 
     lv_pinyin_dict_t * cpHZ = NULL;
     uint8_t index = 0, len = 0, offset = 0;
-    //uint16_t ret = 1;
     volatile uint8_t count = 0;
 
     if(*py_str == '\0')    return false;
@@ -1175,18 +1275,21 @@ static bool pinyin_k9_is_valid_py(lv_obj_t * obj, char * py_str)
             }
         }
 
-        // perfect match
         if(len == 1 || index == len) {
-            return true;
+            return true;   /* 前缀匹配成功 */
         }
         cpHZ++;
     }
     return false;
 }
 
+/**
+ * K9 模式：把合法拼音链表的头几个拼音填充到候选按钮，
+ * 并把第一个合法拼音写入 input_char、同步到 textarea 作为预览。
+ */
 static void pinyin_k9_fill_cand(lv_obj_t * obj)
 {
-    static uint16_t len = 0;
+    static uint16_t len = 0;   /* 上次填充时的合法拼音总数，用于判断是否需要重填 */
     uint16_t index = 0, tmp_len = 0;
     ime_pinyin_k9_py_str_t * ll_index = NULL;
 
@@ -1194,6 +1297,7 @@ static void pinyin_k9_fill_cand(lv_obj_t * obj)
 
     tmp_len = pinyin_ime->k9_legal_py_count;
 
+    /* 合法拼音总数发生变化时，清空候选缓冲并重置翻页按钮 */
     if(tmp_len != len) {
         lv_memset_00(lv_pinyin_k9_cand_str, sizeof(lv_pinyin_k9_cand_str));
         strcpy(lv_pinyin_k9_cand_str[LV_IME_PINYIN_K9_CAND_TEXT_NUM], LV_SYMBOL_RIGHT"\0");
@@ -1201,19 +1305,21 @@ static void pinyin_k9_fill_cand(lv_obj_t * obj)
         len = tmp_len;
     }
 
+    /* 从头遍历链表，把拼音串填入候选按钮(最多一屏) */
     ll_index = _lv_ll_get_head(&pinyin_ime->k9_legal_py_ll);
-    strcpy(pinyin_ime->input_char, ll_index->py_str);
+    strcpy(pinyin_ime->input_char, ll_index->py_str);   /* 默认取第一个拼音作为预览 */
     while(ll_index) {
         if((index >= LV_IME_PINYIN_K9_CAND_TEXT_NUM) || \
            (index >= pinyin_ime->k9_legal_py_count))
             break;
 
         strcpy(lv_pinyin_k9_cand_str[index], ll_index->py_str);
-        ll_index = _lv_ll_get_next(&pinyin_ime->k9_legal_py_ll, ll_index); /*Find the next list*/
+        ll_index = _lv_ll_get_next(&pinyin_ime->k9_legal_py_ll, ll_index);
         index++;
     }
-    pinyin_ime->k9_py_ll_pos = index;
+    pinyin_ime->k9_py_ll_pos = index;   /* 记录当前候选填充到的链表位置 */
 
+    /* 同步预览：先删掉 textarea 中旧的编码串，再写入新的合法拼音 */
     lv_obj_t * ta = lv_keyboard_get_textarea(pinyin_ime->kb);
     for(index = 0; index < pinyin_ime->k9_input_str_len; index++) {
         lv_textarea_del_char(ta);
@@ -1222,6 +1328,12 @@ static void pinyin_k9_fill_cand(lv_obj_t * obj)
     lv_textarea_add_text(ta, pinyin_ime->input_char);
 }
 
+/**
+ * K9 模式候选翻页。
+ * @param dir 0 = 上一页，1 = 下一页
+ * 通过 k9_py_ll_pos 记录当前页在合法拼音链表中的位置，
+ * 翻页时从链表对应位置重新取出一屏拼音填入候选按钮。
+ */
 static void pinyin_k9_cand_page_proc(lv_obj_t * obj, uint16_t dir)
 {
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
@@ -1229,47 +1341,52 @@ static void pinyin_k9_cand_page_proc(lv_obj_t * obj, uint16_t dir)
     lv_obj_t * ta = lv_keyboard_get_textarea(pinyin_ime->kb);
     uint16_t ll_len =  _lv_ll_get_len(&pinyin_ime->k9_legal_py_ll);
 
+    /* 只有合法拼音超过一屏时才需要翻页 */
     if((ll_len > LV_IME_PINYIN_K9_CAND_TEXT_NUM) && (pinyin_ime->k9_legal_py_count > LV_IME_PINYIN_K9_CAND_TEXT_NUM)) {
         ime_pinyin_k9_py_str_t * ll_index = NULL;
         int count = 0;
 
+        /* 先把链表指针定位到当前页的起始位置(k9_py_ll_pos) */
         ll_index = _lv_ll_get_head(&pinyin_ime->k9_legal_py_ll);
         while(ll_index) {
             if(count >= pinyin_ime->k9_py_ll_pos)   break;
 
-            ll_index = _lv_ll_get_next(&pinyin_ime->k9_legal_py_ll, ll_index); /*Find the next list*/
+            ll_index = _lv_ll_get_next(&pinyin_ime->k9_legal_py_ll, ll_index);
             count++;
         }
 
+        /* 已在链表末尾却还要翻下一页，直接返回 */
         if((NULL == ll_index) && (dir == 1))   return;
 
+        /* 清空候选缓冲并重置翻页按钮 */
         lv_memset_00(lv_pinyin_k9_cand_str, sizeof(lv_pinyin_k9_cand_str));
         strcpy(lv_pinyin_k9_cand_str[LV_IME_PINYIN_K9_CAND_TEXT_NUM], LV_SYMBOL_RIGHT"\0");
         strcpy(lv_pinyin_k9_cand_str[LV_IME_PINYIN_K9_CAND_TEXT_NUM + 1], "\0");
 
         // next page
         if(dir == 1) {
+            /* 下一页：从当前位置向后取一屏拼音 */
             count = 0;
             while(ll_index) {
                 if(count >= (LV_IME_PINYIN_K9_CAND_TEXT_NUM - 1))
                     break;
 
                 strcpy(lv_pinyin_k9_cand_str[count], ll_index->py_str);
-                ll_index = _lv_ll_get_next(&pinyin_ime->k9_legal_py_ll, ll_index); /*Find the next list*/
+                ll_index = _lv_ll_get_next(&pinyin_ime->k9_legal_py_ll, ll_index);
                 count++;
             }
             pinyin_ime->k9_py_ll_pos += count - 1;
-
         }
         // previous page
         else {
+            /* 上一页：从当前位置向前回退一屏拼音 */
             count = LV_IME_PINYIN_K9_CAND_TEXT_NUM - 1;
             ll_index = _lv_ll_get_prev(&pinyin_ime->k9_legal_py_ll, ll_index);
             while(ll_index) {
                 if(count < 0)  break;
 
                 strcpy(lv_pinyin_k9_cand_str[count], ll_index->py_str);
-                ll_index = _lv_ll_get_prev(&pinyin_ime->k9_legal_py_ll, ll_index); /*Find the previous list*/
+                ll_index = _lv_ll_get_prev(&pinyin_ime->k9_legal_py_ll, ll_index);
                 count--;
             }
 
