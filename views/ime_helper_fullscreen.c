@@ -9,6 +9,7 @@
 #include "main.h"
 #include "string.h"
 #include "platform/page_manager.h"
+#include "lv_ime_pinyin.h"
 
 static void textarea_clicked_cb(lv_event_t * e);
 static void ime_input_done_cb(lv_event_t * e);
@@ -30,9 +31,11 @@ static void page_ime_show(lv_obj_t * textarea) {
     lv_obj_set_style_border_width(ime_container, 0, LV_STATE_DEFAULT);
     lv_obj_clear_flag(ime_container, LV_OBJ_FLAG_SCROLLABLE);
     lv_obj_set_size(ime_container, lv_pct(100), lv_pct(100));
+    
 
     lv_obj_t * ime_input = lv_textarea_create(ime_container);
-    lv_obj_t * pinyin_ime = lv_100ask_pinyin_ime_create(ime_container);
+    lv_obj_t * pinyin_ime = lv_ime_pinyin_create(ime_container);
+    lv_obj_clear_flag(pinyin_ime, LV_OBJ_FLAG_HIDDEN);
 
 #if IME_LAYOUT_DIRECTION == 0
     // HORIZONTAL
@@ -50,7 +53,7 @@ static void page_ime_show(lv_obj_t * textarea) {
 
     ime_input->flags = textarea->flags;
     lv_textarea_set_text(ime_input, lv_textarea_get_text(textarea));
-    lv_obj_t * keyboard = lv_100ask_pinyin_ime_get_kb(pinyin_ime);
+    lv_obj_t * keyboard = lv_ime_pinyin_get_kb(pinyin_ime);
     lv_obj_add_state(ime_input, LV_STATE_FOCUSED);
     
     lv_keyboard_set_textarea(keyboard, ime_input);
@@ -83,7 +86,7 @@ static void ime_input_done_cb(lv_event_t * e) {
     lv_obj_t * ime_input = lv_event_get_target(e);
     lv_obj_t * current_textarea = (lv_obj_t *)lv_event_get_user_data(e);
 
-    if(code == LV_EVENT_READY || code == LV_EVENT_CANCEL) {
+    if(code == LV_EVENT_READY /*|| code == LV_EVENT_CANCEL*/) {
         lv_textarea_set_text(current_textarea, lv_textarea_get_text(ime_input));
         lv_event_send(current_textarea, code, NULL);
         lv_obj_clear_state(current_textarea, LV_STATE_FOCUSED);

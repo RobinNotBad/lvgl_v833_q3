@@ -9,7 +9,6 @@ extern "C" {
  *      INCLUDES
  *********************/
 #include "lvgl/lvgl.h"
-#include "lv_lib_100ask/lv_lib_100ask.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdbool.h>
