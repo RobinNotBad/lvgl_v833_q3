@@ -35,6 +35,8 @@
 
     /*test*/
     #define LV_100ASK_PINYIN_IME_SIMPLE_TEST            1
+#else
+    #define LV_100ASK_PINYIN_IME_SIMPLE_TEST            0
 #endif
 
 

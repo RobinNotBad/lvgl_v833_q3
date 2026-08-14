@@ -270,21 +270,21 @@ lv_obj_t * lv_100ask_file_explorer_get_quick_access_ctrl_btn(lv_obj_t * obj)
  *====================*/
 void lv_100ask_file_explorer_open_dir(lv_obj_t * obj, char * dir)
 {
-    lv_100ask_file_explorer_t * explorer = (lv_100ask_file_explorer_t *)obj;
+    //lv_100ask_file_explorer_t * explorer = (lv_100ask_file_explorer_t *)obj;
 
     show_dir(obj, dir);
 }
 
 void lv_100ask_file_explorer_refresh(lv_obj_t * obj) 
 {
-    lv_100ask_file_explorer_t * explorer = (lv_100ask_file_explorer_t *)obj;
+    //lv_100ask_file_explorer_t * explorer = (lv_100ask_file_explorer_t *)obj;
     // 获取的指针直接传进去会出问题，所以要临时拷贝一下
-    char * cur_path = lv_100ask_file_explorer_get_cur_path(explorer);
+    char * cur_path = lv_100ask_file_explorer_get_cur_path(obj);
     char * path     = strdup(cur_path);
     if(path == NULL) return;
     path[strlen(path) - 1] = '\0'; // 最后的"/"符号要去掉
-    lv_100ask_file_explorer_open_dir(explorer, path);
-    free(path);
+    lv_100ask_file_explorer_open_dir(obj, path);
+    lv_mem_free(path);
 }
 
 /**********************
@@ -379,7 +379,7 @@ static void lv_100ask_file_explorer_constructor(const lv_obj_class_t * class_p, 
     lv_label_set_long_mode(explorer->path_label, LV_LABEL_LONG_CLIP);
     lv_obj_set_size(explorer->path_label, LV_PCT(100), LV_PCT(100));
     lv_label_set_text(explorer->path_label, "/"/*"https://lvgl.100ask.net"*/);
-    lv_obj_set_style_text_align(explorer->path_label, LV_TEXT_ALIGN_RIGHT, NULL);
+    lv_obj_set_style_text_align(explorer->path_label, LV_TEXT_ALIGN_RIGHT, LV_STATE_DEFAULT);
     lv_obj_align(explorer->path_label, LV_ALIGN_TOP_MID, 0, LV_PCT(50));
     
 
@@ -586,7 +586,7 @@ static void brower_file_event_handler(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t * obj = lv_event_get_user_data(e);
-    lv_obj_t * btn = lv_event_get_target(e);
+    //lv_obj_t * btn = lv_event_get_target(e);
 
     lv_100ask_file_explorer_t * explorer = (lv_100ask_file_explorer_t *)obj;
 
@@ -595,29 +595,29 @@ static void brower_file_event_handler(lv_event_t * e)
             explorer->long_pressed = false;
             return;
         }
-        //struct stat stat_buf;
-        char * file_name[LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN];
-        char * str_fn = NULL;
-        uint16_t row;
-        uint16_t col;
 
-        memset(file_name, 0, sizeof(file_name));
+        char * file_name = lv_mem_alloc(LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN);
+        lv_memset_00(file_name, LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN);
+
+        uint16_t row;  // 行
+        uint16_t col;  // 列
         lv_table_get_selected_cell(explorer->file_list, &row, &col);
-        str_fn = lv_table_get_cell_value(explorer->file_list, row, col);
 
-        str_fn = str_fn+5;
-        if((strcmp(str_fn, ".") == 0))  return;
+        char * str_fn = lv_table_get_cell_value(explorer->file_list, row, col);
+        str_fn += 5;    // 图标占3位，加上2个空格，因此总计向后移5位
+
+        if((strlen(str_fn) == 0) || (strcmp(str_fn, ".") == 0))  return;
         
         if((strcmp(str_fn, "..") == 0) && (strlen(explorer->cur_path) > 3))
         {
             strip_ext(explorer->cur_path);
             strip_ext(explorer->cur_path); // 去掉最后的 '/' 路径
-            lv_snprintf(file_name, sizeof(file_name), "%s", explorer->cur_path);
+            lv_snprintf(file_name, LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN, "%s", explorer->cur_path);
         }
         else
         {
             if(strcmp(str_fn, "..") != 0){
-                lv_snprintf(file_name, sizeof(file_name), "%s%s", explorer->cur_path, str_fn);
+                lv_snprintf(file_name, LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN, "%s%s", explorer->cur_path, str_fn);
             }
         }
 
@@ -633,6 +633,7 @@ static void brower_file_event_handler(lv_event_t * e)
                 lv_event_send(obj, LV_EVENT_CLICKED, e->user_data);
             }
         }
+        lv_mem_free(file_name);
     }
     else if(code == LV_EVENT_SIZE_CHANGED) {
         lv_table_set_col_width(explorer->file_list, 0, lv_obj_get_width(explorer->file_list));
@@ -802,7 +803,7 @@ static void sort_table_items(lv_obj_t * tb, int16_t lo, int16_t hi )
 static bool file_ext_match(const char * file_name, const char * file_ext[])
 {
     for(int i = 0; file_ext[i] != NULL; i++) {
-        if(str_end_with(file_name, file_ext[i], false)) return true;
+        if(is_end_with(file_name, file_ext[i], false)) return true;
     }
     return false;
 }

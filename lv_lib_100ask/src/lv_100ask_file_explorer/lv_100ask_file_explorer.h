@@ -183,6 +183,8 @@ void lv_100ask_file_explorer_open_dir(lv_obj_t * obj, char * dir);
  */
 void lv_100ask_file_explorer_refresh(lv_obj_t * obj);
 
+lv_obj_t * lv_100ask_file_explorer_get_head(lv_obj_t * obj);
+
 /**********************
  *      MACROS
  **********************/
