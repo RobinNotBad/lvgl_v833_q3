@@ -721,24 +721,35 @@ static void lv_ime_pinyin_destructor(const lv_obj_class_t * class_p, lv_obj_t * 
     */
 }
 
+/**
+ * 键盘按键事件回调（输入法核心入口）。
+ * 用户在软键盘上每按下一个按键都会触发一次 LV_EVENT_VALUE_CHANGED，
+ * 本函数根据按键文本 txt 分发到不同的处理分支：
+ *   - 回车 / 换行：清空输入数据
+ *   - 退格：删除输入缓冲区最后一个字符并重新检索候选字
+ *   - 字母键（K26 全键盘）：追加到拼音串并触发候选字检索
+ *   - 字母键（K9 九宫格）：按键位映射到 2~9 数字编码，再枚举合法拼音
+ *   - 功能键（切换模式 / 确认 / 左右翻页等）
+ */
 static void lv_ime_pinyin_kb_event(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * kb = lv_event_get_target(e);
-    lv_obj_t * obj = lv_event_get_user_data(e);
+    lv_obj_t * kb = lv_event_get_target(e);         /* 触发事件的键盘对象 */
+    lv_obj_t * obj = lv_event_get_user_data(e);     /* 绑定时传入的输入法对象 */
 
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
 
 #if LV_IME_PINYIN_USE_K9_MODE
+    /* K9 九宫格按键编号(数字键 2~9)到对应字母集合的映射表 */
     static const char * k9_py_map[8] = {"abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
 #endif
 
     if(code == LV_EVENT_VALUE_CHANGED) {
-        uint16_t btn_id  = lv_btnmatrix_get_selected_btn(kb);
-        if(btn_id == LV_BTNMATRIX_BTN_NONE) return;
+        uint16_t btn_id  = lv_btnmatrix_get_selected_btn(kb);   /* 被按下按键的索引 */
+        if(btn_id == LV_BTNMATRIX_BTN_NONE) return;             /* 无按键被按下则直接返回 */
 
         const char * txt = lv_btnmatrix_get_btn_text(kb, lv_btnmatrix_get_selected_btn(kb));
-        if(txt == NULL) return;
+        if(txt == NULL) return;                                  /* 按键文本为空则直接返回 */
 
 #if LV_IME_PINYIN_USE_K9_MODE
         if(pinyin_ime->mode == LV_IME_PINYIN_MODE_K9) {
@@ -763,13 +774,15 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
         }
 #endif
 
+        /* 回车键（英文 "Enter" 或换行符号）: 结束本次输入，清空输入法内部数据 */
         if(strcmp(txt, "Enter") == 0 || strcmp(txt, LV_SYMBOL_NEW_LINE) == 0) {
             pinyin_ime_clear_data(obj);
             lv_obj_add_flag(pinyin_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);
         }
+        /* 退格键: 删除输入缓冲区中的最后一个字符 */
         else if(strcmp(txt, LV_SYMBOL_BACKSPACE) == 0) {
-            // del input char
             if(pinyin_ime->ta_count > 0) {
+                /* K26 模式删除拼音串末尾字符；K9 模式删除数字编码串末尾字符 */
                 if(pinyin_ime->mode == LV_IME_PINYIN_MODE_K26)
                     pinyin_ime->input_char[pinyin_ime->ta_count - 1] = '\0';
 #if LV_IME_PINYIN_USE_K9_MODE
@@ -778,6 +791,7 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
 #endif
 
                 pinyin_ime->ta_count = pinyin_ime->ta_count - 1;
+                /* 输入缓冲区已清空: 隐藏候选面板，重置候选区 */
                 if(pinyin_ime->ta_count <= 0) {
                     lv_obj_add_flag(pinyin_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);
 #if LV_IME_PINYIN_USE_K9_MODE
@@ -786,10 +800,12 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
                     strcpy(lv_pinyin_k9_cand_str[LV_IME_PINYIN_K9_CAND_TEXT_NUM + 1], "\0");
 #endif
                 }
+                /* K26 模式: 还有剩余拼音，重新检索候选字 */
                 else if(pinyin_ime->mode == LV_IME_PINYIN_MODE_K26) {
                     pinyin_input_proc(obj);
                 }
 #if LV_IME_PINYIN_USE_K9_MODE
+                /* K9 模式: 重新枚举剩余数字编码对应的合法拼音并刷新候选 */
                 else if(pinyin_ime->mode == LV_IME_PINYIN_MODE_K9) {
                     pinyin_ime->k9_input_str_len = strlen(pinyin_ime->input_char) - 1;
                     pinyin_k9_get_legal_py(obj, pinyin_ime->k9_input_str, k9_py_map);
@@ -799,11 +815,13 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
 #endif
             }
         }
+        /* 大小写切换键 / K9 数字键 "1#": 仅清空当前拼音输入，不处理候选 */
         else if((strcmp(txt, "ABC") == 0) || (strcmp(txt, "abc") == 0) || (strcmp(txt, "1#") == 0)) {
             pinyin_ime->ta_count = 0;
             lv_memset_00(pinyin_ime->input_char, sizeof(pinyin_ime->input_char));
             return;
         }
+        /* 键盘切换键: 在 K26(全键盘) 与 K9(九宫格) 之间切换 */
         else if(strcmp(txt, LV_SYMBOL_KEYBOARD) == 0) {
             if(pinyin_ime->mode == LV_IME_PINYIN_MODE_K26) {
                 lv_ime_pinyin_set_mode(obj, LV_IME_PINYIN_MODE_K9);
@@ -814,9 +832,11 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
             }
             pinyin_ime_clear_data(obj);
         }
+        /* 确认键: 结束输入，清空数据 */
         else if(strcmp(txt, LV_SYMBOL_OK) == 0) {
             pinyin_ime_clear_data(obj);
         }
+        /* K26 模式下的字母键: 把字母追加到拼音串末尾，然后检索候选字 */
         else if((pinyin_ime->mode == LV_IME_PINYIN_MODE_K26) && ((txt[0] >= 'a' && txt[0] <= 'z') || (txt[0] >= 'A' &&
                                                                                                       txt[0] <= 'Z'))) {
             strcat(pinyin_ime->input_char, txt);
@@ -824,11 +844,14 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
             pinyin_ime->ta_count++;
         }
 #if LV_IME_PINYIN_USE_K9_MODE
+        /* K9 模式下的数字键(字母组)输入: 按键映射为数字编码 2~9 存入 k9_input_str */
         else if((pinyin_ime->mode == LV_IME_PINYIN_MODE_K9) && (txt[0] >= 'a' && txt[0] <= 'z')) {
             for(uint16_t i = 0; i < 8; i++) {
                 if((strcmp(txt, k9_py_map[i]) == 0) || (strcmp(txt, "abc ") == 0)) {
+                    /* "abc " 带空格表示作为独立的拼音分隔；否则累加当前键的字母数 */
                     if(strcmp(txt, "abc ") == 0)    pinyin_ime->k9_input_str_len += strlen(k9_py_map[i]) + 1;
                     else                            pinyin_ime->k9_input_str_len += strlen(k9_py_map[i]);
+                    /* '2' 的 ASCII 码为 50，故 50 + i 得到按键编号 2~9 */
                     pinyin_ime->k9_input_str[pinyin_ime->ta_count] = 50 + i;
 
                     break;
@@ -838,6 +861,7 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
             pinyin_k9_fill_cand(obj);
             pinyin_input_proc(obj);
         }
+        /* K9 模式左右翻页键: dir=0 上一页, dir=1 下一页 */
         else if(strcmp(txt, LV_SYMBOL_LEFT) == 0) {
             pinyin_k9_cand_page_proc(obj, 0);
         }
@@ -848,92 +872,118 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
     }
 }
 
+/**
+ * 候选面板按键事件回调。
+ * 候选面板是一个按钮矩阵，首尾两个按钮分别是 "<"(上一页) 和 ">"(下一页)，
+ * 中间的按钮是候选汉字。用户点击候选汉字后，用该字替换 textarea 中的拼音串。
+ */
 static void lv_ime_pinyin_cand_panel_event(lv_event_t * e)
 {
     lv_event_code_t code = lv_event_get_code(e);
-    lv_obj_t * cand_panel = lv_event_get_target(e);
+    lv_obj_t * cand_panel = lv_event_get_target(e);   /* 候选面板对象 */
     lv_obj_t * obj = (lv_obj_t *)lv_event_get_user_data(e);
 
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
 
     if(code == LV_EVENT_VALUE_CHANGED) {
         uint32_t id = lv_btnmatrix_get_selected_btn(cand_panel);
+        /* 点击 "<": 翻到上一页候选 */
         if(id == 0) {
             pinyin_page_proc(obj, 0);
             return;
         }
+        /* 点击 ">": 翻到下一页候选 */
         if(id == (LV_IME_PINYIN_CAND_TEXT_NUM + 1)) {
             pinyin_page_proc(obj, 1);
             return;
         }
 
+        /* 点击了某个候选汉字: 把拼音串从 textarea 中删除，替换为选中的汉字 */
         const char * txt = lv_btnmatrix_get_btn_text(cand_panel, id);
         lv_obj_t * ta = lv_keyboard_get_textarea(pinyin_ime->kb);
         uint16_t index = 0;
         for(index = 0; index < pinyin_ime->ta_count; index++)
-            lv_textarea_del_char(ta);
+            lv_textarea_del_char(ta);   /* 逐个删除当前已输入的拼音字母 */
 
-        lv_textarea_add_text(ta, txt);
+        lv_textarea_add_text(ta, txt);   /* 把选中的汉字写入 textarea */
 
-        pinyin_ime_clear_data(obj);
+        pinyin_ime_clear_data(obj);      /* 一次选择完成，清空输入法内部数据 */
     }
 }
 
+/**
+ * 拼音输入处理（K26 全键盘模式的核心检索逻辑）。
+ * 1. 在字典中查找以当前 input_char 为前缀的条目；
+ * 2. 若找到，则把该条目的候选汉字字符串按每 3 字节(一个 UTF-8 汉字)拆分，
+ *    填入候选面板的按钮数组，并显示候选面板。
+ */
 static void pinyin_input_proc(lv_obj_t * obj)
 {
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
 
+    /* 检索字典：cand_str 指向匹配条目的汉字串，cand_num 为该串中的汉字个数 */
     pinyin_ime->cand_str = pinyin_search_matching(obj, pinyin_ime->input_char, &pinyin_ime->cand_num);
     if(pinyin_ime->cand_str == NULL) {
-        return;
+        return;   /* 未找到匹配，保持候选面板不变 */
     }
 
-    pinyin_ime->py_page = 0;
+    pinyin_ime->py_page = 0;   /* 每次重新检索后回到第一页 */
 
+    /* 清空候选按钮的显示缓冲，并为每个候选位置预填一个空格占位 */
     for(uint8_t i = 0; i < LV_IME_PINYIN_CAND_TEXT_NUM; i++) {
         memset(lv_pinyin_cand_str[i], 0x00, sizeof(lv_pinyin_cand_str[i]));
         lv_pinyin_cand_str[i][0] = ' ';
     }
 
-    // fill buf
+    /* 把匹配到的汉字按顺序填入候选按钮(每个汉字 3 字节，最多填满一屏) */
     for(uint8_t i = 0; (i < pinyin_ime->cand_num && i < LV_IME_PINYIN_CAND_TEXT_NUM); i++) {
         for(uint8_t j = 0; j < 3; j++) {
             lv_pinyin_cand_str[i][j] = pinyin_ime->cand_str[i * 3 + j];
         }
     }
 
-    lv_obj_clear_flag(pinyin_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_clear_flag(pinyin_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);   /* 显示候选面板 */
 }
 
+/**
+ * 候选字翻页处理。
+ * @param dir 0 = 上一页，1 = 下一页
+ * 计算总页数(page_num)和最后一页剩余的候选数(sur)，
+ * 更新 py_page 后按当前页偏移重新填充候选按钮。
+ */
 static void pinyin_page_proc(lv_obj_t * obj, uint16_t dir)
 {
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
-    uint16_t page_num = pinyin_ime->cand_num / LV_IME_PINYIN_CAND_TEXT_NUM;
-    uint16_t sur = pinyin_ime->cand_num % LV_IME_PINYIN_CAND_TEXT_NUM;
+    uint16_t page_num = pinyin_ime->cand_num / LV_IME_PINYIN_CAND_TEXT_NUM;   /* 完整页数 */
+    uint16_t sur = pinyin_ime->cand_num % LV_IME_PINYIN_CAND_TEXT_NUM;        /* 最后一页剩余候选数 */
 
     if(dir == 0) {
+        /* 上一页：页号减一(下限为 0) */
         if(pinyin_ime->py_page) {
             pinyin_ime->py_page--;
         }
     }
     else {
+        /* 下一页：先修正总页数(无余数时减一)，再判断是否还能翻页 */
         if(sur == 0) {
             page_num -= 1;
         }
         if(pinyin_ime->py_page < page_num) {
             pinyin_ime->py_page++;
         }
-        else return;
+        else return;   /* 已是最后一页，无法继续翻页 */
     }
 
+    /* 清空候选显示缓冲 */
     for(uint8_t i = 0; i < LV_IME_PINYIN_CAND_TEXT_NUM; i++) {
         memset(lv_pinyin_cand_str[i], 0x00, sizeof(lv_pinyin_cand_str[i]));
         lv_pinyin_cand_str[i][0] = ' ';
     }
 
-    // fill buf
+    /* 按当前页偏移重新填充候选汉字 */
     uint16_t offset = pinyin_ime->py_page * (3 * LV_IME_PINYIN_CAND_TEXT_NUM);
     for(uint8_t i = 0; (i < pinyin_ime->cand_num && i < LV_IME_PINYIN_CAND_TEXT_NUM); i++) {
+        /* 最后一页且有余数时，只填充到 sur 为止，避免越界读 */
         if((sur > 0) && (pinyin_ime->py_page == page_num)) {
             if(i > sur)
                 break;
@@ -957,18 +1007,27 @@ static void lv_ime_pinyin_style_change_event(lv_event_t * e)
     }
 }
 
+/**
+ * 初始化字典并建立首字母索引。
+ * 遍历字典(以 NULL 条目结尾)，按首字母 a~z 分组统计：
+ *   - py_num[x]  记录首字母为 ('a'+x) 的条目数量
+ *   - py_pos[x]  记录首字母为 ('a'+x) 的第一个条目在字典中的偏移
+ * 后续 pinyin_search_matching 通过这些索引快速定位到对应首字母的区段，
+ * 从而避免每次都从头线性扫描整个字典。
+ */
 static void init_pinyin_dict(lv_obj_t * obj, lv_pinyin_dict_t * dict)
 {
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
 
-    char headletter = 'a';
-    uint16_t offset_sum = 0;
-    uint16_t offset_count = 0;
-    uint16_t letter_calc = 0;
+    char headletter = 'a';          /* 当前正在统计的首字母 */
+    uint16_t offset_sum = 0;        /* 已统计条目的累计总数，用于计算区段起始偏移 */
+    uint16_t offset_count = 0;      /* 当前首字母区段内的条目计数 */
+    uint16_t letter_calc = 0;       /* 首字母映射到数组下标的临时变量 */
 
     pinyin_ime->dict = dict;
 
     for(uint16_t i = 0; ; i++) {
+        /* 遇到结尾哨兵条目(NULL)，记录最后一个字母区段的条目数并结束 */
         if((NULL == (dict[i].py)) || (NULL == (dict[i].py_mb))) {
             headletter = dict[i - 1].py[0];
             letter_calc = headletter - 'a';
@@ -976,21 +1035,33 @@ static void init_pinyin_dict(lv_obj_t * obj, lv_pinyin_dict_t * dict)
             break;
         }
 
+        /* 当前条目首字母与上一分组相同，计数加一 */
         if(headletter == (dict[i].py[0])) {
             offset_count++;
         }
         else {
+            /* 遇到新的首字母：结算上一分组，并记录新分组的起始偏移 */
             headletter = dict[i].py[0];
             letter_calc = headletter - 'a';
-            pinyin_ime->py_num[letter_calc - 1] = offset_count;
+            pinyin_ime->py_num[letter_calc - 1] = offset_count;   /* 上一字母区段的条目数 */
             offset_sum += offset_count;
-            pinyin_ime->py_pos[letter_calc] = offset_sum;
+            pinyin_ime->py_pos[letter_calc] = offset_sum;          /* 当前字母区段的起始偏移 */
 
-            offset_count = 1;
+            offset_count = 1;   /* 当前条目计入新分组 */
         }
     }
 }
 
+/**
+ * 在字典中查找以 py_str 为前缀的拼音条目。
+ * 利用 init_pinyin_dict 预先建立的首字母索引(py_num/py_pos)快速定位
+ * 到 py_str 首字母对应的字典区段，然后线性扫描该区段做前缀匹配。
+ *
+ * @param obj     输入法对象
+ * @param py_str  待匹配的拼音串(如 "zhong")
+ * @param cand_num 输出参数，返回匹配条目所包含的汉字个数
+ * @return        匹配条目的汉字字符串指针，未找到返回 NULL
+ */
 static char * pinyin_search_matching(lv_obj_t * obj, char * py_str, uint16_t * cand_num)
 {
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
@@ -999,40 +1070,48 @@ static char * pinyin_search_matching(lv_obj_t * obj, char * py_str, uint16_t * c
     uint8_t index, len = 0, offset;
     volatile uint8_t count = 0;
 
+    /* 空串以及 i/u/v 开头的串无对应拼音，直接返回 */
     if(*py_str == '\0')    return NULL;
     if(*py_str == 'i')     return NULL;
     if(*py_str == 'u')     return NULL;
     if(*py_str == 'v')     return NULL;
 
+    /* 用首字母定位到字典区段：offset = 首字母 - 'a' */
     offset = py_str[0] - 'a';
     len = strlen(py_str);
 
-    cpHZ  = &pinyin_ime->dict[pinyin_ime->py_pos[offset]];
-    count = pinyin_ime->py_num[offset];
+    cpHZ  = &pinyin_ime->dict[pinyin_ime->py_pos[offset]];   /* 该首字母区段的起始条目 */
+    count = pinyin_ime->py_num[offset];                      /* 该首字母区段的条目数量 */
 
     while(count--) {
+        /* 逐字符比较 py_str 与当前条目的拼音，做前缀匹配 */
         for(index = 0; index < len; index++) {
             if(*(py_str + index) != *((cpHZ->py) + index)) {
-                break;
+                break;   /* 出现不匹配字符，提前退出 */
             }
         }
 
-        // perfect match
+        /* 完全匹配(单字母输入或逐字符全部匹配成功) */
         if(len == 1 || index == len) {
-            // The Chinese character in UTF-8 encoding format is 3 bytes
+            /* UTF-8 编码下每个汉字占 3 字节，因此汉字个数 = 字符串字节长度 / 3 */
             * cand_num = strlen((const char *)(cpHZ->py_mb)) / 3;
             return (char *)(cpHZ->py_mb);
         }
-        cpHZ++;
+        cpHZ++;   /* 移动到下一个字典条目 */
     }
     return NULL;
 }
 
+/**
+ * 清空输入法内部状态：重置计数、清空输入缓冲与候选缓冲，并隐藏候选面板。
+ * 通常在完成一次选字、回车、确认或切换键盘模式时调用。
+ */
 static void pinyin_ime_clear_data(lv_obj_t * obj)
 {
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
 
 #if LV_IME_PINYIN_USE_K9_MODE
+    /* K9 模式额外需要清理九宫格编码串与合法拼音链表相关状态 */
     if(pinyin_ime->mode == LV_IME_PINYIN_MODE_K9) {
         pinyin_ime->k9_input_str_len = 0;
         pinyin_ime->k9_py_ll_pos = 0;
@@ -1083,6 +1162,12 @@ static void pinyin_k9_init_data(lv_obj_t * obj)
     default_kb_ctrl_k9_map[LV_IME_PINYIN_K9_CAND_TEXT_NUM + 16] = LV_KEYBOARD_CTRL_BTN_FLAGS | 1;
 }
 
+/**
+ * K9 九宫格模式：根据用户按下的数字键序列(k9_input)，枚举所有可能的拼音组合。
+ * 每个数字键(2~9)对应 3~4 个字母(py9_map)，使用回溯法生成所有字母组合，
+ * 并调用 pinyin_k9_is_valid_py 过滤出字典中真实存在的合法拼音，
+ * 合法的拼音串通过链表 k9_legal_py_ll 保存，供候选填充使用。
+ */
 static void pinyin_k9_get_legal_py(lv_obj_t * obj, char * k9_input, const char * py9_map[])
 {
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
@@ -1090,14 +1175,14 @@ static void pinyin_k9_get_legal_py(lv_obj_t * obj, char * k9_input, const char *
     uint16_t len = strlen(k9_input);
 
     if((len == 0) || (len >= LV_IME_PINYIN_K9_MAX_INPUT)) {
-        return;
+        return;   /* 空输入或超过最大长度，直接返回 */
     }
 
-    char py_comp[LV_IME_PINYIN_K9_MAX_INPUT] = {0};
-    int mark[LV_IME_PINYIN_K9_MAX_INPUT] = {0};
-    int index = 0;
+    char py_comp[LV_IME_PINYIN_K9_MAX_INPUT] = {0};   /* 当前正在组合的拼音缓冲区 */
+    int mark[LV_IME_PINYIN_K9_MAX_INPUT] = {0};       /* 记录每一位数字键已尝试到第几个字母 */
+    int index = 0;                                     /* 当前正在填写的位数 */
     int flag = 0;
-    int count = 0;
+    int count = 0;                                     /* 已找到的合法拼音个数 */
 
     uint32_t ll_len = 0;
     ime_pinyin_k9_py_str_t * ll_index = NULL;
@@ -1105,49 +1190,58 @@ static void pinyin_k9_get_legal_py(lv_obj_t * obj, char * k9_input, const char *
     ll_len = _lv_ll_get_len(&pinyin_ime->k9_legal_py_ll);
     ll_index = _lv_ll_get_head(&pinyin_ime->k9_legal_py_ll);
 
+    /* 回溯法枚举：index 表示当前处理到第几位，-1 表示回溯结束 */
     while(index != -1) {
         if(index == len) {
+            /* 已填满所有位，得到一个完整拼音组合，校验其是否为合法拼音 */
             if(pinyin_k9_is_valid_py(obj, py_comp)) {
                 if((count >= ll_len) || (ll_len == 0)) {
+                    /* 链表容量不足则在尾部新建节点 */
                     ll_index = _lv_ll_ins_tail(&pinyin_ime->k9_legal_py_ll);
                     strcpy(ll_index->py_str, py_comp);
                 }
                 else if((count < ll_len)) {
+                    /* 复用已有节点，覆盖旧的拼音串 */
                     strcpy(ll_index->py_str, py_comp);
                     ll_index = _lv_ll_get_next(&pinyin_ime->k9_legal_py_ll, ll_index);
                 }
                 count++;
             }
-            index--;
+            index--;   /* 回溯到上一位 */
         }
         else {
             flag = mark[index];
             if(flag < strlen(py9_map[k9_input[index] - '2'])) {
+                /* 该位还有未尝试的字母，取当前字母继续向低位推进 */
                 py_comp[index] = py9_map[k9_input[index] - '2'][flag];
                 mark[index] = mark[index] + 1;
                 index++;
             }
             else {
+                /* 该位字母已穷尽，重置标记并回溯到上一位 */
                 mark[index] = 0;
                 index--;
             }
         }
     }
 
+    /* 找到合法拼音后，更新已输入字符计数与合法拼音总数 */
     if(count > 0) {
         pinyin_ime->ta_count++;
         pinyin_ime->k9_legal_py_count = count;
     }
 }
 
-/*true: visible; false: not visible*/
+/**
+ * 校验一个拼音串是否存在于字典中(前缀匹配)。
+ * 实现与 pinyin_search_matching 类似，但只返回是否存在(true/false)。
+ */
 static bool pinyin_k9_is_valid_py(lv_obj_t * obj, char * py_str)
 {
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
 
     lv_pinyin_dict_t * cpHZ = NULL;
     uint8_t index = 0, len = 0, offset = 0;
-    //uint16_t ret = 1;
     volatile uint8_t count = 0;
 
     if(*py_str == '\0')    return false;
@@ -1168,18 +1262,21 @@ static bool pinyin_k9_is_valid_py(lv_obj_t * obj, char * py_str)
             }
         }
 
-        // perfect match
         if(len == 1 || index == len) {
-            return true;
+            return true;   /* 前缀匹配成功 */
         }
         cpHZ++;
     }
     return false;
 }
 
+/**
+ * K9 模式：把合法拼音链表的头几个拼音填充到候选按钮，
+ * 并把第一个合法拼音写入 input_char、同步到 textarea 作为预览。
+ */
 static void pinyin_k9_fill_cand(lv_obj_t * obj)
 {
-    static uint16_t len = 0;
+    static uint16_t len = 0;   /* 上次填充时的合法拼音总数，用于判断是否需要重填 */
     uint16_t index = 0, tmp_len = 0;
     ime_pinyin_k9_py_str_t * ll_index = NULL;
 
@@ -1187,6 +1284,7 @@ static void pinyin_k9_fill_cand(lv_obj_t * obj)
 
     tmp_len = pinyin_ime->k9_legal_py_count;
 
+    /* 合法拼音总数发生变化时，清空候选缓冲并重置翻页按钮 */
     if(tmp_len != len) {
         lv_memset_00(lv_pinyin_k9_cand_str, sizeof(lv_pinyin_k9_cand_str));
         strcpy(lv_pinyin_k9_cand_str[LV_IME_PINYIN_K9_CAND_TEXT_NUM], LV_SYMBOL_RIGHT"\0");
@@ -1194,19 +1292,21 @@ static void pinyin_k9_fill_cand(lv_obj_t * obj)
         len = tmp_len;
     }
 
+    /* 从头遍历链表，把拼音串填入候选按钮(最多一屏) */
     ll_index = _lv_ll_get_head(&pinyin_ime->k9_legal_py_ll);
-    strcpy(pinyin_ime->input_char, ll_index->py_str);
+    strcpy(pinyin_ime->input_char, ll_index->py_str);   /* 默认取第一个拼音作为预览 */
     while(ll_index) {
         if((index >= LV_IME_PINYIN_K9_CAND_TEXT_NUM) || \
            (index >= pinyin_ime->k9_legal_py_count))
             break;
 
         strcpy(lv_pinyin_k9_cand_str[index], ll_index->py_str);
-        ll_index = _lv_ll_get_next(&pinyin_ime->k9_legal_py_ll, ll_index); /*Find the next list*/
+        ll_index = _lv_ll_get_next(&pinyin_ime->k9_legal_py_ll, ll_index);
         index++;
     }
-    pinyin_ime->k9_py_ll_pos = index;
+    pinyin_ime->k9_py_ll_pos = index;   /* 记录当前候选填充到的链表位置 */
 
+    /* 同步预览：先删掉 textarea 中旧的编码串，再写入新的合法拼音 */
     lv_obj_t * ta = lv_keyboard_get_textarea(pinyin_ime->kb);
     for(index = 0; index < pinyin_ime->k9_input_str_len; index++) {
         lv_textarea_del_char(ta);
@@ -1215,6 +1315,12 @@ static void pinyin_k9_fill_cand(lv_obj_t * obj)
     lv_textarea_add_text(ta, pinyin_ime->input_char);
 }
 
+/**
+ * K9 模式候选翻页。
+ * @param dir 0 = 上一页，1 = 下一页
+ * 通过 k9_py_ll_pos 记录当前页在合法拼音链表中的位置，
+ * 翻页时从链表对应位置重新取出一屏拼音填入候选按钮。
+ */
 static void pinyin_k9_cand_page_proc(lv_obj_t * obj, uint16_t dir)
 {
     lv_ime_pinyin_t * pinyin_ime = (lv_ime_pinyin_t *)obj;
@@ -1222,47 +1328,52 @@ static void pinyin_k9_cand_page_proc(lv_obj_t * obj, uint16_t dir)
     lv_obj_t * ta = lv_keyboard_get_textarea(pinyin_ime->kb);
     uint16_t ll_len =  _lv_ll_get_len(&pinyin_ime->k9_legal_py_ll);
 
+    /* 只有合法拼音超过一屏时才需要翻页 */
     if((ll_len > LV_IME_PINYIN_K9_CAND_TEXT_NUM) && (pinyin_ime->k9_legal_py_count > LV_IME_PINYIN_K9_CAND_TEXT_NUM)) {
         ime_pinyin_k9_py_str_t * ll_index = NULL;
         int count = 0;
 
+        /* 先把链表指针定位到当前页的起始位置(k9_py_ll_pos) */
         ll_index = _lv_ll_get_head(&pinyin_ime->k9_legal_py_ll);
         while(ll_index) {
             if(count >= pinyin_ime->k9_py_ll_pos)   break;
 
-            ll_index = _lv_ll_get_next(&pinyin_ime->k9_legal_py_ll, ll_index); /*Find the next list*/
+            ll_index = _lv_ll_get_next(&pinyin_ime->k9_legal_py_ll, ll_index);
             count++;
         }
 
+        /* 已在链表末尾却还要翻下一页，直接返回 */
         if((NULL == ll_index) && (dir == 1))   return;
 
+        /* 清空候选缓冲并重置翻页按钮 */
         lv_memset_00(lv_pinyin_k9_cand_str, sizeof(lv_pinyin_k9_cand_str));
         strcpy(lv_pinyin_k9_cand_str[LV_IME_PINYIN_K9_CAND_TEXT_NUM], LV_SYMBOL_RIGHT"\0");
         strcpy(lv_pinyin_k9_cand_str[LV_IME_PINYIN_K9_CAND_TEXT_NUM + 1], "\0");
 
         // next page
         if(dir == 1) {
+            /* 下一页：从当前位置向后取一屏拼音 */
             count = 0;
             while(ll_index) {
                 if(count >= (LV_IME_PINYIN_K9_CAND_TEXT_NUM - 1))
                     break;
 
                 strcpy(lv_pinyin_k9_cand_str[count], ll_index->py_str);
-                ll_index = _lv_ll_get_next(&pinyin_ime->k9_legal_py_ll, ll_index); /*Find the next list*/
+                ll_index = _lv_ll_get_next(&pinyin_ime->k9_legal_py_ll, ll_index);
                 count++;
             }
             pinyin_ime->k9_py_ll_pos += count - 1;
-
         }
         // previous page
         else {
+            /* 上一页：从当前位置向前回退一屏拼音 */
             count = LV_IME_PINYIN_K9_CAND_TEXT_NUM - 1;
             ll_index = _lv_ll_get_prev(&pinyin_ime->k9_legal_py_ll, ll_index);
             while(ll_index) {
                 if(count < 0)  break;
 
                 strcpy(lv_pinyin_k9_cand_str[count], ll_index->py_str);
-                ll_index = _lv_ll_get_prev(&pinyin_ime->k9_legal_py_ll, ll_index); /*Find the previous list*/
+                ll_index = _lv_ll_get_prev(&pinyin_ime->k9_legal_py_ll, ll_index);
                 count--;
             }
 

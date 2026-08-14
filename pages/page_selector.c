@@ -8,10 +8,12 @@
 #include "page_image.h"
 #include "page_txt.h"
 
+#define SELECTOR_PAGE_ID "page_selector"
+
 typedef struct
 {
     BasePage base;
-    char * filename;
+    char filename[PATH_MAX_LENGTH];
 } SelectorPage;
 
 static lv_obj_t * page_selector_obj(SelectorPage * page, char * filename);
@@ -21,7 +23,6 @@ static void btn_image_click(lv_event_t * e);
 static void btn_audio_click(lv_event_t * e);
 //static void btn_midi_click(lv_event_t * e);
 static void btn_video_click(lv_event_t * e);
-static void page_selector_destroy(void * p);
 
 BasePage * page_selector_create(char * filename)
 {
@@ -30,14 +31,13 @@ BasePage * page_selector_create(char * filename)
     memset(page, 0, sizeof(SelectorPage));
 
     page->base.obj        = page_selector_obj(page, filename);
-    page->base.on_destroy = page_selector_destroy;
+    strcpy(page->base.page_id, SELECTOR_PAGE_ID);
     return (BasePage *)page;
 }
 
 static lv_obj_t * page_selector_obj(SelectorPage * page, char * filename)
 {
-    // 先分配一个，防止之前传入的指针被回收了变成野指针
-    if (filename) page->filename = strdup(filename);
+    if (filename) strcpy(page->filename, filename);
 
     lv_obj_t * screen = lv_obj_create(lv_scr_act());
     lv_obj_set_size(screen, lv_pct(100), lv_pct(100));
@@ -102,52 +102,32 @@ static lv_obj_t * page_selector_obj(SelectorPage * page, char * filename)
 static void btn_txt_click(lv_event_t * e)
 {
     SelectorPage * page = (SelectorPage *)e->user_data;
-    /**
-     * 为什么需要再次分配内存？
-     * 因为page_back之后，页面结构体就被free掉了
-     * 再去调用那个指针就会爆炸
-     * 所以也就只有复制一份下来了
-     */
-    char * filename = strdup(page->filename);
-    page_back();
-    page_open(page_txt_create(filename));
-    free(filename);
+    page_open(page_txt_create(page->filename));
+    page_close_existing(SELECTOR_PAGE_ID);
 }
 
 static void btn_image_click(lv_event_t * e)
 {
     SelectorPage * page = (SelectorPage *)e->user_data;
-    char * filename = strdup(page->filename);
-    page_back();
-    page_open(page_image_create(filename));
-    free(filename);
+    page_open(page_image_create(page->filename));
+    page_close_existing(SELECTOR_PAGE_ID);
 }
 
 static void btn_audio_click(lv_event_t * e)
 {
     SelectorPage * page = (SelectorPage *)e->user_data;
-    char * filename = strdup(page->filename);
-    page_back();
-    page_open(page_audio_create(filename));
-    free(filename);
+    page_open(page_audio_create(page->filename));
+    page_close_existing(SELECTOR_PAGE_ID);
 }
 
 static void btn_video_click(lv_event_t * e)
 {
     SelectorPage * page = (SelectorPage *)e->user_data;
-    char * filename = strdup(page->filename);
-    page_back();
-    page_open(page_video_create(filename));
-    free(filename);
+    page_open(page_video_create(page->filename));
+    page_close_existing(SELECTOR_PAGE_ID);
 }
 
 static void back_click(lv_event_t * e)
 {
     page_back();
-}
-
-static void page_selector_destroy(void * p)
-{
-    SelectorPage * page = (SelectorPage *)p;
-    if (page->filename) free(page->filename);
 }

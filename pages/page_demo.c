@@ -11,6 +11,7 @@ typedef struct {
 
 static lv_obj_t * page_demo_obj(DemoPage * page);
 static void btn_back_click(lv_event_t * e);
+static void btn_test_click(lv_event_t * e);
 
 BasePage * demo_page_create(void)
 {
@@ -50,6 +51,13 @@ static lv_obj_t * page_demo_obj(DemoPage * page) {
     lv_obj_t * textarea2 = lv_textarea_create(container);
     lv_obj_set_size(textarea2, lv_pct(100), LV_SIZE_CONTENT);
     lv_textarea_bind_ime(textarea2);
+
+    lv_obj_t * btn_test = lv_btn_create(container);
+    lv_obj_set_size(btn_test, lv_pct(100), lv_pct(22));
+    lv_obj_t * btn_label_test = lv_label_create(btn_test);
+    lv_label_set_text(btn_label_test, "Test");
+    lv_obj_center(btn_label_test);
+    lv_obj_add_event_cb(btn_test, btn_test_click, LV_EVENT_CLICKED, page);
     
     return screen;
 }
@@ -58,5 +66,10 @@ static lv_obj_t * page_demo_obj(DemoPage * page) {
 static void btn_back_click(lv_event_t * e)
 {
     page_back();
+}
+
+static void btn_test_click(lv_event_t * e)
+{
+    page_open_existing("page_menu");
 }
 
