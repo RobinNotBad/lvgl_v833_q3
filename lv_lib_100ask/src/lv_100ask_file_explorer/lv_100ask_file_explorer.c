@@ -258,8 +258,8 @@ void lv_100ask_file_explorer_refresh(lv_obj_t * obj)
     //lv_100ask_file_explorer_t * explorer = (lv_100ask_file_explorer_t *)obj;
     // 获取的指针直接传进去会出问题，所以要临时拷贝一下
     char * cur_path = lv_100ask_file_explorer_get_cur_path(obj);
-    char * path     = strdup(cur_path);
-    if(path == NULL) return;
+    char * path = lv_mem_alloc(strlen(cur_path) + 1);
+    strcpy(path, cur_path);
     path[strlen(path) - 1] = '\0'; // 最后的"/"符号要去掉
     lv_100ask_file_explorer_open_dir(obj, path);
     lv_mem_free(path);
