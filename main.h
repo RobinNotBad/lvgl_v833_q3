@@ -14,17 +14,11 @@ extern "C" {
 #include <sys/types.h>
 #include <stdbool.h>
 #include "lvgl/lvgl.h"
+#include "dendro_conf.h"
 
 /*********************
  *      DEFINES
  *********************/
-#define PATH_MAX_LENGTH 1024
-#define SCREEN_TIMEOUT_MS 30000
-#define THEME_COLOR 0xff78c05d
-#define TIMIDITY_CFG_DEFAULT "/mnt/UDISK/dendro/midi/timidity.cfg"
-#define CPU_POWER_CTRL_ENABLED 1
-#define TOUCH_REVERSE_X_DEFAULT false
-#define TOUCH_REVERSE_Y_DEFAULT false
 
 /**********************
  *      TYPEDEFS

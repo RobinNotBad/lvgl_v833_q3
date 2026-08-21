@@ -65,7 +65,14 @@ int main(int argc, char * argv[])
     key_init_home();
     key_init_power();
 
-    #if CPU_POWER_CTRL_ENABLED == 1
+    #if SCREEN_TIMEOUT_ENABLED == 0
+        sys_set_dont_timeout(true);
+    #endif
+    #if DEEP_SLEEP_ENABLED == 0
+        sys_set_dont_deep_sleep(true);
+    #endif
+
+    #if CPU_POWER_CTRL_ENABLED
         system("echo interactive > /sys/devices/system/cpu/cpufreq/policy0/scaling_governor");
     #endif
 
