@@ -10,6 +10,9 @@
 #include "string.h"
 #include "platform/page_manager.h"
 #include "lv_ime_pinyin.h"
+#include "pinyin_ime.h"
+
+pinyin_ime_t * pinyin_ime;
 
 typedef struct
 {
@@ -23,10 +26,11 @@ static void ime_input_done_cb(lv_event_t * e);
 static void page_ime_destroy(void * p);
 
 /**
- * @brief 初始化输入法（占位空函数）
+ * @brief 初始化输入法
  */
 void ime_helper_init(void) {
-
+    pinyin_ime = pinyin_ime_init("./pinyin.txt", "./dictionary.data");
+    printf("[ime_helper] init\n");
 }
 
 /**
@@ -44,26 +48,27 @@ static void page_ime_show(lv_obj_t * textarea) {
     lv_obj_set_size(ime_container, lv_pct(100), lv_pct(100));
 
     lv_obj_t * ime_input = lv_textarea_create(ime_container);
-    lv_obj_t * pinyin_ime = lv_ime_pinyin_create(ime_container);
-    lv_obj_clear_flag(pinyin_ime, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_t * lv_ime = lv_ime_pinyin_create(ime_container);
+    lv_ime_pinyin_init(lv_ime, pinyin_ime);
+    lv_obj_clear_flag(lv_ime, LV_OBJ_FLAG_HIDDEN);
 
 #if IME_LAYOUT_DIRECTION == 0
     // HORIZONTAL
     lv_obj_set_size(ime_input, lv_pct(25), lv_pct(100));
     lv_obj_align(ime_input, LV_ALIGN_LEFT_MID, 0, 0);
-    lv_obj_set_size(pinyin_ime, lv_pct(75), lv_pct(100));
-    lv_obj_align(pinyin_ime, LV_ALIGN_RIGHT_MID, 0, 0);
+    lv_obj_set_size(lv_ime, lv_pct(75), lv_pct(100));
+    lv_obj_align(lv_ime, LV_ALIGN_RIGHT_MID, 0, 0);
 #else
     // VERTICAL
     lv_obj_set_size(ime_input, lv_pct(100), lv_pct(25));
     lv_obj_align(ime_input, LV_ALIGN_TOP_MID, 0, 0);
-    lv_obj_set_size(pinyin_ime, lv_pct(100), lv_pct(75));
-    lv_obj_align(pinyin_ime, LV_ALIGN_BOTTOM_MID, 0, 0);
+    lv_obj_set_size(lv_ime, lv_pct(100), lv_pct(75));
+    lv_obj_align(lv_ime, LV_ALIGN_BOTTOM_MID, 0, 0);
 #endif  // IME_FULLSCREEN_LAYOUT == 0
 
     ime_input->flags = textarea->flags;
     lv_textarea_set_text(ime_input, lv_textarea_get_text(textarea));
-    lv_obj_t * keyboard = lv_ime_pinyin_get_kb(pinyin_ime);
+    lv_obj_t * keyboard = lv_ime_pinyin_get_kb(lv_ime);
     lv_obj_add_state(ime_input, LV_STATE_FOCUSED);
     
     lv_keyboard_set_textarea(keyboard, ime_input);
