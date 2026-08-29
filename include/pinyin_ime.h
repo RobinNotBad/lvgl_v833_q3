@@ -5,6 +5,8 @@
 extern "C" {
 #endif
 
+#include <stdint.h>
+
 /* 不透明句柄，一次初始化对应一个独立的输入法实例 */
 typedef struct pinyin_ime_t pinyin_ime_t;
 
@@ -37,7 +39,7 @@ int pinyin_ime_input(pinyin_ime_t* ime, const char* pinyin);
  * 选择候选词，序号从 0 开始。选中后推进剩余分词，并生成下一批候选词。
  * 序号越界返回 PINYIN_IME_ERR_INDEX。
  */
-int pinyin_ime_select(pinyin_ime_t* ime, int index);
+int pinyin_ime_select(pinyin_ime_t* ime, uint32_t index);
 
 /*
  * 保存词库。dictionary_path 传 NULL 则写回初始化时的词典路径。
@@ -57,7 +59,7 @@ const char* pinyin_ime_get_result(pinyin_ime_t* ime);
 int pinyin_ime_get_candidate_count(pinyin_ime_t* ime);
 
 /* 获取第 index 个候选词（UTF-8），越界返回 NULL */
-const char* pinyin_ime_get_candidate(pinyin_ime_t* ime, int index);
+const char* pinyin_ime_get_candidate(pinyin_ime_t* ime, uint32_t index);
 
 /* 是否已结束当前输入（无剩余分词） */
 int pinyin_ime_is_finished(pinyin_ime_t* ime);

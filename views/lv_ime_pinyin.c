@@ -13,6 +13,7 @@
 #if LV_USE_IME_PINYIN != 0
 
 #include <stdio.h>
+#include <stdint.h>
 
 /*********************
  *      DEFINES
@@ -31,6 +32,7 @@ static void lv_ime_pinyin_destructor(const lv_obj_class_t * class_p, lv_obj_t * 
 static void lv_ime_pinyin_style_change_event(lv_event_t * e);
 static void lv_ime_pinyin_kb_event(lv_event_t * e);
 static void lv_ime_pinyin_cand_panel_event(lv_event_t * e);
+static void lv_ime_pinyin_clear_data(lv_obj_t * obj);
 
 static void lv_ime_pinyin_input_proc(lv_obj_t * obj);
 static void lv_ime_pinyin_set_cand_page(lv_obj_t * obj, uint16_t cand_page);
@@ -48,17 +50,41 @@ const lv_obj_class_t lv_ime_pinyin_class = {
     .base_class     = &lv_obj_class
 };
 
-static char * lv_btnm_def_pinyin_k9_map[LV_IME_PINYIN_K9_CAND_TEXT_NUM + 21] = {\
-                                                                                ",\0", "1#\0",  "abc \0", "def\0",  LV_SYMBOL_BACKSPACE"\0", "\n\0",
-                                                                                ".\0", "ghi\0", "jkl\0", "mno\0",  LV_SYMBOL_KEYBOARD"\0", "\n\0",
-                                                                                "?\0", "pqrs\0", "tuv\0", "wxyz\0",  LV_SYMBOL_NEW_LINE"\0", "\n\0",
-                                                                                LV_SYMBOL_LEFT"\0", "\0"
-                                                                               };
+#define LV_KB_BTN(width) LV_BTNMATRIX_CTRL_POPOVER | width
 
-static lv_btnmatrix_ctrl_t default_kb_ctrl_k9_map[LV_IME_PINYIN_K9_CAND_TEXT_NUM + 17] = { 1 };
-static char   lv_pinyin_k9_cand_str[LV_IME_PINYIN_K9_CAND_TEXT_NUM + 2][LV_IME_PINYIN_K9_MAX_INPUT] = {0};
+// K26 的键盘布局
+static const char * const kb_map_k26[] = {"1#", "q", "w", "e", "r", "t", "y", "u", "i", "o", "p", LV_SYMBOL_BACKSPACE, "\n",
+                                                 "'", "a", "s", "d", "f", "g", "h", "j", "k", "l", LV_SYMBOL_NEW_LINE, "\n",
+                                                 "_", "-", "z", "x", "c", "v", "b", "n", "m", "。", "，", "、", "\n",
+                                                 LV_SYMBOL_KEYBOARD, LV_SYMBOL_LEFT, " ", LV_SYMBOL_RIGHT, LV_SYMBOL_OK, ""
+                                                };
 
-static char * lv_pinyin_cand_str[LV_IME_PINYIN_CAND_TEXT_NUM];
+static const lv_btnmatrix_ctrl_t kb_ctrl_k26[] = {
+    LV_KEYBOARD_CTRL_BTN_FLAGS | 5, LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_BTN(4), LV_KB_BTN(4), LV_BTNMATRIX_CTRL_CHECKED | 7,
+    LV_KEYBOARD_CTRL_BTN_FLAGS | 6, LV_KB_BTN(3), LV_KB_BTN(3), LV_KB_BTN(3), LV_KB_BTN(3), LV_KB_BTN(3), LV_KB_BTN(3), LV_KB_BTN(3), LV_KB_BTN(3), LV_KB_BTN(3), LV_BTNMATRIX_CTRL_CHECKED | 7,
+    LV_BTNMATRIX_CTRL_CHECKED | LV_KB_BTN(1), LV_BTNMATRIX_CTRL_CHECKED | LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1), LV_KB_BTN(1), LV_BTNMATRIX_CTRL_CHECKED | LV_KB_BTN(1), LV_BTNMATRIX_CTRL_CHECKED | LV_KB_BTN(1), LV_BTNMATRIX_CTRL_CHECKED | LV_KB_BTN(1),
+    LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_BTNMATRIX_CTRL_CHECKED | 2, 6, LV_BTNMATRIX_CTRL_CHECKED | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 2
+};
+
+// K9 的键盘布局
+// 气笑了，lv_keyboard里会把 abc 键当成大小写切换，加 \u200b 零宽度空格可解决
+static const char * k9_py_map[10] = {"", "", "abc\u200b", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
+static const char * kb_map_k9[] = 
+{
+    "，", "1#",   "abc\u200b", "def",  LV_SYMBOL_BACKSPACE"", "\n",
+    "。", "ghi",  "jkl", "mno",  LV_SYMBOL_NEW_LINE"", "\n",
+    "？", "pqrs", "tuv", "wxyz", LV_SYMBOL_KEYBOARD"", "\n",
+    "cand1", "cand2", "cand3", "cand4", "cand5", "cand6", ""
+};
+static lv_btnmatrix_ctrl_t kb_ctrl_k9[24] = 
+{
+    1, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, 1,
+    1, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_BTNMATRIX_CTRL_CHECKED | 1,
+    1, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 1,
+    LV_KEYBOARD_CTRL_BTN_FLAGS | 1, LV_KEYBOARD_CTRL_BTN_FLAGS | 1, LV_KEYBOARD_CTRL_BTN_FLAGS | 1, LV_KEYBOARD_CTRL_BTN_FLAGS | 1, LV_KEYBOARD_CTRL_BTN_FLAGS | 1, LV_KEYBOARD_CTRL_BTN_FLAGS | 1
+};
+
+// 选词框的文本列表
 static char * lv_btnm_def_pinyin_sel_map[LV_IME_PINYIN_CAND_TEXT_NUM + 3];
 
 /**********************
@@ -99,12 +125,26 @@ void lv_ime_pinyin_set_mode(lv_obj_t * obj, lv_ime_pinyin_mode_t mode)
     LV_ASSERT_OBJ(lv_ime->kb, &lv_keyboard_class);
 
     lv_ime->mode = mode;
-    
-    if(lv_ime->mode == LV_IME_PINYIN_MODE_K9) {
-        lv_keyboard_set_map(lv_ime->kb, LV_KEYBOARD_MODE_USER_1, (const char **)lv_btnm_def_pinyin_k9_map,
-                            (const lv_btnmatrix_ctrl_t *)default_kb_ctrl_k9_map);
+
+    switch (mode)
+    {
+    case LV_IME_PINYIN_MODE_K26:
+        lv_keyboard_set_map(lv_ime->kb, LV_KEYBOARD_MODE_USER_1, (const char **)kb_map_k26,
+                            (const lv_btnmatrix_ctrl_t *)kb_ctrl_k26);
         lv_keyboard_set_mode(lv_ime->kb, LV_KEYBOARD_MODE_USER_1);
+        break;
+
+    case LV_IME_PINYIN_MODE_K9:
+        lv_keyboard_set_map(lv_ime->kb, LV_KEYBOARD_MODE_USER_2, (const char **)kb_map_k9,
+                            (const lv_btnmatrix_ctrl_t *)kb_ctrl_k9);
+        lv_keyboard_set_mode(lv_ime->kb, LV_KEYBOARD_MODE_USER_2);
+        break;
+
+    case LV_IME_PINYIN_MODE_EN:
+        lv_keyboard_set_mode(lv_ime->kb, LV_KEYBOARD_MODE_TEXT_LOWER);
+        break;
     }
+    
 }
 
 /*=====================
@@ -172,7 +212,6 @@ static void lv_ime_pinyin_constructor(const lv_obj_class_t * class_p, lv_obj_t *
 
     lv_ime->pinyin_ime = NULL;
     lv_memset_00(lv_ime->pinyin_input, sizeof(lv_ime->pinyin_input));
-    lv_ime->mode = LV_IME_PINYIN_MODE_K26;
 
     lv_obj_add_flag(obj, LV_OBJ_FLAG_HIDDEN);
 
@@ -214,11 +253,12 @@ static void lv_ime_pinyin_constructor(const lv_obj_class_t * class_p, lv_obj_t *
     lv_obj_set_style_bg_opa(lv_ime->cand_panel, LV_OPA_COVER, LV_PART_ITEMS | LV_STATE_PRESSED);
     lv_obj_set_style_bg_color(lv_ime->cand_panel, lv_color_white(), LV_PART_ITEMS | LV_STATE_PRESSED);
 
+    lv_ime_pinyin_set_mode(obj, LV_IME_PINYIN_MODE_K26);
+
     /* event handler */
     lv_obj_add_event_cb(lv_ime->cand_panel, lv_ime_pinyin_cand_panel_event, LV_EVENT_VALUE_CHANGED, obj);
     lv_obj_add_event_cb(obj, lv_ime_pinyin_style_change_event, LV_EVENT_STYLE_CHANGED, NULL);
     lv_obj_add_event_cb(lv_ime->kb, lv_ime_pinyin_kb_event, LV_EVENT_VALUE_CHANGED, obj);
-
 }
 
 static void lv_ime_pinyin_destructor(const lv_obj_class_t * class_p, lv_obj_t * obj)
@@ -242,13 +282,9 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
     lv_event_code_t code = lv_event_get_code(e);
     lv_obj_t * kb = lv_event_get_target(e);         /* 触发事件的键盘对象 */
     lv_obj_t * obj = lv_event_get_user_data(e);     /* 绑定时传入的输入法对象 */
+    lv_obj_t * ta = lv_keyboard_get_textarea(kb);
 
     lv_ime_pinyin_t * lv_ime = (lv_ime_pinyin_t *)obj;
-
-#if LV_IME_PINYIN_USE_K9_MODE
-    /* K9 九宫格按键编号(数字键 2~9)到对应字母集合的映射表 */
-    static const char * k9_py_map[8] = {"abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
-#endif
 
     uint16_t pinyin_count = strlen(lv_ime->pinyin_input);
 
@@ -261,12 +297,10 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
 
         /* 回车键，空格: 结束本次输入，清空输入法内部数据 */
         if(strcmp(txt, "Enter") == 0 || strcmp(txt, LV_SYMBOL_NEW_LINE) == 0) {
-            lv_memset_00(lv_ime->pinyin_input, sizeof(lv_ime->pinyin_input));
-            lv_ime_pinyin_input_proc(obj);
+            lv_ime_pinyin_clear_data(obj);
         }
         else if(strcmp(txt, " ") == 0) {
-            lv_memset_00(lv_ime->pinyin_input, sizeof(lv_ime->pinyin_input));
-            lv_ime_pinyin_input_proc(obj);
+            lv_ime_pinyin_clear_data(obj);
         }
         /* 退格键: 删除输入缓冲区中的最后一个字符 */
         else if(strcmp(txt, LV_SYMBOL_BACKSPACE) == 0) {
@@ -276,25 +310,64 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
         }
         /* 大小写切换键 / K9 数字键 "1#" */
         else if((strcmp(txt, "ABC") == 0) || (strcmp(txt, "abc") == 0) || (strcmp(txt, "1#") == 0)) {
-            lv_memset_00(lv_ime->pinyin_input, sizeof(lv_ime->pinyin_input));
-            lv_ime_pinyin_input_proc(obj);
+            lv_ime_pinyin_clear_data(obj);
         }
         /* 键盘切换键: 在 K26 与 K9 之间切换 */
         else if(strcmp(txt, LV_SYMBOL_KEYBOARD) == 0) {
-            
+            lv_ime_pinyin_clear_data(obj);
+
+            lv_ime_pinyin_mode_t mode_new;
+            if(lv_keyboard_get_mode(kb) != LV_KEYBOARD_MODE_SPECIAL) {
+                switch(lv_ime->mode) {
+                    case LV_IME_PINYIN_MODE_K26: mode_new = LV_IME_PINYIN_MODE_K9; break;
+                    case LV_IME_PINYIN_MODE_K9: mode_new = LV_IME_PINYIN_MODE_EN; break;
+                    case LV_IME_PINYIN_MODE_EN: mode_new = LV_IME_PINYIN_MODE_K26; break;
+                    default: mode_new = LV_IME_PINYIN_MODE_K26;
+                }
+            }
+            else mode_new = lv_ime->mode;
+            lv_ime_pinyin_set_mode(obj, mode_new);
         }
         /* 确认键: 结束输入，清空数据 */
         else if(strcmp(txt, LV_SYMBOL_OK) == 0) {
             pinyin_ime_save(lv_ime->pinyin_ime, NULL);
         }
         /* K26 模式下的字母键: 把字母追加到拼音串末尾，然后检索候选字 */
-        else if((lv_ime->mode == LV_IME_PINYIN_MODE_K26) && (txt[0] >= 'a' && txt[0] <= 'z')) {
-            if(pinyin_count >= sizeof(lv_ime->pinyin_input) - 1) return;
-            lv_ime->pinyin_input[pinyin_count] = txt[0];
-            lv_ime_pinyin_input_proc(obj);
+        else if(lv_ime->mode == LV_IME_PINYIN_MODE_K26) {
+            if (txt[0] >= 'a' && txt[0] <= 'z') {
+                if(pinyin_count >= sizeof(lv_ime->pinyin_input) - 1) {
+                    lv_textarea_del_char(ta);
+                    return;
+                }
+                lv_ime->pinyin_input[pinyin_count] = txt[0];
+                lv_ime_pinyin_input_proc(obj);
+            }
+            else if (txt[0] == '\'') {
+                if(pinyin_count >= sizeof(lv_ime->pinyin_input) - 1) {
+                    lv_textarea_del_char(ta);
+                    return;
+                }
+                lv_ime->pinyin_input[pinyin_count] = txt[0];
+                // 输入分词符时不能也不需要处理
+            }
+        }
+        else if((lv_ime->mode == LV_IME_PINYIN_MODE_K9) && (txt[0] >= 'a' && txt[0] <= 'z')) {
+            
+            uint8_t match = 2;
+            for (; match <= 9; match++) {
+                if (strcmp(txt, k9_py_map[match]) == 0) 
+                    break;
+            }
+            if (match == 10) return;
+            
+            for (uint32_t i = 0; i < strlen(txt); i++)
+                lv_textarea_del_char(ta);
+            
+            char c = '0' + match;
+            lv_textarea_add_char(ta, c);
         }
         else {
-            
+            lv_ime_pinyin_clear_data(obj);
         }
     }
 }
@@ -340,7 +413,7 @@ static void lv_ime_pinyin_cand_panel_event(lv_event_t * e)
         const char * txt = lv_btnmatrix_get_btn_text(cand_panel, id);
         lv_obj_t * ta = lv_keyboard_get_textarea(lv_ime->kb);
 
-        for (size_t i = 0; i < strlen(lv_ime->pinyin_input); i++)
+        for (uint32_t i = 0; i < strlen(lv_ime->pinyin_input); i++)
         {
             lv_textarea_del_char(ta);
         }
@@ -356,7 +429,7 @@ static void lv_ime_pinyin_cand_panel_event(lv_event_t * e)
         }
         
         char * segments = pinyin_ime_get_segments(pinyin_ime);
-        lv_snprintf(lv_ime->pinyin_input, sizeof(lv_ime->pinyin_input), "%s\0", segments);
+        lv_snprintf(lv_ime->pinyin_input, sizeof(lv_ime->pinyin_input), "%s", segments);
         lv_textarea_add_text(ta, lv_ime->pinyin_input);
 
         lv_ime_pinyin_set_cand_page(obj, 0);
@@ -400,7 +473,7 @@ static void lv_ime_pinyin_input_proc(lv_obj_t * obj)
 
     if(strlen(lv_ime->pinyin_input) > 0 && strlen(segments) > 0) {
         lv_obj_t * ta = lv_keyboard_get_textarea(lv_ime->kb);
-        for(size_t i = 0; i < strlen(lv_ime->pinyin_input); i++) {
+        for(uint32_t i = 0; i < strlen(lv_ime->pinyin_input); i++) {
             lv_textarea_del_char(ta);
         }
 
@@ -451,9 +524,15 @@ static void lv_ime_pinyin_set_cand_page(lv_obj_t * obj, uint16_t cand_page)
     }
     printf("\n");
 
-    
-    if(page_count > 0) lv_obj_clear_flag(lv_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);
-    else lv_obj_add_flag(lv_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);
+    lv_obj_t * ta = lv_keyboard_get_textarea(lv_ime->kb);
+    if(page_count > 0) {
+        lv_obj_clear_flag(lv_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_clear_flag(ta, LV_OBJ_FLAG_CLICKABLE);
+    }
+    else {
+        lv_obj_add_flag(lv_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);
+        lv_obj_add_flag(ta, LV_OBJ_FLAG_CLICKABLE);
+    }
 }
 
 #endif  /*LV_USE_IME_PINYIN*/
