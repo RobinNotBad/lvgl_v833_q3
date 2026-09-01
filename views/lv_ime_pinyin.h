@@ -48,6 +48,7 @@ typedef struct {
     char pinyin_input[32];
 
     uint16_t cand_page;
+    uint16_t k9_cand_page;
 
     lv_ime_pinyin_mode_t mode;
 } lv_ime_pinyin_t;

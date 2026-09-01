@@ -61,6 +61,15 @@ int pinyin_ime_get_candidate_count(pinyin_ime_t* ime);
 /* 获取第 index 个候选词（UTF-8），越界返回 NULL */
 const char* pinyin_ime_get_candidate(pinyin_ime_t* ime, uint32_t index);
 
+/* 获取当前 k9 对应的精确拼音数量 */
+int pinyin_ime_get_k9_exact_count(pinyin_ime_t* ime);
+
+/* 获取第 index 个 k9 精确拼音，越界返回 NULL */
+const char* pinyin_ime_get_k9_exact(pinyin_ime_t* ime, uint32_t index);
+
+/* 选择第 index 个 k9 精确拼音 */
+int pinyin_ime_select_k9_exact(pinyin_ime_t* ime, uint32_t index);
+
 /* 是否已结束当前输入（无剩余分词） */
 int pinyin_ime_is_finished(pinyin_ime_t* ime);
 

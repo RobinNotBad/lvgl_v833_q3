@@ -36,6 +36,8 @@ static void lv_ime_pinyin_clear_data(lv_obj_t * obj);
 
 static void lv_ime_pinyin_input_proc(lv_obj_t * obj);
 static void lv_ime_pinyin_set_cand_page(lv_obj_t * obj, uint16_t cand_page);
+static void lv_ime_pinyin_set_k9_cand_page(lv_obj_t * obj, uint16_t k9_cand_page);
+static void lv_ime_pinyin_select_k9_cand(lv_obj_t * obj, uint16_t k9_cand_index);
 
 /**********************
  *  STATIC VARIABLES
@@ -67,21 +69,24 @@ static const lv_btnmatrix_ctrl_t kb_ctrl_k26[] = {
 };
 
 // K9 的键盘布局
-// 气笑了，lv_keyboard里会把 abc 键当成大小写切换，加 \u200b 零宽度空格可解决
-static const char * k9_py_map[10] = {"", "", "abc\u200b", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
-static const char * kb_map_k9[] = 
+// 气笑了，lv_keyboard里会把 abc 键当成大小写切换，最终我通过移除默认事件解决了
+static const char * const k9_py_map[10] = {"", "", "abc", "def", "ghi", "jkl", "mno", "pqrs", "tuv", "wxyz"};
+static char * kb_map_k9[] = 
 {
-    "，", "1#",   "abc\u200b", "def",  LV_SYMBOL_BACKSPACE"", "\n",
+    "，", "1#",   "abc", "def",  LV_SYMBOL_BACKSPACE"", "\n",
     "。", "ghi",  "jkl", "mno",  LV_SYMBOL_NEW_LINE"", "\n",
     "？", "pqrs", "tuv", "wxyz", LV_SYMBOL_KEYBOARD"", "\n",
-    "cand1", "cand2", "cand3", "cand4", "cand5", "cand6", ""
+    LV_SYMBOL_LEFT"", " ", " ", " ", LV_SYMBOL_RIGHT"", LV_SYMBOL_OK"", ""
 };
+#define KB_K9_EXACT_OFFSET 19
+#define KB_K9_EXACT_BTNID (KB_K9_EXACT_OFFSET - 3)
+
 static lv_btnmatrix_ctrl_t kb_ctrl_k9[24] = 
 {
     1, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, 1,
     1, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_BTNMATRIX_CTRL_CHECKED | 1,
     1, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 1,
-    LV_KEYBOARD_CTRL_BTN_FLAGS | 1, LV_KEYBOARD_CTRL_BTN_FLAGS | 1, LV_KEYBOARD_CTRL_BTN_FLAGS | 1, LV_KEYBOARD_CTRL_BTN_FLAGS | 1, LV_KEYBOARD_CTRL_BTN_FLAGS | 1, LV_KEYBOARD_CTRL_BTN_FLAGS | 1
+    LV_KEYBOARD_CTRL_BTN_FLAGS | 1, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 2, LV_KEYBOARD_CTRL_BTN_FLAGS | 1, LV_KEYBOARD_CTRL_BTN_FLAGS | 1
 };
 
 // 选词框的文本列表
@@ -256,6 +261,8 @@ static void lv_ime_pinyin_constructor(const lv_obj_class_t * class_p, lv_obj_t *
     lv_ime_pinyin_set_mode(obj, LV_IME_PINYIN_MODE_K26);
 
     /* event handler */
+    // 删除键盘的默认回调，让我们自己来处理事件
+    lv_obj_remove_event_cb(lv_ime->kb, lv_keyboard_def_event_cb);
     lv_obj_add_event_cb(lv_ime->cand_panel, lv_ime_pinyin_cand_panel_event, LV_EVENT_VALUE_CHANGED, obj);
     lv_obj_add_event_cb(obj, lv_ime_pinyin_style_change_event, LV_EVENT_STYLE_CHANGED, NULL);
     lv_obj_add_event_cb(lv_ime->kb, lv_ime_pinyin_kb_event, LV_EVENT_VALUE_CHANGED, obj);
@@ -285,6 +292,8 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
     lv_obj_t * ta = lv_keyboard_get_textarea(kb);
 
     lv_ime_pinyin_t * lv_ime = (lv_ime_pinyin_t *)obj;
+    pinyin_ime_t * pinyin_ime = lv_ime->pinyin_ime;
+    lv_obj_t * cand_panel = lv_ime->cand_panel;
 
     uint16_t pinyin_count = strlen(lv_ime->pinyin_input);
 
@@ -295,24 +304,33 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
         const char * txt = lv_btnmatrix_get_btn_text(kb, lv_btnmatrix_get_selected_btn(kb));
         if(txt == NULL) return;                                  /* 按键文本为空则直接返回 */
 
-        /* 回车键，空格: 结束本次输入，清空输入法内部数据 */
+        /* 回车 */
         if(strcmp(txt, "Enter") == 0 || strcmp(txt, LV_SYMBOL_NEW_LINE) == 0) {
             lv_ime_pinyin_clear_data(obj);
+            lv_keyboard_def_event_cb(e);
         }
+        /* 空格 */
         else if(strcmp(txt, " ") == 0) {
+            if(pinyin_ime_get_candidate_count(pinyin_ime) != 0) {
+                lv_btnmatrix_set_selected_btn(cand_panel, 1);
+                lv_event_send(cand_panel, LV_EVENT_VALUE_CHANGED, obj);
+            }
+            else {
+                lv_ime_pinyin_clear_data(obj);
+                lv_keyboard_def_event_cb(e);
+            }
+        }
+        /* 确认键 */
+        else if(strcmp(txt, LV_SYMBOL_OK) == 0) {
+            pinyin_ime_save(pinyin_ime, NULL);
+            lv_keyboard_def_event_cb(e);
+        }
+        /* 数字键 */
+        else if(strcmp(txt, "1#") == 0) {
             lv_ime_pinyin_clear_data(obj);
+            lv_keyboard_def_event_cb(e);
         }
-        /* 退格键: 删除输入缓冲区中的最后一个字符 */
-        else if(strcmp(txt, LV_SYMBOL_BACKSPACE) == 0) {
-            if(pinyin_count <= 0) return;
-            lv_ime->pinyin_input[pinyin_count - 1] = '\0';
-            lv_ime_pinyin_input_proc(obj);
-        }
-        /* 大小写切换键 / K9 数字键 "1#" */
-        else if((strcmp(txt, "ABC") == 0) || (strcmp(txt, "abc") == 0) || (strcmp(txt, "1#") == 0)) {
-            lv_ime_pinyin_clear_data(obj);
-        }
-        /* 键盘切换键: 在 K26 与 K9 之间切换 */
+        /* 键盘切换键 */
         else if(strcmp(txt, LV_SYMBOL_KEYBOARD) == 0) {
             lv_ime_pinyin_clear_data(obj);
 
@@ -328,46 +346,82 @@ static void lv_ime_pinyin_kb_event(lv_event_t * e)
             else mode_new = lv_ime->mode;
             lv_ime_pinyin_set_mode(obj, mode_new);
         }
-        /* 确认键: 结束输入，清空数据 */
-        else if(strcmp(txt, LV_SYMBOL_OK) == 0) {
-            pinyin_ime_save(lv_ime->pinyin_ime, NULL);
-        }
-        /* K26 模式下的字母键: 把字母追加到拼音串末尾，然后检索候选字 */
+        /* K26 模式 */
         else if(lv_ime->mode == LV_IME_PINYIN_MODE_K26) {
+            // 字母
             if (txt[0] >= 'a' && txt[0] <= 'z') {
-                if(pinyin_count >= sizeof(lv_ime->pinyin_input) - 1) {
-                    lv_textarea_del_char(ta);
-                    return;
+                if(pinyin_count < sizeof(lv_ime->pinyin_input) - 1) {
+                    lv_textarea_add_char(ta, txt[0]);
+                    lv_ime->pinyin_input[pinyin_count] = txt[0];
+                    lv_ime_pinyin_input_proc(obj);
                 }
-                lv_ime->pinyin_input[pinyin_count] = txt[0];
+            }
+            // 分词符  不能处理，也不需要处理
+            else if (txt[0] == '\'') {
+                if(pinyin_count < sizeof(lv_ime->pinyin_input) - 1) {
+                    lv_textarea_add_char(ta, '\'');
+                    lv_ime->pinyin_input[pinyin_count] = txt[0];
+                }
+            }
+            // 退格
+            else if(strcmp(txt, LV_SYMBOL_BACKSPACE) == 0) {
+                lv_textarea_del_char(ta);
+                if(pinyin_count > 0) {
+                    lv_ime->pinyin_input[pinyin_count - 1] = '\0';
+                    lv_ime_pinyin_input_proc(obj);
+                }
+            }
+            else lv_keyboard_def_event_cb(e);
+        }
+        /* K9 模式 */
+        else if(lv_ime->mode == LV_IME_PINYIN_MODE_K9) {
+            // 精确拼音
+            if(btn_id >= KB_K9_EXACT_BTNID && btn_id <= KB_K9_EXACT_BTNID + 2) {
+                if(pinyin_ime_get_k9_exact_count(pinyin_ime) != 0) {
+                    int16_t k9_cand_index = (lv_ime->k9_cand_page * 3) + (btn_id - KB_K9_EXACT_BTNID);
+                    lv_ime_pinyin_select_k9_cand(obj, k9_cand_index);
+                }
+            }
+            // 向左翻页
+            else if(btn_id == KB_K9_EXACT_BTNID - 1) {
+                if(lv_ime->k9_cand_page <= 0) return;
+                lv_ime_pinyin_set_k9_cand_page(obj, lv_ime->k9_cand_page - 1);
+            }
+            // 向右翻页
+            else if(btn_id == KB_K9_EXACT_BTNID + 3) {
+                int k9_cand_num = pinyin_ime_get_k9_exact_count(pinyin_ime);
+                uint16_t page_count = k9_cand_num / 3;
+                uint16_t sur = k9_cand_num % 3;
+                if(sur) page_count++;
+                if(lv_ime->k9_cand_page >= page_count - 1) return;
+                lv_ime_pinyin_set_k9_cand_page(obj, lv_ime->k9_cand_page + 1);
+            }
+            // 字母  input_proc里会重置输入内容的，此处无需add_char
+            else if(txt[0] >= 'a' && txt[0] <= 'z') {
+                uint8_t match = 2;
+                for(; match <= 9; match++) {
+                    if(strcmp(txt, k9_py_map[match]) == 0) break;
+                }
+                if(match == 10) return;
+
+                char c = '0' + match;
+                lv_textarea_add_char(ta, c);
+                lv_ime->pinyin_input[pinyin_count] = c;
                 lv_ime_pinyin_input_proc(obj);
             }
-            else if (txt[0] == '\'') {
-                if(pinyin_count >= sizeof(lv_ime->pinyin_input) - 1) {
-                    lv_textarea_del_char(ta);
-                    return;
-                }
-                lv_ime->pinyin_input[pinyin_count] = txt[0];
-                // 输入分词符时不能也不需要处理
-            }
-        }
-        else if((lv_ime->mode == LV_IME_PINYIN_MODE_K9) && (txt[0] >= 'a' && txt[0] <= 'z')) {
-            
-            uint8_t match = 2;
-            for (; match <= 9; match++) {
-                if (strcmp(txt, k9_py_map[match]) == 0) 
-                    break;
-            }
-            if (match == 10) return;
-            
-            for (uint32_t i = 0; i < strlen(txt); i++)
+            // 退格
+            else if(strcmp(txt, LV_SYMBOL_BACKSPACE) == 0) {
                 lv_textarea_del_char(ta);
-            
-            char c = '0' + match;
-            lv_textarea_add_char(ta, c);
+                if(pinyin_count > 0) {
+                    lv_ime->pinyin_input[pinyin_count - 1] = '\0';
+                    lv_ime_pinyin_input_proc(obj);
+                }
+            }
+            else lv_keyboard_def_event_cb(e);
         }
-        else {
-            lv_ime_pinyin_clear_data(obj);
+        /* 英文模式 */
+        else if(lv_ime->mode == LV_IME_PINYIN_MODE_EN) {
+            lv_keyboard_def_event_cb(e);
         }
     }
 }
@@ -433,6 +487,7 @@ static void lv_ime_pinyin_cand_panel_event(lv_event_t * e)
         lv_textarea_add_text(ta, lv_ime->pinyin_input);
 
         lv_ime_pinyin_set_cand_page(obj, 0);
+        if(lv_ime->mode == LV_IME_PINYIN_MODE_K9) lv_ime_pinyin_set_k9_cand_page(obj, 0);
     }
 }
 
@@ -492,6 +547,7 @@ static void lv_ime_pinyin_input_proc(lv_obj_t * obj)
     
     
     lv_ime_pinyin_set_cand_page(obj, 0);
+    if(lv_ime->mode == LV_IME_PINYIN_MODE_K9) lv_ime_pinyin_set_k9_cand_page(obj, 0);
 }
 
 static void lv_ime_pinyin_set_cand_page(lv_obj_t * obj, uint16_t cand_page)
@@ -510,7 +566,7 @@ static void lv_ime_pinyin_set_cand_page(lv_obj_t * obj, uint16_t cand_page)
 
     /* 清空候选显示缓冲 */
     for(uint8_t i = 0; i < LV_IME_PINYIN_CAND_TEXT_NUM; i++) {
-        lv_btnm_def_pinyin_sel_map[i+1] = "";
+        lv_btnm_def_pinyin_sel_map[i+1] = " ";
     }
 
     /* 重新填充候选汉字 */
@@ -519,7 +575,7 @@ static void lv_ime_pinyin_set_cand_page(lv_obj_t * obj, uint16_t cand_page)
     for(uint8_t i = 0; i < LV_IME_PINYIN_CAND_TEXT_NUM; i++) {
         if(offset + i > cand_num - 1) break;
         char * candidate = pinyin_ime_get_candidate(pinyin_ime, offset + i);
-        lv_btnm_def_pinyin_sel_map[i+1] = candidate ? candidate : "";
+        lv_btnm_def_pinyin_sel_map[i+1] = candidate ? candidate : " ";
         printf("%s", lv_btnm_def_pinyin_sel_map[i+1]);
     }
     printf("\n");
@@ -533,6 +589,67 @@ static void lv_ime_pinyin_set_cand_page(lv_obj_t * obj, uint16_t cand_page)
         lv_obj_add_flag(lv_ime->cand_panel, LV_OBJ_FLAG_HIDDEN);
         lv_obj_add_flag(ta, LV_OBJ_FLAG_CLICKABLE);
     }
+}
+
+static void lv_ime_pinyin_set_k9_cand_page(lv_obj_t * obj, uint16_t k9_cand_page)
+{
+    lv_ime_pinyin_t * lv_ime = (lv_ime_pinyin_t *)obj;
+    lv_ime->k9_cand_page = k9_cand_page;
+
+    pinyin_ime_t * pinyin_ime = lv_ime->pinyin_ime;
+    if (!pinyin_ime) return;
+
+    int cand_num = pinyin_ime_get_k9_exact_count(pinyin_ime);
+
+    uint16_t page_count = cand_num / 3;   /* 完整页数 */
+    uint16_t sur = cand_num % 3;        /* 最后一页剩余候选数 */
+    if(sur) page_count++;
+    
+
+    /* 清空候选显示缓冲 */
+    for(uint8_t i = 0; i < 3; i++) {
+        kb_map_k9[KB_K9_EXACT_OFFSET + i] = " ";
+    }
+
+    /* 重新填充候选汉字 */
+    printf("[pinyin_ime] k9_exact_page=%d ", k9_cand_page);
+    uint16_t cand_offset = k9_cand_page * 3;
+    for(uint8_t i = 0; i < 3; i++) {
+        if(cand_offset + i > cand_num - 1) break;
+        char * candidate = pinyin_ime_get_k9_exact(pinyin_ime, cand_offset + i);
+        kb_map_k9[KB_K9_EXACT_OFFSET + i] = candidate ? candidate : " ";
+        printf("%s,", kb_map_k9[KB_K9_EXACT_OFFSET + i]);
+    }
+    printf("\n");
+}
+
+static void lv_ime_pinyin_select_k9_cand(lv_obj_t * obj, uint16_t k9_cand_index)
+{
+    lv_ime_pinyin_t * lv_ime = (lv_ime_pinyin_t *)obj;
+
+    pinyin_ime_t * pinyin_ime = lv_ime->pinyin_ime;
+    if (!pinyin_ime) return;
+
+    printf("[pinyin_ime] k9_select_exact=%d\n", k9_cand_index);
+    pinyin_ime_select_k9_exact(pinyin_ime, k9_cand_index);
+
+    char * segments = pinyin_ime_get_segments(pinyin_ime);
+
+    if(strlen(lv_ime->pinyin_input) > 0 && strlen(segments) > 0) {
+        lv_obj_t * ta = lv_keyboard_get_textarea(lv_ime->kb);
+        for(uint32_t i = 0; i < strlen(lv_ime->pinyin_input); i++) {
+            lv_textarea_del_char(ta);
+        }
+
+        lv_snprintf(lv_ime->pinyin_input, sizeof(lv_ime->pinyin_input), "%s", segments);
+        lv_textarea_add_text(ta, lv_ime->pinyin_input);
+    }
+
+    printf("[%s]\n", lv_ime->pinyin_input);
+    
+    lv_ime_pinyin_set_cand_page(obj, 0);
+    if (lv_ime->mode == LV_IME_PINYIN_MODE_K9)
+        lv_ime_pinyin_set_k9_cand_page(obj, 0);
 }
 
 #endif  /*LV_USE_IME_PINYIN*/
