@@ -27,7 +27,8 @@ typedef enum
     BATTERY_UNKNOWN = 0,
     BATTERY_DISCHARGING = 1, 
     BATTERY_CHARGING = 2, 
-    BATTERY_FULL = 3
+    BATTERY_FULL = 3, 
+    BATTERY_NOT_CHARGING = 4
 } battery_status_t;
 
 /**********************

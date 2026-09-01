@@ -35,5 +35,9 @@ battery_status_t battery_get_status(void)
         return BATTERY_FULL;
     else if(strcmp(status, "Charging") == 0)
         return BATTERY_CHARGING;
-    else return BATTERY_DISCHARGING;
+    else if(strcmp(status, "Discharging") == 0)
+        return BATTERY_DISCHARGING;
+    else if(strcmp(status, "Not Charging") == 0)
+        return BATTERY_NOT_CHARGING;
+    else return BATTERY_UNKNOWN;
 }
