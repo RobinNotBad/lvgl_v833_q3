@@ -518,13 +518,11 @@ static void lv_ime_pinyin_input_proc(lv_obj_t * obj)
 
     pinyin_ime_t * pinyin_ime = lv_ime->pinyin_ime;
     if (!pinyin_ime) return;
-    printf("[pinyin_ime] input=%s\n", lv_ime->pinyin_input);
     pinyin_ime_input(pinyin_ime, lv_ime->pinyin_input);
 
-    //printf("[pinyin_ime] input\n");
-    int cand_num = pinyin_ime_get_candidate_count(pinyin_ime);
+    //int cand_num = pinyin_ime_get_candidate_count(pinyin_ime);
     char * segments = pinyin_ime_get_segments(pinyin_ime);
-    char * result = pinyin_ime_get_result(pinyin_ime);
+    //char * result = pinyin_ime_get_result(pinyin_ime);
 
     if(strlen(lv_ime->pinyin_input) > 0 && strlen(segments) > 0) {
         lv_obj_t * ta = lv_keyboard_get_textarea(lv_ime->kb);
@@ -536,15 +534,15 @@ static void lv_ime_pinyin_input_proc(lv_obj_t * obj)
         lv_textarea_add_text(ta, lv_ime->pinyin_input);
     }
 
-    printf("[%s] 剩余分词: '%s'  结果: '%s'  候选(%d):",
-	       lv_ime->pinyin_input,
+    /*
+    printf("[pinyin_ime] 剩余分词: '%s'  结果: '%s'  候选(%d):", 
 	       segments ? segments : "",
 	       result ? result : "",
 	       cand_num);
 	for (int i = 0; i < cand_num; i++)
 		printf(" %d.%s", i, pinyin_ime_get_candidate(pinyin_ime, i));
 	printf("\n");
-    
+    */
     
     lv_ime_pinyin_set_cand_page(obj, 0);
     if(lv_ime->mode == LV_IME_PINYIN_MODE_K9) lv_ime_pinyin_set_k9_cand_page(obj, 0);
@@ -570,15 +568,15 @@ static void lv_ime_pinyin_set_cand_page(lv_obj_t * obj, uint16_t cand_page)
     }
 
     /* 重新填充候选汉字 */
-    printf("[pinyin_ime] cand_page=%d ", cand_page);
+    //printf("[pinyin_ime] cand_page=%d ", cand_page);
     uint16_t offset = cand_page * LV_IME_PINYIN_CAND_TEXT_NUM;
     for(uint8_t i = 0; i < LV_IME_PINYIN_CAND_TEXT_NUM; i++) {
         if(offset + i > cand_num - 1) break;
         char * candidate = pinyin_ime_get_candidate(pinyin_ime, offset + i);
         lv_btnm_def_pinyin_sel_map[i+1] = candidate ? candidate : " ";
-        printf("%s", lv_btnm_def_pinyin_sel_map[i+1]);
+        //printf("%s", lv_btnm_def_pinyin_sel_map[i+1]);
     }
-    printf("\n");
+    //printf("\n");
 
     lv_obj_t * ta = lv_keyboard_get_textarea(lv_ime->kb);
     if(page_count > 0) {
@@ -611,16 +609,16 @@ static void lv_ime_pinyin_set_k9_cand_page(lv_obj_t * obj, uint16_t k9_cand_page
         kb_map_k9[KB_K9_EXACT_OFFSET + i] = " ";
     }
 
-    /* 重新填充候选汉字 */
-    printf("[pinyin_ime] k9_exact_page=%d ", k9_cand_page);
+    /* 重新填充候选拼音 */
+    //printf("[pinyin_ime] k9_exact_page=%d ", k9_cand_page);
     uint16_t cand_offset = k9_cand_page * 3;
     for(uint8_t i = 0; i < 3; i++) {
         if(cand_offset + i > cand_num - 1) break;
         char * candidate = pinyin_ime_get_k9_exact(pinyin_ime, cand_offset + i);
         kb_map_k9[KB_K9_EXACT_OFFSET + i] = candidate ? candidate : " ";
-        printf("%s,", kb_map_k9[KB_K9_EXACT_OFFSET + i]);
+        //printf("%s,", kb_map_k9[KB_K9_EXACT_OFFSET + i]);
     }
-    printf("\n");
+    //printf("\n");
 }
 
 static void lv_ime_pinyin_select_k9_cand(lv_obj_t * obj, uint16_t k9_cand_index)
@@ -630,7 +628,7 @@ static void lv_ime_pinyin_select_k9_cand(lv_obj_t * obj, uint16_t k9_cand_index)
     pinyin_ime_t * pinyin_ime = lv_ime->pinyin_ime;
     if (!pinyin_ime) return;
 
-    printf("[pinyin_ime] k9_select_exact=%d\n", k9_cand_index);
+    //printf("[pinyin_ime] k9_select_exact=%d\n", k9_cand_index);
     pinyin_ime_select_k9_exact(pinyin_ime, k9_cand_index);
 
     char * segments = pinyin_ime_get_segments(pinyin_ime);
@@ -645,7 +643,7 @@ static void lv_ime_pinyin_select_k9_cand(lv_obj_t * obj, uint16_t k9_cand_index)
         lv_textarea_add_text(ta, lv_ime->pinyin_input);
     }
 
-    printf("[%s]\n", lv_ime->pinyin_input);
+    //printf("[%s]\n", lv_ime->pinyin_input);
     
     lv_ime_pinyin_set_cand_page(obj, 0);
     if (lv_ime->mode == LV_IME_PINYIN_MODE_K9)
