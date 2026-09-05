@@ -9,10 +9,10 @@
 #include "page_midi.h"
 #include "page_image.h"
 #include "page_txt.h"
-#include "platform/str_utils.h"
-#include "platform/hw_keys.h"
-#include "platform/config_manager.h"
-#include "views/custom_msgbox.h"
+#include "str_utils.h"
+#include "hw_keys.h"
+#include "config_manager.h"
+#include "custom_msgbox.h"
 
 typedef enum { FILE_OPERATION_NONE = 0, FILE_OPERATION_CUT, FILE_OPERATION_COPY } file_operation_t;
 

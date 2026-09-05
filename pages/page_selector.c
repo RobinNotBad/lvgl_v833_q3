@@ -2,6 +2,7 @@
 
 #include <string.h>
 
+#include "dendro_conf.h"
 #include "page_apple.h"
 #include "page_audio.h"
 #include "page_midi.h"

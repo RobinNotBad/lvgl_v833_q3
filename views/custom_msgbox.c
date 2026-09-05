@@ -1,8 +1,8 @@
 #include "custom_msgbox.h"
 
 #include "main.h"
-#include "platform/page_manager.h"
-#include "platform/lv_utils.h"
+#include "page_manager.h"
+#include "lv_utils.h"
 
 static void custom_msgbox_delete_cb(lv_event_t * e) {
     page_back();

@@ -12,15 +12,15 @@
 #include <sys/ioctl.h>
 #include <string.h>
 
-#include "platform/hw_keys.h"
-#include "platform/hw_screen.h"
-#include "platform/sys_robot.h"
-#include "platform/audio_ctrl.h"
-#include "platform/battery_manager.h"
-#include "platform/config_manager.h"
-#include "platform/page_manager.h"
-#include "platform/lv_utils.h"
-#include "views/ime_helper.h"
+#include "hw_keys.h"
+#include "hw_screen.h"
+#include "sys_robot.h"
+#include "audio_ctrl.h"
+#include "battery_manager.h"
+#include "config_manager.h"
+#include "page_manager.h"
+#include "lv_utils.h"
+#include "ime_helper.h"
 
 #include "pages/page_home.h"
 
@@ -153,7 +153,7 @@ int main(int argc, char * argv[])
     int volume;
     config_read_int(CFG_FILE_MAIN, CFG_VOLUME, 0, &volume);
     audio_volume_set(volume);
-    config_read_int(CFG_FILE_MAIN, CFG_BRIGHTNESS, SCREEN_BRIGHTNESS_DEFAULT, &lcd_brightness);
+    config_read_int(CFG_FILE_MAIN, CFG_BRIGHTNESS, SCREEN_BRIGHTNESS_DEFAULT, (int *)&lcd_brightness);
     lcd_set_brightness_inner(lcd_brightness);
     
     ime_helper_init();

@@ -48,7 +48,7 @@ static void lv_text_clock_constructor(const lv_obj_class_t * class_p, lv_obj_t *
     memset(clock->time_str, 0, sizeof(clock->time_str));
 
     /* 设置初始文本 */
-    lv_label_set_text(&clock->label, "00:00:00");
+    lv_label_set_text(&clock->label.obj, "00:00:00");
     
     // 立即更新时间 
     lv_text_clock_update_time(clock);
@@ -106,7 +106,7 @@ static void lv_text_clock_update_time(lv_text_clock_t * clock)
     timeinfo = localtime(&rawtime);
     
     if(timeinfo == NULL) {
-        lv_label_set_text(&clock->label, "Error");
+        lv_label_set_text(&clock->label.obj, "Error");
         return;
     }
     
@@ -118,5 +118,5 @@ static void lv_text_clock_update_time(lv_text_clock_t * clock)
              timeinfo->tm_sec);
     
     /* 更新标签文本 */
-    lv_label_set_text(&clock->label, clock->time_str);
+    lv_label_set_text(&clock->label.obj, clock->time_str);
 }

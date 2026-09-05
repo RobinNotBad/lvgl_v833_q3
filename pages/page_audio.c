@@ -1,5 +1,11 @@
 #include "page_audio.h"
 
+#include "main.h"
+#include "ff_player.h"
+#include "audio_ctrl.h"
+#include "lv_text_clock.h"
+#include "battery_manager.h"
+
 typedef struct
 {
     BasePage base;

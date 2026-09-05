@@ -2,13 +2,13 @@
 
 #include "page_demo.h"
 #include "main.h"
-#include "platform/str_utils.h"
-#include "platform/audio_ctrl.h"
-#include "platform/config_manager.h"
-#include "views/custom_msgbox.h"
-#include "platform/config_manager.h"
-#include "platform/hw_screen.h"
-#include "platform/lv_utils.h"
+#include "str_utils.h"
+#include "audio_ctrl.h"
+#include "config_manager.h"
+#include "custom_msgbox.h"
+#include "config_manager.h"
+#include "hw_screen.h"
+#include "lv_utils.h"
 
 static void btn_demo_click(lv_event_t * e);
 static void btn_about_click(lv_event_t * e);

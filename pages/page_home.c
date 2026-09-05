@@ -1,11 +1,11 @@
 #include "page_home.h"
 
-#include "platform/battery_manager.h"
+#include "battery_manager.h"
 #include "page_menu.h"
 #include "main.h"
-#include "platform/sys_robot.h"
-#include "platform/str_utils.h"
-#include "platform/lv_utils.h"
+#include "sys_robot.h"
+#include "str_utils.h"
+#include "lv_utils.h"
 
 #define TEXT_CLOCK_COLOR 0xff8fc07c
 
