@@ -11,6 +11,7 @@
 #include "page_txt.h"
 #include "platform/str_utils.h"
 #include "platform/hw_keys.h"
+#include "platform/config_manager.h"
 #include "views/custom_msgbox.h"
 
 typedef enum { FILE_OPERATION_NONE = 0, FILE_OPERATION_CUT, FILE_OPERATION_COPY } file_operation_t;
@@ -43,6 +44,9 @@ static bool page_file_manager_on_key(void * p, key_code_t key_code, key_action_t
 
 static bool is_file_safe(char * file_name)
 {
+    bool ignore_risk = false;
+    config_read_bool(CFG_FILE_MAIN, CFG_FILEMGR_IGNORE_RISK, false, &ignore_risk);
+    if (ignore_risk) return true;
     return (str_begin_with(file_name, "/mnt/UDISK/", true) || str_begin_with(file_name, "/mnt/app/dendro/", true)
             || str_begin_with(file_name, "/mnt/sdcard/", true)) &&
             (!str_begin_with(file_name, "/mnt/UDISK/lvgl", true) && !str_begin_with(file_name, "/mnt/UDISK/lib", true));
@@ -50,6 +54,9 @@ static bool is_file_safe(char * file_name)
 
 static bool is_directory_safe(char * file_name)
 {
+    bool ignore_risk = false;
+    config_read_bool(CFG_FILE_MAIN, CFG_FILEMGR_IGNORE_RISK, false, &ignore_risk);
+    if (ignore_risk) return true;
     return (str_begin_with(file_name, "/mnt/UDISK", true) || str_begin_with(file_name, "/mnt/app/dendro", true)
             || str_begin_with(file_name, "/mnt/sdcard", true)) &&
             (!str_begin_with(file_name, "/mnt/UDISK/lvgl", true) && !str_begin_with(file_name, "/mnt/UDISK/lib", true));

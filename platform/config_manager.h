@@ -14,6 +14,7 @@
 #define CFG_REVERSE_Y "/evdev/reverse_y"
 #define CFG_BRIGHTNESS "/system/brightness"
 #define CFG_VOLUME "/system/volume"
+#define CFG_FILEMGR_IGNORE_RISK "/dendro/file_manager/ignore_risk"
 
 /**
  * @brief 从 JSON 配置文件中读取整数值
