@@ -19,6 +19,9 @@ extern "C" {
  *      DEFINES
  *********************/
 
+#define IME_PINYIN_MAP_FILE "./res/pinyin_ime/pinyin.txt"
+#define IME_DICTIONARY_FILE "./res/pinyin_ime/dictionary.data"
+
 /**
  * 0: 使用非全屏输入页面（类似手机）
  * 1: 使用全屏输入页面，适合小屏设备（类似手表）
