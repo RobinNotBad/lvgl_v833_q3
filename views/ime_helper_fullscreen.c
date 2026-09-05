@@ -29,7 +29,7 @@ static void page_ime_destroy(void * p);
  * @brief 初始化输入法
  */
 void ime_helper_init(void) {
-    pinyin_ime = pinyin_ime_init("./pinyin.txt", "./dictionary.data");
+    pinyin_ime = pinyin_ime_init(IME_PINYIN_MAP_FILE, IME_DICTIONARY_FILE);
     printf("[ime_helper] init\n");
 }
 

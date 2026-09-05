@@ -26,7 +26,7 @@ void ime_helper_init(void) {
     }
 
     if (!pinyin_ime) {
-        pinyin_ime = pinyin_ime_init("./pinyin.txt", "./dictionary.data");
+        pinyin_ime = pinyin_ime_init(IME_PINYIN_MAP_FILE, IME_DICTIONARY_FILE);
         lv_ime_pinyin_init(lv_ime, pinyin_ime);
     }
     printf("[ime_helper] init\n");
