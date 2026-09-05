@@ -1,10 +1,11 @@
 #include "page_txt.h"
-#include "main.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
 #include <errno.h>
-#include "lvgl/src/misc/lv_txt.h"
+
+#include "main.h"
 
 #define MAX_LINES   9
 

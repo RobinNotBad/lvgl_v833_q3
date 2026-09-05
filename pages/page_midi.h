@@ -11,9 +11,6 @@ extern "C" {
 #include "../lvgl/lvgl.h"
 #include "../lv_lib_100ask/lv_lib_100ask.h"
 #include "page_manager.h"
-#include "platform/midi_player.h"
-#include "platform/audio_ctrl.h"
-#include "views/lv_text_clock.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdbool.h>

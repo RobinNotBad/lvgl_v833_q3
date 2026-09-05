@@ -11,7 +11,7 @@ extern "C" {
  *********************/
  
 #include "../lvgl/lvgl.h"
-#include "platform/page_manager.h"
+#include "page_manager.h"
 
 /*********************
  *      DEFINES

@@ -8,7 +8,7 @@
 
 #include "main.h"
 #include "string.h"
-#include "platform/page_manager.h"
+#include "page_manager.h"
 #include "lv_ime_pinyin.h"
 #include "pinyin_ime.h"
 

@@ -1,5 +1,9 @@
 #include "page_midi.h"
+
 #include "main.h"
+#include "midi_player.h"
+#include "audio_ctrl.h"
+#include "lv_text_clock.h"
 #include "config_manager.h"
 #include "battery_manager.h"
 
@@ -37,7 +41,7 @@ BasePage * page_midi_create(char * filename)
 
     page->base.obj        = page_midi_obj(page, filename);
     page->base.on_destroy = page_midi_destroy;
-    return page;
+    return (BasePage *)page;
 }
 
 static lv_obj_t * page_midi_obj(MidiPage * page, char * filename)

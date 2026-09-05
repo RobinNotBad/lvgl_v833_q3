@@ -1,6 +1,8 @@
 #include "page_apple.h"
 
 #include "main.h"
+#include "ff_player.h"
+#include "audio_ctrl.h"
 
 typedef struct
 {
@@ -33,7 +35,7 @@ BasePage * page_video_create(char * filename)
 
     page->base.obj        = page_video_obj(page, filename);
     page->base.on_destroy = page_video_destroy;
-    return page;
+    return (BasePage *)page;
 }
 
 static lv_obj_t * page_video_obj(VideoPage * page, char * filename)
