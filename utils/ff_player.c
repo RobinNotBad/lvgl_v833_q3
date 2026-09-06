@@ -490,11 +490,13 @@ static void * player_thread_func(void * arg)
                     break;
                 }
 
+                bool locked = false;
                 if (player->mutex_graph) {
                     while (pthread_mutex_trylock(player->mutex_graph) == EBUSY
                              && atomic_load(&player->state) != PLAYER_STOPPED) {
                         usleep(1000);
                     }
+                    locked = true;
                 }
                 sws_scale(player->sws_ctx, (const uint8_t * const *)frame->data, frame->linesize, 0,
                           player->video_codec_ctx->height, player->video_dst_data, player->video_dst_linesize);
@@ -502,8 +504,7 @@ static void * player_thread_func(void * arg)
                 lv_img_cache_invalidate_src(lv_img_get_src(player->video_area));
                 lv_obj_invalidate(player->video_area);
 
-                if (player->mutex_graph && atomic_load(&player->state) != PLAYER_STOPPED) 
-                    pthread_mutex_unlock(player->mutex_graph);
+                if (locked) pthread_mutex_unlock(player->mutex_graph);
 
                 //printf("[ff_player] thread video %d\n", 3);
 
