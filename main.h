@@ -34,6 +34,7 @@ extern uint32_t ts_background;
 
 extern uint8_t dont_deep_sleep_enabled;
 extern uint8_t dont_timeout_enabled;
+extern pthread_mutex_t mutex_graph;
 
 void sys_sleep(void);
 void sys_wake(void);

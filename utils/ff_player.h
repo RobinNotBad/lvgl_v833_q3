@@ -32,8 +32,8 @@ typedef struct
     AVCodecContext * video_codec_ctx;
     SwrContext * swr_ctx;
     struct SwsContext * sws_ctx;
-    int audio_stream_index;
-    int video_stream_index;
+    volatile int audio_stream_index;
+    volatile int video_stream_index;
 
     // ALSA 相关
     snd_pcm_t * pcm_handle;
@@ -48,14 +48,15 @@ typedef struct
     lv_img_dsc_t img_dsc;
 
     // 播放控制
-    volatile int state;
-    volatile bool seek_request;
-    volatile int64_t seek_pos;
+    atomic_int state;
+    atomic_bool seek_request;
+    _Atomic int64_t seek_pos;
     pthread_t player_thread;
-    pthread_mutex_t mutex;
+    //pthread_mutex_t mutex_data;
+    pthread_mutex_t * mutex_graph;
 
     // 进度信息
-    volatile int64_t current_pts;
+    _Atomic int64_t current_pts;
     AVRational time_base;
     int64_t duration;
 
@@ -66,7 +67,7 @@ typedef struct
 } ff_player_t;
 
 // 函数声明
-ff_player_t * player_create(void);
+ff_player_t * player_create(pthread_mutex_t * mutex_graph);
 int player_open(ff_player_t * player, const char * filename);
 int player_init_audio(ff_player_t * player);
 int player_init_video(ff_player_t * player, lv_obj_t * lv_obj);

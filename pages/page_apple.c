@@ -57,10 +57,9 @@ static lv_obj_t * page_video_obj(VideoPage * page, char * filename)
     lv_obj_set_size(img, img_scaled_w, img_scaled_h);
     lv_obj_center(img);
 
-    page->player = player_create();
+    page->player = player_create(&mutex_graph);
     if(player_open(page->player, filename) == 0 && player_init_audio(page->player) == 0 &&
        player_init_video(page->player, img) == 0) {
-        player_resume(page->player);
         player_set_finish_callback(page->player, player_finished, page);
     } else
         page->player = NULL;
@@ -109,6 +108,8 @@ static lv_obj_t * page_video_obj(VideoPage * page, char * filename)
 
     page->timer = lv_timer_create(timer_tick, 250, page);
 
+    if (page->player) player_resume(page->player);
+
     return screen;
 }
 
@@ -135,7 +136,7 @@ static void player_finished(void * p)
     ff_player_t * player = (ff_player_t *)p;
     VideoPage * page = (VideoPage *)player->user_data;
     if(!page) return;
-    lv_label_set_text(page->btn_control_label, LV_SYMBOL_PLAY "");
+    if(page->btn_control_label) lv_label_set_text(page->btn_control_label, LV_SYMBOL_PLAY "");
     audio_disable();
 }
 
