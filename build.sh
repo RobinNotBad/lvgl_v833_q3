@@ -9,3 +9,4 @@ export STRIP=$TOOLCHAIN/bin/aarch64-openwrt-linux-strip
 export STAGING_DIR=$TOOLCHAIN/bin
 
 make -j${nproc}
+

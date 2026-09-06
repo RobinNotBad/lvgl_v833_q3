@@ -172,9 +172,7 @@ int main(int argc, char * argv[])
             if(ts_sleep == -1) {
                 // 亮
                 pthread_mutex_lock(&mutex_graph);
-                printf("[main] refresh %d\n", 0);
                 lv_timer_handler();
-                printf("[main] refresh %d\n", 1);
                 pthread_mutex_unlock(&mutex_graph);
                 lcd_refresh(); // 放在fbdev里不合适，反而会增大cpu占用且变卡，神金啊
                 lcd_detect_timeout();

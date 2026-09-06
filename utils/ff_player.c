@@ -266,7 +266,6 @@ int player_init_video(ff_player_t * player, lv_obj_t * lv_obj)
     printf("[ff_player]src: width=%d, height=%d\n", width, height);
     printf("[ff_player]dst: width=%d, height=%d, data_size=%d\n", target_width, target_height, data_size);
 
-    lv_img_set_src(player->video_area, &(player->img_dsc));
 
     //这个比BILINEAR快得多，会牺牲一些画质
     int swsFlags = SWS_FAST_BILINEAR;
@@ -283,6 +282,8 @@ int player_init_video(ff_player_t * player, lv_obj_t * lv_obj)
         ret = -9;
         goto cleanup;
     }
+
+    lv_img_set_src(player->video_area, &(player->img_dsc));
     
     ret = 0;
     return ret;
@@ -333,12 +334,6 @@ static int ffmpeg_image_allocate(ff_player_t * player)
                             lv_obj_get_height(player->video_area),
                             player->video_dst_pix_fmt, 
                             4);
-    av_image_fill_black(player->video_dst_data, 
-                            player->video_dst_linesize,
-                            player->video_dst_pix_fmt,
-                            AVCOL_RANGE_UNSPECIFIED,
-                            lv_obj_get_width(player->video_area),
-                            lv_obj_get_height(player->video_area));
 
     if(ret < 0) {
         LV_LOG_ERROR("Could not allocate dst raw video buffer");
@@ -425,12 +420,13 @@ static void * player_thread_func(void * arg)
             atomic_store(&player->seek_pos, 0);
             atomic_store(&player->seek_request, true);
             if(player->finish_callback_ptr) {
-                (*player->finish_callback_ptr)(player);
+                lv_async_call(*player->finish_callback_ptr, player);
             }
             continue;
         }
 
         if(packet->stream_index == player->audio_stream_index) {
+            if(!player->audio_codec_ctx) continue;
             //printf("[ff_player] thread audio %d\n", 0);
             ret = avcodec_send_packet(player->audio_codec_ctx, packet);
             if(ret < 0) {
@@ -474,17 +470,18 @@ static void * player_thread_func(void * arg)
         }
 
         if(packet->stream_index == player->video_stream_index) {
-            printf("[ff_player] thread video %d\n", 0);
+            if(!player->video_codec_ctx) continue;
+            //printf("[ff_player] thread video %d\n", 0);
             ret = avcodec_send_packet(player->video_codec_ctx, packet);
-            printf("[ff_player] thread video %d\n", 1);
+            //printf("[ff_player] thread video %d\n", 1);
             if(ret < 0) {
-                printf("[ff_player] thread video %d\n", -1);
+                //printf("[ff_player] thread video %d\n", -1);
                 av_packet_unref(packet);
                 continue;
             }
 
             while(ret >= 0) {
-                printf("[ff_player] thread video %d\n", 2);
+                //printf("[ff_player] thread video %d\n", 2);
                 ret = avcodec_receive_frame(player->video_codec_ctx, frame);
                 if(ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
                     break;
@@ -492,6 +489,7 @@ static void * player_thread_func(void * arg)
                     fprintf(stderr, "[ff_player]视频解码错误\n");
                     break;
                 }
+
                 if (player->mutex_graph) {
                     while (pthread_mutex_trylock(player->mutex_graph) == EBUSY
                              && atomic_load(&player->state) != PLAYER_STOPPED) {
@@ -500,10 +498,14 @@ static void * player_thread_func(void * arg)
                 }
                 sws_scale(player->sws_ctx, (const uint8_t * const *)frame->data, frame->linesize, 0,
                           player->video_codec_ctx->height, player->video_dst_data, player->video_dst_linesize);
+
                 lv_img_cache_invalidate_src(lv_img_get_src(player->video_area));
                 lv_obj_invalidate(player->video_area);
-                if (player->mutex_graph) pthread_mutex_unlock(player->mutex_graph);
-                printf("[ff_player] thread video %d\n", 3);
+
+                if (player->mutex_graph && atomic_load(&player->state) != PLAYER_STOPPED) 
+                    pthread_mutex_unlock(player->mutex_graph);
+
+                //printf("[ff_player] thread video %d\n", 3);
 
                 av_frame_unref(frame);
             }
@@ -564,6 +566,7 @@ int player_stop(ff_player_t * player)
 
     // 清理资源
     if (player->video_area) {
+        lv_img_cache_invalidate_src(lv_img_get_src(player->video_area));
         lv_img_set_src(player->video_area, LV_SYMBOL_STOP);
     }
 

@@ -61,7 +61,6 @@ static lv_obj_t * page_video_obj(VideoPage * page, char * filename)
     if(player_open(page->player, filename) == 0 && player_init_audio(page->player) == 0 &&
        player_init_video(page->player, img) == 0) {
         player_set_finish_callback(page->player, player_finished, page);
-        player_resume(page->player);
     } else
         page->player = NULL;
 
@@ -108,6 +107,8 @@ static lv_obj_t * page_video_obj(VideoPage * page, char * filename)
     lv_obj_add_event_cb(page->btn_back, back_click, LV_EVENT_CLICKED, NULL);
 
     page->timer = lv_timer_create(timer_tick, 250, page);
+
+    if (page->player) player_resume(page->player);
 
     return screen;
 }
