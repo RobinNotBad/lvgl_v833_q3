@@ -53,7 +53,7 @@ static lv_obj_t * page_audio_obj(AudioPage * page, char * filename)
     page->cycle = false;
     audio_enable();
 
-    ff_player_t * player = player_create();
+    ff_player_t * player = player_create(&mutex_graph);
     if(player_open(player, filename) == 0 && player_init_audio(player) == 0) {
         player_resume(player);
         player_set_finish_callback(player, player_finished, page);

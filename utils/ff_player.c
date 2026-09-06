@@ -17,21 +17,19 @@ static bool ffmpeg_pix_fmt_has_alpha(enum AVPixelFormat pix_fmt);
 static bool ffmpeg_pix_fmt_is_yuv(enum AVPixelFormat pix_fmt);
 static int ffmpeg_image_allocate(ff_player_t * player);
 
-ff_player_t * player_create(void)
+ff_player_t * player_create(pthread_mutex_t * mutex_graph)
 {
     ff_player_t * player = malloc(sizeof(ff_player_t));
     if(!player) return NULL;
 
     memset(player, 0, sizeof(ff_player_t));
 
-    // 初始化互斥锁
-    pthread_mutex_init(&player->mutex, NULL);
-
     // 初始化状态
-    player->state = PLAYER_STOPPED;
-    player->seek_request        = false;
-    player->current_pts               = 0;
-    player->finish_callback_ptr       = NULL;
+    atomic_store(&player->state, PLAYER_STOPPED);
+    atomic_store(&player->seek_request, false);
+    atomic_store(&player->current_pts, 0);
+    player->finish_callback_ptr = NULL;
+    player->mutex_graph         = mutex_graph;
 
     return player;
 }
@@ -40,11 +38,8 @@ int player_open(ff_player_t * player, const char * filename)
 {
     if(!player) return -1;
 
-    pthread_mutex_lock(&player->mutex);
-
     // 如果已经在播放，直接返回
-    if(player->state == PLAYER_PLAYING) {
-        pthread_mutex_unlock(&player->mutex);
+    if(atomic_load(&player->state) == PLAYER_PLAYING) {
         return -2;
     }
 
@@ -67,11 +62,9 @@ int player_open(ff_player_t * player, const char * filename)
         goto cleanup;
     }
 
-    pthread_mutex_unlock(&player->mutex);
     return 0;
 
 cleanup:
-    pthread_mutex_unlock(&player->mutex);
     player_stop(player);
     return ret;
 }
@@ -79,9 +72,10 @@ cleanup:
 int player_init_audio(ff_player_t * player)
 {
     if(!player) return -1;
-    pthread_mutex_lock(&player->mutex);
 
     int ret = 0;
+
+    atomic_store(&player->state, PLAYER_PAUSED);
 
     // 查找音频流
     player->audio_stream_index = -1;
@@ -183,19 +177,9 @@ int player_init_audio(ff_player_t * player)
     player->time_base       = audio_stream->time_base;
     player->duration        = audio_stream->duration; // 使用流的duration而不是format_ctx的
 
-    // 创建播放线程
-    player->state = PLAYER_PAUSED;
-    if(pthread_create(&player->player_thread, NULL, player_thread_func, player) != 0) {
-        fprintf(stderr, "[ff_player]无法创建播放线程\n");
-        ret = -1;
-        goto cleanup;
-    }
-
-    pthread_mutex_unlock(&player->mutex);
     return 0;
 
 cleanup:
-    pthread_mutex_unlock(&player->mutex);
     player_stop(player);
     return ret;
 }
@@ -203,8 +187,6 @@ cleanup:
 int player_init_video(ff_player_t * player, lv_obj_t * lv_obj)
 {
     if(!player || !lv_obj) return -1;
-
-    pthread_mutex_lock(&player->mutex);
 
     int ret            = 0;
     player->video_area = lv_obj;
@@ -292,8 +274,6 @@ int player_init_video(ff_player_t * player, lv_obj_t * lv_obj)
         if((width & 0x7) || (height & 0x7) || (target_width & 0x7) || (target_height & 0x7)) swsFlags |= SWS_ACCURATE_RND;
     }
 
-    lv_obj_update_layout(player->video_area);
-
     player->sws_ctx =
         sws_getContext(player->video_codec_ctx->width, player->video_codec_ctx->height,
                        player->video_codec_ctx->pix_fmt, target_width, target_height,
@@ -304,13 +284,11 @@ int player_init_video(ff_player_t * player, lv_obj_t * lv_obj)
         goto cleanup;
     }
     
-    pthread_mutex_unlock(&player->mutex);
     ret = 0;
     return ret;
 
 cleanup:
-    pthread_mutex_unlock(&player->mutex);
-    
+
     if(player->sws_ctx) sws_freeContext(player->sws_ctx);
 
     if(player->video_codec_ctx) avcodec_free_context(&player->video_codec_ctx);
@@ -355,6 +333,12 @@ static int ffmpeg_image_allocate(ff_player_t * player)
                             lv_obj_get_height(player->video_area),
                             player->video_dst_pix_fmt, 
                             4);
+    av_image_fill_black(player->video_dst_data, 
+                            player->video_dst_linesize,
+                            player->video_dst_pix_fmt,
+                            AVCOL_RANGE_UNSPECIFIED,
+                            lv_obj_get_width(player->video_area),
+                            lv_obj_get_height(player->video_area));
 
     if(ret < 0) {
         LV_LOG_ERROR("Could not allocate dst raw video buffer");
@@ -394,6 +378,7 @@ static bool ffmpeg_pix_fmt_is_yuv(enum AVPixelFormat pix_fmt)
 
 static void * player_thread_func(void * arg)
 {
+    printf("[ff_player] thread start %d\n", 0);
     ff_player_t * player = (ff_player_t *)arg;
 
     AVPacket * packet = av_packet_alloc();
@@ -408,29 +393,27 @@ static void * player_thread_func(void * arg)
         fprintf(stderr, "[ff_player]无法分配音频缓冲区\n");
         goto cleanup;
     }
+    printf("[ff_player] thread start %d\n", 1);
 
     while(1) {
-        pthread_mutex_lock(&player->mutex);
-        if(player->state == PLAYER_STOPPED) {
-            pthread_mutex_unlock(&player->mutex);
+        if(atomic_load(&player->state) == PLAYER_STOPPED) {
             break;
         }
 
         // 检查跳转请求
-        if(player->seek_request) {
-            int64_t seek_target = player->seek_pos;
+        if(atomic_load(&player->seek_request)) {
+            int64_t seek_target = atomic_load(&player->seek_pos);
             if(av_seek_frame(player->format_ctx, player->audio_stream_index, seek_target, AVSEEK_FLAG_BACKWARD) < 0) {
                 fprintf(stderr, "[ff_player]跳转失败\n");
             } else {
                 avcodec_flush_buffers(player->audio_codec_ctx);
                 if(player->video_codec_ctx) avcodec_flush_buffers(player->video_codec_ctx);
-                player->current_pts = seek_target;
+                atomic_store(&player->current_pts, seek_target);
             }
-            player->seek_request = false;
+            atomic_store(&player->seek_request, false);
         }
         // 检查暂停状态
-        if(player->state == PLAYER_PAUSED) {
-            pthread_mutex_unlock(&player->mutex);
+        if(atomic_load(&player->state) == PLAYER_PAUSED) {
             usleep(100000); // 100ms
             continue;
         }
@@ -438,18 +421,17 @@ static void * player_thread_func(void * arg)
         int ret = av_read_frame(player->format_ctx, packet);
         // 文件结束或错误
         if(ret < 0) {
-            player->state = PLAYER_PAUSED;
-            player->seek_pos = 0;
-            player->seek_request = true;
-            pthread_mutex_unlock(&player->mutex);
+            atomic_store(&player->state, PLAYER_PAUSED);
+            atomic_store(&player->seek_pos, 0);
+            atomic_store(&player->seek_request, true);
             if(player->finish_callback_ptr) {
                 (*player->finish_callback_ptr)(player);
             }
             continue;
         }
-        pthread_mutex_unlock(&player->mutex);
 
         if(packet->stream_index == player->audio_stream_index) {
+            //printf("[ff_player] thread audio %d\n", 0);
             ret = avcodec_send_packet(player->audio_codec_ctx, packet);
             if(ret < 0) {
                 av_packet_unref(packet);
@@ -466,9 +448,7 @@ static void * player_thread_func(void * arg)
                 }
 
                 // 更新当前播放位置
-                pthread_mutex_lock(&player->mutex);
-                player->current_pts = frame->pts;
-                pthread_mutex_unlock(&player->mutex);
+                atomic_store(&player->current_pts, frame->pts);
 
                 // 重采样
                 uint8_t * out_data[1] = {audio_buffer};
@@ -494,13 +474,17 @@ static void * player_thread_func(void * arg)
         }
 
         if(packet->stream_index == player->video_stream_index) {
+            printf("[ff_player] thread video %d\n", 0);
             ret = avcodec_send_packet(player->video_codec_ctx, packet);
+            printf("[ff_player] thread video %d\n", 1);
             if(ret < 0) {
+                printf("[ff_player] thread video %d\n", -1);
                 av_packet_unref(packet);
                 continue;
             }
 
             while(ret >= 0) {
+                printf("[ff_player] thread video %d\n", 2);
                 ret = avcodec_receive_frame(player->video_codec_ctx, frame);
                 if(ret == AVERROR(EAGAIN) || ret == AVERROR_EOF)
                     break;
@@ -508,21 +492,18 @@ static void * player_thread_func(void * arg)
                     fprintf(stderr, "[ff_player]视频解码错误\n");
                     break;
                 }
-
+                if (player->mutex_graph) {
+                    while (pthread_mutex_trylock(player->mutex_graph) == EBUSY
+                             && atomic_load(&player->state) != PLAYER_STOPPED) {
+                        usleep(1000);
+                    }
+                }
                 sws_scale(player->sws_ctx, (const uint8_t * const *)frame->data, frame->linesize, 0,
                           player->video_codec_ctx->height, player->video_dst_data, player->video_dst_linesize);
-
-                // 更新 LVGL 图像（需要线程安全）
-                // 然而线程不安全是能跑的，async_call反而会崩（因为有些东西没处理好，以后再说，反正现在能用了）
                 lv_img_cache_invalidate_src(lv_img_get_src(player->video_area));
                 lv_obj_invalidate(player->video_area);
-                /*
-                while(player->video_refresh_request) {
-                    usleep(2000);
-                }
-                player->video_refresh_request = true;
-                lv_async_call(video_refresh_cb, player);
-                */
+                if (player->mutex_graph) pthread_mutex_unlock(player->mutex_graph);
+                printf("[ff_player] thread video %d\n", 3);
 
                 av_frame_unref(frame);
             }
@@ -544,15 +525,11 @@ int player_pause(ff_player_t * player)
 {
     if(!player) return -1;
 
-    pthread_mutex_lock(&player->mutex);
-    if(player->state == PLAYER_PLAYING) {
-        player->state = PLAYER_PAUSED;
-        pthread_mutex_unlock(&player->mutex);
-
+    if(atomic_load(&player->state) == PLAYER_PLAYING) {
+        atomic_store(&player->state, PLAYER_PAUSED);
         snd_pcm_pause(player->pcm_handle, 1);
         return 0;
     }
-    pthread_mutex_unlock(&player->mutex);
     return -1;
 }
 
@@ -560,15 +537,14 @@ int player_resume(ff_player_t * player)
 {
     if(!player) return -1;
 
-    pthread_mutex_lock(&player->mutex);
-    if(player->state == PLAYER_PAUSED) {
-        player->state = PLAYER_PLAYING;
-        pthread_mutex_unlock(&player->mutex);
+    if(atomic_load(&player->state) == PLAYER_PAUSED) {
+        atomic_store(&player->state, PLAYER_PLAYING);
+
+        if (!player->player_thread) pthread_create(&player->player_thread, NULL, player_thread_func, player);
 
         snd_pcm_pause(player->pcm_handle, 0);
         return 0;
     }
-    pthread_mutex_unlock(&player->mutex);
     return -1;
 }
 
@@ -576,21 +552,19 @@ int player_stop(ff_player_t * player)
 {
     if(!player) return -1;
 
-    pthread_mutex_lock(&player->mutex);
-
-    player->state = PLAYER_STOPPED;
-
-    pthread_mutex_unlock(&player->mutex);
+    //printf("[ff_player] stop %d\n", 0);
+    atomic_store(&player->state, PLAYER_STOPPED);
 
     // 等待线程结束
     if(player->player_thread) {
         pthread_join(player->player_thread, NULL);
         player->player_thread = 0;
+        //printf("[ff_player] stop %d\n", 3);
     }
 
     // 清理资源
     if (player->video_area) {
-        lv_img_cache_invalidate_src(lv_img_get_src(player->video_area));
+        lv_img_set_src(player->video_area, LV_SYMBOL_STOP);
     }
 
     if(player->pcm_handle) {
@@ -641,20 +615,18 @@ int player_seek_pct(ff_player_t * player, double percent)
 {
     if(!player) return -1;
 
-    pthread_mutex_lock(&player->mutex);
     int64_t target_pts = (int64_t)(player->duration * percent / 100.0);
-    int64_t now_pts    = player->current_pts;
+    int64_t now_pts    = atomic_load(&player->current_pts);
 
     LV_LOG_USER("[ff_player]now=%lld, duration=%lld\n", (long long)now_pts, (long long)player->duration);
 
-    if(!player || player->state == PLAYER_STOPPED) return -1;
+    if(!player || atomic_load(&player->state) == PLAYER_STOPPED) return -1;
     if(target_pts < 0) target_pts = 0;
     if(target_pts > player->duration) target_pts = player->duration;
 
-    player->seek_pos     = target_pts;
-    player->seek_request = true;
+    atomic_store(&player->seek_pos, target_pts);
+    atomic_store(&player->seek_request, true);
 
-    pthread_mutex_unlock(&player->mutex);
     return 0;
 }
 
@@ -663,32 +635,26 @@ int player_seek_ms(ff_player_t * player, int64_t target_ms)
 {
     if(!player) return -1;
 
-    pthread_mutex_lock(&player->mutex);
-    if(player->state != PLAYER_STOPPED) {
+    if(atomic_load(&player->state) != PLAYER_STOPPED) {
         int64_t target_pts = target_ms * (AV_TIME_BASE / 1000);
-        int64_t now_pts    = player->current_pts;
+        int64_t now_pts    = atomic_load(&player->current_pts);
 
         LV_LOG_USER("[ff_player]now=%lld, duration=%lld\n", (long long)now_pts, (long long)player->duration);
-        if(!player || target_pts < 0 || target_pts > player->duration || player->state == PLAYER_STOPPED)
+        if(!player || target_pts < 0 || target_pts > player->duration || atomic_load(&player->state) == PLAYER_STOPPED)
             return -1;
-        player->seek_pos     = target_pts;
-        player->seek_request = true;
+        
+        atomic_store(&player->seek_pos, target_pts);
+        atomic_store(&player->seek_request, true);
 
-        pthread_mutex_unlock(&player->mutex);
         return 0;
     }
-    pthread_mutex_unlock(&player->mutex);
     return -1;
 }
 
 int64_t player_get_position_ms(ff_player_t * player)
 {
     if(!player || player->duration <= 0) return 0;
-
-    pthread_mutex_lock(&player->mutex);
-    int64_t current = player->current_pts;
-    pthread_mutex_unlock(&player->mutex);
-    return current / (AV_TIME_BASE / 1000);
+    return atomic_load(&player->current_pts) / (AV_TIME_BASE / 1000);
 }
 
 int64_t player_get_duration_ms(ff_player_t * player)
@@ -700,21 +666,13 @@ int64_t player_get_duration_ms(ff_player_t * player)
 double player_get_position_pct(ff_player_t * player)
 {
     if(!player || player->duration <= 0) return 0.0;
-
-    pthread_mutex_lock(&player->mutex);
-    int64_t current = player->current_pts;
-    pthread_mutex_unlock(&player->mutex);
-    return (double)current / player->duration * 100.0;
+    return (double)atomic_load(&player->current_pts) / player->duration * 100.0;
 }
 
 player_state_t player_get_state(ff_player_t * player)
 {
     if(!player) return PLAYER_STOPPED;
-
-    pthread_mutex_lock(&player->mutex);
-    player_state_t ret = player->state;
-    pthread_mutex_unlock(&player->mutex);
-    return ret;
+    return (player_state_t)atomic_load(&player->state);
 }
 
 void player_destroy(ff_player_t * player)
@@ -731,7 +689,7 @@ void player_destroy(ff_player_t * player)
     player->finish_callback_ptr = NULL;
     player->user_data            = NULL;
 
-    pthread_mutex_destroy(&player->mutex);
+    //pthread_mutex_destroy(&player->mutex_data);
     free(player);
 }
 

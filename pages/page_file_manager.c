@@ -195,11 +195,12 @@ static void explorer_event_handler(lv_event_t * e)
             page_open(page_midi_create(file_name));
         } else if(file_ext_match(file_name, TEXT_FILE_EXT)) {
             page_open(page_txt_create(file_name));
+        } else {
+            page_open(page_selector_create(file_name));
         }
         
-    }
-
-    if(code == LV_EVENT_LONG_PRESSED) {
+    } 
+    else if(code == LV_EVENT_LONG_PRESSED) {
         printf("[file_manager] long-pressed %s\n", file_name);
         lv_label_set_text(page->label_file_name, sel_fn);
         lv_obj_clear_flag(page->container_act, LV_OBJ_FLAG_HIDDEN);

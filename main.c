@@ -34,6 +34,8 @@
 #include "pages/page_ftp.h"
 */
 
+pthread_mutex_t mutex_graph;
+
 char homepath[PATH_MAX_LENGTH];
 
 uint32_t ts_sleep = -1;
@@ -105,6 +107,8 @@ int main(int argc, char * argv[])
     setenv("TZ", "CST-8", 1);
     tzset();
 
+    pthread_mutex_init(&mutex_graph, NULL);
+
     lv_init();
 
     // 屏幕（含lcd和触摸）
@@ -167,7 +171,11 @@ int main(int argc, char * argv[])
             key_read_power();
             if(ts_sleep == -1) {
                 // 亮
+                pthread_mutex_lock(&mutex_graph);
+                printf("[main] refresh %d\n", 0);
                 lv_timer_handler();
+                printf("[main] refresh %d\n", 1);
+                pthread_mutex_unlock(&mutex_graph);
                 lcd_refresh(); // 放在fbdev里不合适，反而会增大cpu占用且变卡，神金啊
                 lcd_detect_timeout();
                 usleep(5000);
