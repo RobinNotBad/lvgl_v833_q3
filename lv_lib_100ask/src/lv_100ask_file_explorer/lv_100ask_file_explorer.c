@@ -580,11 +580,13 @@ static void brower_file_event_handler(lv_event_t * e)
         uint16_t row;  // 行
         uint16_t col;  // 列
         lv_table_get_selected_cell(explorer->file_list, &row, &col);
+        if(row == LV_TABLE_CELL_NONE || col == LV_TABLE_CELL_NONE) return;
 
         char * str_fn = lv_table_get_cell_value(explorer->file_list, row, col);
+        if(strlen(str_fn) <= 5)  return;
         str_fn += 5;    // 图标占3位，加上2个空格，因此总计向后移5位
 
-        if((strlen(str_fn) == 0) || (strcmp(str_fn, ".") == 0))  return;
+        if(strcmp(str_fn, ".") == 0)  return;
         
         if((strcmp(str_fn, "..") == 0) && (strlen(explorer->cur_path) > 3))
         {
@@ -618,20 +620,21 @@ static void brower_file_event_handler(lv_event_t * e)
     }
     else if(code == LV_EVENT_LONG_PRESSED) {
         explorer->long_pressed = true;
-        char * str_fn = NULL;
-        uint16_t row;
-        uint16_t col;
-
+        
+        uint16_t row = LV_TABLE_CELL_NONE;  // 行
+        uint16_t col = LV_TABLE_CELL_NONE;  // 列
         lv_table_get_selected_cell(explorer->file_list, &row, &col);
-        str_fn = lv_table_get_cell_value(explorer->file_list, row, col);
+        if(row == LV_TABLE_CELL_NONE || col == LV_TABLE_CELL_NONE) return;
 
-        str_fn = str_fn+5;
-        if((strcmp(str_fn, ".") == 0) || (strcmp(str_fn, "..") == 0))  return;
+        char * str_fn = lv_table_get_cell_value(explorer->file_list, row, col);
+        if(strlen(str_fn) <= 5)  return;
+        str_fn += 5;    // 图标占3位，加上2个空格，因此总计向后移5位
 
-        if(strcmp(str_fn, "..") != 0) {
-            explorer->sel_fp = str_fn;
-            lv_event_send(obj, LV_EVENT_LONG_PRESSED, e->user_data);
-        }
+        if(strcmp(str_fn, ".") == 0 || strcmp(str_fn, "..") == 0) return;
+
+        explorer->sel_fp = str_fn;
+        lv_event_send(obj, LV_EVENT_LONG_PRESSED, e->user_data);
+
     }
 }
 
@@ -717,7 +720,7 @@ static void show_dir(lv_obj_t * obj, char * path)
     size_t cur_path_len = strlen(explorer->cur_path);
     if((*((explorer->cur_path) + cur_path_len) != '/') && (cur_path_len < LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN)) {
         *((explorer->cur_path) + cur_path_len) = '/';
-    }  
+    }
 }
 
 
