@@ -420,7 +420,16 @@ static void * player_thread_func(void * arg)
             atomic_store(&player->seek_pos, 0);
             atomic_store(&player->seek_request, true);
             if(player->finish_callback_ptr) {
-                lv_async_call(*player->finish_callback_ptr, player);
+                bool locked = false;
+                if (player->mutex_graph) {
+                    while (pthread_mutex_trylock(player->mutex_graph) == EBUSY
+                             && atomic_load(&player->state) != PLAYER_STOPPED) {
+                        usleep(1000);
+                    }
+                    locked = true;
+                }
+                (*player->finish_callback_ptr)(player);
+                if (locked) pthread_mutex_unlock(player->mutex_graph);
             }
             continue;
         }
