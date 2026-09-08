@@ -15,20 +15,20 @@
 
 static void * midi_thread_func(void * arg);
 
-midi_player_t * midi_create(const char * config_file)
+midi_player_t * midi_create(pthread_mutex_t * mutex_graph, const char * config_file)
 {
     midi_player_t * player = malloc(sizeof(midi_player_t));
     if(!player) return NULL;
 
     memset(player, 0, sizeof(midi_player_t));
 
-    // 初始化互斥锁
-    pthread_mutex_init(&player->mutex, NULL);
-
     // 初始化状态
-    player->state = MIDI_STOPPED;
-    player->seek_request        = false;
+    atomic_store(&player->progress, 0);
+    player->duration = 0;
+    atomic_store(&player->state, MIDI_STOPPED);
+    atomic_store(&player->seek_request, false);
     player->config_file = strdup(config_file);
+    player->mutex_graph = mutex_graph;
 
     return player;
 }
@@ -37,11 +37,8 @@ int midi_open(midi_player_t * player, const char * filename)
 {
     if(!player) return -1;
 
-    pthread_mutex_lock(&player->mutex);
-
     // 如果已经在播放，直接返回
-    if(player->state == MIDI_PLAYING) {
-        pthread_mutex_unlock(&player->mutex);
+    if(atomic_load(&player->state) == MIDI_PLAYING) {
         return -2;
     }
 
@@ -80,12 +77,12 @@ int midi_open(midi_player_t * player, const char * filename)
     mid_istream_close(player->midi_stream);
     player->midi_stream = NULL;
     mid_song_start(player->song);
+    
+    player->duration = mid_song_get_total_time(player->song);
 
-    pthread_mutex_unlock(&player->mutex);
     return 0;
 
 cleanup:
-    pthread_mutex_unlock(&player->mutex);
     midi_stop(player);
     return ret;
 }
@@ -93,7 +90,6 @@ cleanup:
 int midi_init(midi_player_t * player)
 {
     if(!player) return -1;
-    pthread_mutex_lock(&player->mutex);
 
     int ret = 0;
 
@@ -128,7 +124,7 @@ int midi_init(midi_player_t * player)
     }
 
     // 创建播放线程
-    player->state = MIDI_PAUSED;
+    atomic_store(&player->state, MIDI_PAUSED);
 
     if(pthread_create(&player->player_thread, NULL, midi_thread_func, player) != 0) {
         fprintf(stderr, "[midi_player] 无法创建播放线程\n");
@@ -136,11 +132,9 @@ int midi_init(midi_player_t * player)
         goto cleanup;
     }
 
-    pthread_mutex_unlock(&player->mutex);
     return 0;
 
 cleanup:
-    pthread_mutex_unlock(&player->mutex);
     midi_stop(player);
     return ret;
 }
@@ -156,40 +150,51 @@ static void * midi_thread_func(void * arg)
     }
 
     while(1) {
-        pthread_mutex_lock(&player->mutex);
-        if(player->state == MIDI_STOPPED) {
-            pthread_mutex_unlock(&player->mutex);
+        if(atomic_load(&player->state) == MIDI_STOPPED) {
             break;
         }
 
         // 检查跳转请求
-        if(player->seek_request) {
-            if(player->seek_pos != 0) mid_song_seek(player->song, player->seek_pos);
+        if(atomic_load(&player->seek_request)) {
+            if(atomic_load(&player->seek_pos) != 0) mid_song_seek(player->song, atomic_load(&player->seek_pos));
             else mid_song_start(player->song);
             // timidity在结束后不能直接seek，需要重新初始化
-            player->seek_request = false;
+            atomic_store(&player->seek_request, false);
         }
         // 检查暂停状态
-        if(player->state == MIDI_PAUSED) {
-            pthread_mutex_unlock(&player->mutex);
+        if(atomic_load(&player->state) == MIDI_PAUSED) {
             usleep(100000); // 100ms
             continue;
         }
 
         long bytes_read = mid_song_read_wave(player->song, audio_buffer, BUFFER_SIZE * player->channels * 2);
 
+
         // 文件结束或错误
         if(bytes_read <= 0) {
-            player->state        = MIDI_PAUSED;
-            player->seek_request = true;
-            player->seek_pos     = 0;
-            pthread_mutex_unlock(&player->mutex);
+            snd_pcm_drain(player->pcm_handle);
+            snd_pcm_drop(player->pcm_handle);
+            snd_pcm_prepare(player->pcm_handle);
+            atomic_store(&player->state, MIDI_PAUSED);
+            atomic_store(&player->progress, 0);
+            atomic_store(&player->seek_pos, 0);
+            atomic_store(&player->seek_request, true);
             if(player->finish_callback_ptr) {
+                bool locked = false;
+                if (player->mutex_graph) {
+                    while (pthread_mutex_trylock(player->mutex_graph) == EBUSY
+                             && atomic_load(&player->state) != MIDI_STOPPED) {
+                        usleep(1000);
+                    }
+                    locked = true;
+                }
                 (*player->finish_callback_ptr)(player);
+                if (locked) pthread_mutex_unlock(player->mutex_graph);
             }
             continue;
         }
-        pthread_mutex_unlock(&player->mutex);
+
+        atomic_store(&player->progress, mid_song_get_time(player->song));
 
         int frames = bytes_read / 4;
 
@@ -198,17 +203,17 @@ static void * midi_thread_func(void * arg)
 
         if(err == -EPIPE) {
             // 缓冲区欠载，尝试恢复
-            fprintf(stderr, "[midi_player] 缓冲区欠载，正在恢复\n");
+            fprintf(stderr, "[alsa] 缓冲区欠载，正在恢复\n");
             snd_pcm_prepare(player->pcm_handle);
 
             // 重试写入
             err = snd_pcm_writei(player->pcm_handle, audio_buffer, frames);
             if(err < 0) {
-                fprintf(stderr, "[midi_player] 恢复失败：%s\n", snd_strerror(err));
+                fprintf(stderr, "[alsa] 恢复失败：%s\n", snd_strerror(err));
                 break;
             }
         } else if(err < 0) {
-            fprintf(stderr, "[midi_player] 写入PCM设备失败：%s\n", snd_strerror(err));
+            fprintf(stderr, "[alsa] 写入PCM设备失败：%s\n", snd_strerror(err));
             break;
         }
     }
@@ -223,10 +228,8 @@ int midi_pause(midi_player_t * player)
 {
     if(!player) return -1;
 
-    if(player->state == MIDI_PLAYING) {
-        pthread_mutex_lock(&player->mutex);
-        player->state = MIDI_PAUSED;
-        pthread_mutex_unlock(&player->mutex);
+    if(atomic_load(&player->state) == MIDI_PLAYING) {
+        atomic_store(&player->state, MIDI_PAUSED);
         snd_pcm_pause(player->pcm_handle, 1);
         return 0;
     }
@@ -237,10 +240,8 @@ int midi_resume(midi_player_t * player)
 {
     if(!player) return -1;
 
-    if(player->state == MIDI_PAUSED) {
-        pthread_mutex_lock(&player->mutex);
-        player->state = MIDI_PLAYING;
-        pthread_mutex_unlock(&player->mutex);
+    if(atomic_load(&player->state) == MIDI_PAUSED) {
+        atomic_store(&player->state, MIDI_PLAYING);
         snd_pcm_pause(player->pcm_handle, 0);
         return 0;
     }
@@ -251,9 +252,7 @@ int midi_stop(midi_player_t * player)
 {
     if(!player) return -1;
 
-    pthread_mutex_lock(&player->mutex);
-    player->state = MIDI_STOPPED;
-    pthread_mutex_unlock(&player->mutex);
+    atomic_store(&player->state, MIDI_STOPPED);
 
     // 等待线程结束
     if(player->player_thread) {
@@ -262,7 +261,7 @@ int midi_stop(midi_player_t * player)
     }
 
     if(player->pcm_handle) {
-        snd_pcm_drain(player->pcm_handle);
+        snd_pcm_drop(player->pcm_handle);
         snd_pcm_close(player->pcm_handle);
         player->pcm_handle = NULL;
     }
@@ -298,44 +297,33 @@ int midi_seek_ms(midi_player_t * player, uint32_t ms)
 
     LV_LOG_USER("[midi_player] now=%d, duration=%d\n", ms, midi_get_duration_ms(player));
 
-    pthread_mutex_lock(&player->mutex);
-    player->seek_pos     = ms;
-    player->seek_request = true;
-    pthread_mutex_unlock(&player->mutex);
+    atomic_store(&player->seek_pos, ms);
+    atomic_store(&player->seek_request, true);
     return 0;
 }
 
 double midi_get_position_pct(midi_player_t * player)
 {
-    if(!player) return 0.0;
+    if(!player || midi_get_duration_ms(player) == 0) return 0.0;
     return (double)midi_get_progress_ms(player) / midi_get_duration_ms(player) * 100.0;
 }
 
 uint32_t midi_get_progress_ms(midi_player_t * player)
 {
-    if(!player || !player->song) return 0;
-
-    pthread_mutex_lock(&player->mutex);
-    uint32_t ret = mid_song_get_time(player->song);
-    pthread_mutex_unlock(&player->mutex);
-    return ret;
+    if(!player) return 0;
+    return atomic_load(&player->progress);
 }
 
 uint32_t midi_get_duration_ms(midi_player_t * player)
 {
-    if(!player || !player->song) return 0;
-    pthread_mutex_lock(&player->mutex);
-    uint32_t ret = mid_song_get_total_time(player->song);
-    pthread_mutex_unlock(&player->mutex);
-    return ret;
+    if(!player) return 0;
+    return player->duration;
 }
 
 midi_state_t midi_get_state(midi_player_t * player)
 {
     if(!player) return MIDI_STOPPED;
-    pthread_mutex_lock(&player->mutex);
-    midi_state_t ret = player->state;
-    pthread_mutex_unlock(&player->mutex);
+    midi_state_t ret = atomic_load(&player->state);
     return ret;
 }
 
@@ -358,7 +346,6 @@ void midi_destroy(midi_player_t * player)
     player->finish_callback_ptr = NULL;
     player->user_data            = NULL;
 
-    pthread_mutex_destroy(&player->mutex);
     free(player);
 }
 

@@ -7,6 +7,7 @@
 #include <string.h>
 #include <pthread.h>
 #include <unistd.h>
+#include <stdatomic.h>
 
 #include "timidity.h"
 #include <alsa/asoundlib.h>
@@ -27,11 +28,13 @@ typedef struct
     int channels;
 
     // 播放控制
-    volatile int state;
-    volatile bool seek_request;
-    volatile uint32_t seek_pos;
+    atomic_int state;
+    atomic_bool seek_request;
+    _Atomic uint32_t seek_pos;
+    _Atomic uint32_t progress;
+    uint32_t duration;
     pthread_t player_thread;
-    pthread_mutex_t mutex;
+    pthread_mutex_t * mutex_graph;
 
     char * filename;
     char * config_file;
@@ -41,7 +44,7 @@ typedef struct
 } midi_player_t;
 
 // 函数声明
-midi_player_t * midi_create(const char * config_file);
+midi_player_t * midi_create(pthread_mutex_t * mutex_graph, const char * config_file);
 int midi_open(midi_player_t * player, const char * filename);
 int midi_init(midi_player_t * player);
 int midi_pause(midi_player_t * player);
