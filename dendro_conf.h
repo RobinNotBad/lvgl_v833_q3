@@ -47,6 +47,11 @@ extern "C" {
 #define THEME_COLOR 0xff78c05d
 
 /**
+ * 字体颜色
+ */
+#define TEXT_COLOR lv_color_white()
+
+/**
  * MIDI配置文件
  */
 #define TIMIDITY_CFG_DEFAULT "/mnt/app/dendro/midi/timidity.cfg"
