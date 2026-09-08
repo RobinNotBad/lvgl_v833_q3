@@ -416,6 +416,9 @@ static void * player_thread_func(void * arg)
         int ret = av_read_frame(player->format_ctx, packet);
         // 文件结束或错误
         if(ret < 0) {
+            snd_pcm_drain(player->pcm_handle);
+            snd_pcm_drop(player->pcm_handle);
+            snd_pcm_prepare(player->pcm_handle);
             atomic_store(&player->state, PLAYER_PAUSED);
             atomic_store(&player->seek_pos, 0);
             atomic_store(&player->seek_request, true);
@@ -462,13 +465,23 @@ static void * player_thread_func(void * arg)
 
                 if(out_samples > 0) {
 
-                    // 写入ALSA设备
-                    snd_pcm_sframes_t frames_written = snd_pcm_writei(player->pcm_handle, audio_buffer, out_samples);
-                    if(frames_written < 0) {
-                        frames_written = snd_pcm_recover(player->pcm_handle, frames_written, 0);
-                        if(frames_written < 0) {
-                            fprintf(stderr, "[ff_player]写入PCM设备错误: %s\n", snd_strerror(frames_written));
+                    // 写入PCM设备
+                    int err = snd_pcm_writei(player->pcm_handle, audio_buffer, out_samples);
+
+                    if(err == -EPIPE) {
+                        // 缓冲区欠载，尝试恢复
+                        fprintf(stderr, "[alsa] 缓冲区欠载，正在恢复\n");
+                        snd_pcm_prepare(player->pcm_handle);
+
+                        // 重试写入
+                        err = snd_pcm_writei(player->pcm_handle, audio_buffer, out_samples);
+                        if(err < 0) {
+                            fprintf(stderr, "[alsa] 恢复失败：%s\n", snd_strerror(err));
+                            break;
                         }
+                    } else if(err < 0) {
+                        fprintf(stderr, "[alsa] 写入PCM设备失败：%s\n", snd_strerror(err));
+                        break;
                     }
                 }
 
@@ -581,7 +594,7 @@ int player_stop(ff_player_t * player)
     }
 
     if(player->pcm_handle) {
-        snd_pcm_drain(player->pcm_handle);
+        snd_pcm_drop(player->pcm_handle);
         snd_pcm_close(player->pcm_handle);
         player->pcm_handle = NULL;
     }

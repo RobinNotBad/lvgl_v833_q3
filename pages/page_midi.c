@@ -57,9 +57,8 @@ static lv_obj_t * page_midi_obj(MidiPage * page, char * filename)
     char * timidity_cfg = NULL;
     config_read_string(CFG_FILE_MAIN, CFG_TIMIDITY_CFG, TIMIDITY_CFG_DEFAULT, &timidity_cfg);
 
-    midi_player_t * player = midi_create(timidity_cfg);
+    midi_player_t * player = midi_create(&mutex_graph, timidity_cfg);
     if(midi_open(player, filename) == 0 && midi_init(player) == 0) {
-        midi_resume(player);
         midi_set_finish_callback(player, player_finished, page);
         page->player = player;
     } else
@@ -131,6 +130,8 @@ static lv_obj_t * page_midi_obj(MidiPage * page, char * filename)
     lv_obj_center(btn_cycle_label);
     lv_obj_add_event_cb(btn_cycle, cycle_click, LV_EVENT_CLICKED, page);
     page->btn_cycle_label = btn_cycle_label;
+
+    if (player) midi_resume(player);
 
     page->timer = lv_timer_create(timer_tick, 250, page);
 

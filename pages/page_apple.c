@@ -105,10 +105,10 @@ static lv_obj_t * page_video_obj(VideoPage * page, char * filename)
     lv_label_set_text(btn_back_label, CUSTOM_SYMBOL_BACK "");
     lv_obj_center(btn_back_label);
     lv_obj_add_event_cb(page->btn_back, back_click, LV_EVENT_CLICKED, NULL);
+    
+    if (page->player) player_resume(page->player);
 
     page->timer = lv_timer_create(timer_tick, 250, page);
-
-    if (page->player) player_resume(page->player);
 
     return screen;
 }
