@@ -136,7 +136,10 @@ int main(int argc, char * argv[])
         style_default = malloc(sizeof(lv_style_t));
         lv_style_init(style_default);
         lv_style_set_text_font(style_default, font);
+        lv_style_set_text_color(style_default, TEXT_COLOR);
         lv_obj_add_style(lv_scr_act(), style_default, 0);
+        lv_obj_add_style(lv_layer_top(), style_default, 0);
+        lv_obj_add_style(lv_layer_sys(), style_default, 0);
     }
 
     // 配置文件
