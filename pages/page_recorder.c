@@ -11,11 +11,13 @@ typedef struct
 {
     BasePage base;
     recorder_t * recorder;
+    lv_obj_t * btn_control;
     lv_obj_t * btn_control_label;
     lv_obj_t * label_status;
     lv_obj_t * label_filename;
     lv_timer_t * timer;
     bool recording;
+    uint64_t home_down_time;
     time_t start_time;
     char dir[PATH_MAX_LENGTH];
     char filename[PATH_MAX_LENGTH];
@@ -26,6 +28,7 @@ static void back_click(lv_event_t * e);
 static void control_click(lv_event_t * e);
 static void timer_tick(lv_timer_t * e);
 static void page_recorder_destroy(void * p);
+static bool page_recorder_on_key(void * p, key_code_t key_code, key_action_t key_action);
 
 BasePage * page_recorder_create(void)
 {
@@ -35,6 +38,7 @@ BasePage * page_recorder_create(void)
 
     page->base.obj        = page_recorder_obj(page);
     page->base.on_destroy = page_recorder_destroy;
+    page->base.on_key     = page_recorder_on_key;
     return (BasePage *)page;
 }
 
@@ -51,30 +55,31 @@ static lv_obj_t * page_recorder_obj(RecorderPage * page)
     snprintf(page->dir, sizeof(page->dir), "/mnt/UDISK/recorder");
 
     lv_obj_t * label_title = lv_label_create(screen);
-    lv_label_set_text(label_title, "Recorder");
     lv_obj_align(label_title, LV_ALIGN_TOP_MID, 0, lv_pct(4));
+    lv_label_set_text(label_title, "Recorder");
 
     lv_obj_t * label_status = lv_label_create(screen);
+    lv_obj_align(label_status, LV_ALIGN_TOP_MID, 0, lv_pct(24));
     if (page->recorder) lv_label_set_text(label_status, "Ready");
     else lv_label_set_text(label_status, "Error");
-    lv_obj_align(label_status, LV_ALIGN_TOP_MID, 0, lv_pct(16));
     page->label_status = label_status;
 
     lv_obj_t * label_filename = lv_label_create(screen);
     lv_obj_set_width(label_filename, lv_pct(85));
+    lv_obj_align(label_filename, LV_ALIGN_TOP_MID, 0, lv_pct(38));
     lv_label_set_long_mode(label_filename, LV_LABEL_LONG_SCROLL_CIRCULAR);
     lv_obj_set_style_text_align(label_filename, LV_TEXT_ALIGN_CENTER, 0);
-    lv_label_set_text(label_filename, "");
-    lv_obj_align(label_filename, LV_ALIGN_TOP_MID, 0, lv_pct(28));
+    lv_label_set_text(label_filename, "Click the button to start");
     page->label_filename = label_filename;
 
     lv_obj_t * btn_control = lv_btn_create(screen);
     lv_obj_set_size(btn_control, lv_pct(40), lv_pct(20));
-    lv_obj_align(btn_control, LV_ALIGN_TOP_MID, 0, lv_pct(48));
+    lv_obj_align(btn_control, LV_ALIGN_TOP_MID, 0, lv_pct(56));
     lv_obj_t * btn_control_label = lv_label_create(btn_control);
     lv_label_set_text(btn_control_label, LV_SYMBOL_PLAY "");
     lv_obj_center(btn_control_label);
     lv_obj_add_event_cb(btn_control, control_click, LV_EVENT_CLICKED, page);
+    page->btn_control = btn_control;
     page->btn_control_label = btn_control_label;
 
     lv_obj_t * btn_back = lv_btn_create(screen);
@@ -100,8 +105,8 @@ static void control_click(lv_event_t * e)
 
         time_t now = time(NULL);
         struct tm * tm = localtime(&now);
-        char name[64];
-        strftime(name, sizeof(name), "%Y-%m-%d %H-%M-%S.aac", tm);
+        char name[32];
+        strftime(name, sizeof(name), "%Y%m%d-%H%M%S.aac", tm);
         snprintf(page->filename, sizeof(page->filename), "%s/%s", page->dir, name);
 
 
@@ -109,6 +114,7 @@ static void control_click(lv_event_t * e)
         if (ret == 0) {
             page->start_time = now;
             page->recording  = true;
+            lv_label_set_text(page->label_status, "Started");
             lv_label_set_text(page->btn_control_label, LV_SYMBOL_STOP "");
             lv_label_set_text(page->label_filename, page->filename);
         } else {
@@ -139,6 +145,35 @@ static void timer_tick(lv_timer_t * e)
 static void back_click(lv_event_t * e)
 {
     page_back();
+}
+
+static bool page_recorder_on_key(void * p, key_code_t key_code, key_action_t key_action)
+{
+    if(!p) return false;
+    if(key_code != KEY_CODE_HOME) return false;
+
+    RecorderPage * page = (RecorderPage *)p;
+    if(!page || !page->recorder) return false;
+
+    // 使用一点小巧思，实现了点按、长按都支持
+    uint64_t now = ms_get();
+    if(key_action == KEY_ACTION_DOWN) {
+        // 按下 HOME 键时，如果不是正在录音，那么开始录音
+        if(!page->recording) {
+            page->home_down_time = now;
+            lv_event_send(page->btn_control, LV_EVENT_CLICKED, NULL);
+        }
+    }
+    if(key_action == KEY_ACTION_UP) {
+        // 抬起 HOME 键时，如果正在录音且录音长于 300ms，那么停止录音
+        if(page->recording) {
+            if(now - page->home_down_time > 300) {
+                lv_event_send(page->btn_control, LV_EVENT_CLICKED, NULL);
+            }
+        }
+    }
+
+    return true;
 }
 
 static void page_recorder_destroy(void * p)
