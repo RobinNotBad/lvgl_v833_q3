@@ -8,12 +8,14 @@
 #include "page_usb.h"
 #include "page_settings_main.h"
 #include "page_2048.h"
+#include "page_recorder.h"
 #include "main.h"
 
 static void btn_demo_click(lv_event_t * e);
 static void btn_back_click(lv_event_t * e);
 static void btn_file_manager_click(lv_event_t * e);
 static void btn_calculator_click(lv_event_t * e);
+static void btn_recorder_click(lv_event_t * e);
 static void btn_bird_click(lv_event_t * e);
 static void btn_2048_click(lv_event_t * e);
 static void btn_ftp_click(lv_event_t * e);
@@ -66,6 +68,14 @@ lv_obj_t * page_menu(void)
     lv_label_set_text(btn_label_calculator, "Calculator");
     lv_obj_center(btn_label_calculator);
     lv_obj_add_event_cb(btn_calculator, btn_calculator_click, LV_EVENT_CLICKED, NULL);
+
+    lv_obj_t * btn_recorder = lv_btn_create(container);
+    lv_obj_set_size(btn_recorder, lv_pct(64), lv_pct(32));
+    lv_obj_align(btn_recorder, LV_FLEX_ALIGN_CENTER, 0, 0);
+    lv_obj_t * btn_label_recorder = lv_label_create(btn_recorder);
+    lv_label_set_text(btn_label_recorder, "Recorder");
+    lv_obj_center(btn_label_recorder);
+    lv_obj_add_event_cb(btn_recorder, btn_recorder_click, LV_EVENT_CLICKED, NULL);
 
     lv_obj_t * btn_bird = lv_btn_create(container);
     lv_obj_set_size(btn_bird, lv_pct(64), lv_pct(32));
@@ -125,6 +135,11 @@ static void btn_file_manager_click(lv_event_t * e)
 static void btn_calculator_click(lv_event_t * e)
 {
     page_open_obj(page_calc());
+}
+
+static void btn_recorder_click(lv_event_t * e)
+{
+    page_open(page_recorder_create());
 }
 
 static void btn_bird_click(lv_event_t * e)
