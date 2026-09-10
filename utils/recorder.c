@@ -204,6 +204,7 @@ int recorder_start(recorder_t * recorder, const char * file_name)
         goto cleanup;
     }
 
+    printf("[recorder]录制开始\n");
     return 0;
 
 cleanup:
@@ -214,29 +215,13 @@ cleanup:
 int recorder_stop(recorder_t * recorder)
 {
     if(!recorder) return -1;
+    if(recorder->state != RECORDER_RECORDING) return -2;
 
     atomic_store(&recorder->state, RECORDER_STOPPED);
 
     if(recorder->thread) {
         pthread_join(recorder->thread, NULL);
         recorder->thread = 0;
-    }
-
-    // 刷新编码器并写入文件尾（仅在录制已成功初始化时）
-    if(recorder->codec_ctx && recorder->pkt && recorder->fmt_ctx && recorder->stream) {
-        avcodec_send_frame(recorder->codec_ctx, NULL);
-        int ret;
-        while(1) {
-            ret = avcodec_receive_packet(recorder->codec_ctx, recorder->pkt);
-            if(ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) break;
-            if(ret < 0) break;
-
-            av_packet_rescale_ts(recorder->pkt, (AVRational){ 1, recorder->codec_ctx->sample_rate }, recorder->stream->time_base);
-            recorder->pkt->stream_index = recorder->stream->index;
-            av_interleaved_write_frame(recorder->fmt_ctx, recorder->pkt);
-            av_packet_unref(recorder->pkt);
-        }
-        av_write_trailer(recorder->fmt_ctx);
     }
 
     recorder_cleanup(recorder);
@@ -335,6 +320,22 @@ static void * recorder_thread_func(void * arg)
             av_packet_unref(recorder->pkt);
         }
     }
+
+    // 刷新编码器并写入文件尾
+    avcodec_send_frame(recorder->codec_ctx, NULL);
+    int ret;
+    while(1) {
+        ret = avcodec_receive_packet(recorder->codec_ctx, recorder->pkt);
+        if(ret == AVERROR(EAGAIN) || ret == AVERROR_EOF) break;
+        if(ret < 0) break;
+
+        av_packet_rescale_ts(recorder->pkt, (AVRational){1, recorder->codec_ctx->sample_rate},
+                             recorder->stream->time_base);
+        recorder->pkt->stream_index = recorder->stream->index;
+        av_interleaved_write_frame(recorder->fmt_ctx, recorder->pkt);
+        av_packet_unref(recorder->pkt);
+    }
+    av_write_trailer(recorder->fmt_ctx);
 
     return NULL;
 }
