@@ -23,7 +23,7 @@ extern "C" {
 /**********************
  * GLOBAL PROTOTYPES
  **********************/
-BasePage * page_file_manager_create(void);
+BasePage * page_file_manager_create(char * dir);
 
 /**********************
  *      MACROS

@@ -57,6 +57,11 @@ extern "C" {
 #define TIMIDITY_CFG_DEFAULT "/mnt/app/dendro/midi/timidity.cfg"
 
 /**
+ * 录音机保存路径
+ */
+#define RECORDER_DIR_DEFAULT "/mnt/UDISK/recorder"
+
+/**
  * 路径最大长度
  */
 #define PATH_MAX_LENGTH 1024
