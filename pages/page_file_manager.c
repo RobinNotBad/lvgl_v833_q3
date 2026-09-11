@@ -29,7 +29,7 @@ typedef struct
 
 static const char * btn_txts[] = {"YES", "NO", NULL};
 
-static lv_obj_t * page_file_manager_obj(FileManagerPage * page);
+static lv_obj_t * page_file_manager_obj(FileManagerPage * page, char * dir);
 static void explorer_event_handler(lv_event_t * e);
 static void back_click(lv_event_t * e);
 static void container_act_click(lv_event_t * e);
@@ -77,18 +77,18 @@ static bool is_directory(char * file_name)
     return false;
 }
 
-BasePage * page_file_manager_create(void)
+BasePage * page_file_manager_create(char * dir)
 {
     FileManagerPage * page = malloc(sizeof(FileManagerPage));
     if(!page) return NULL;
     memset(page, 0, sizeof(FileManagerPage));
 
-    page->base.obj        = page_file_manager_obj(page);
+    page->base.obj        = page_file_manager_obj(page, dir);
     page->base.on_key     = page_file_manager_on_key;
     return (BasePage *)page;
 }
 
-lv_obj_t * page_file_manager_obj(FileManagerPage * page)
+lv_obj_t * page_file_manager_obj(FileManagerPage * page, char * dir)
 {
     lv_obj_t * screen = lv_obj_create(lv_scr_act());
     lv_obj_remove_style_all(screen);
@@ -97,7 +97,14 @@ lv_obj_t * page_file_manager_obj(FileManagerPage * page)
     lv_obj_t * file_explorer = lv_100ask_file_explorer_create(screen);
     lv_obj_add_event_cb(file_explorer, explorer_event_handler, 
 							LV_EVENT_ALL, page);
-    lv_100ask_file_explorer_open_dir(file_explorer, "//mnt");
+    if(!dir) {
+        lv_100ask_file_explorer_open_dir(file_explorer, "//mnt");
+    }
+    else {
+        char lvdir[LV_100ASK_FILE_EXPLORER_PATH_MAX_LEN];
+        lv_snprintf(lvdir, sizeof(lvdir), "/%s", dir);
+        lv_100ask_file_explorer_open_dir(file_explorer, lvdir);
+    }
     page->file_explorer = file_explorer;
 
     lv_obj_t * btn_back = lv_btn_create(screen);

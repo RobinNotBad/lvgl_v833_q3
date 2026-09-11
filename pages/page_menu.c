@@ -127,7 +127,7 @@ static void btn_back_click(lv_event_t * e)
 
 static void btn_file_manager_click(lv_event_t * e)
 {
-    page_open(page_file_manager_create());
+    page_open(page_file_manager_create(NULL));
 }
 
 static void btn_calculator_click(lv_event_t * e)

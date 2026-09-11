@@ -3,6 +3,7 @@
 #include "main.h"
 #include "recorder.h"
 #include "dendro_conf.h"
+#include "page_file_manager.h"
 
 #include <time.h>
 #include <sys/stat.h>
@@ -25,6 +26,7 @@ typedef struct
 
 static lv_obj_t * page_recorder_obj(RecorderPage * page);
 static void back_click(lv_event_t * e);
+static void file_click(lv_event_t * e);
 static void control_click(lv_event_t * e);
 static void timer_tick(lv_timer_t * e);
 static void page_recorder_destroy(void * p);
@@ -52,7 +54,7 @@ static lv_obj_t * page_recorder_obj(RecorderPage * page)
 
     page->recorder = recorder_init();
 
-    snprintf(page->dir, sizeof(page->dir), "/mnt/UDISK/recorder");
+    snprintf(page->dir, sizeof(page->dir), RECORDER_DIR_DEFAULT);
 
     lv_obj_t * label_title = lv_label_create(screen);
     lv_obj_align(label_title, LV_ALIGN_TOP_MID, 0, lv_pct(4));
@@ -89,6 +91,14 @@ static lv_obj_t * page_recorder_obj(RecorderPage * page)
     lv_label_set_text(btn_back_label, CUSTOM_SYMBOL_BACK "");
     lv_obj_center(btn_back_label);
     lv_obj_add_event_cb(btn_back, back_click, LV_EVENT_CLICKED, page);
+
+    lv_obj_t * btn_file = lv_btn_create(screen);
+    lv_obj_set_size(btn_file, lv_pct(25), lv_pct(12));
+    lv_obj_align(btn_file, LV_ALIGN_BOTTOM_RIGHT, 0, 0);
+    lv_obj_t * btn_file_label = lv_label_create(btn_file);
+    lv_label_set_text(btn_file_label, LV_SYMBOL_DIRECTORY "");
+    lv_obj_center(btn_file_label);
+    lv_obj_add_event_cb(btn_file, file_click, LV_EVENT_CLICKED, page);
 
     page->timer = lv_timer_create(timer_tick, 500, page);
 
@@ -145,6 +155,14 @@ static void timer_tick(lv_timer_t * e)
 static void back_click(lv_event_t * e)
 {
     page_back();
+}
+
+static void file_click(lv_event_t * e)
+{
+    RecorderPage * page = (RecorderPage *)e->user_data;
+    if(!page) return;
+    mkdir(page->dir, 0755);
+    page_open(page_file_manager_create(page->dir));
 }
 
 static bool page_recorder_on_key(void * p, key_code_t key_code, key_action_t key_action)
