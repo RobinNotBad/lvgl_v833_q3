@@ -419,6 +419,7 @@ static void * player_thread_func(void * arg)
             snd_pcm_drain(player->pcm_handle);
             snd_pcm_drop(player->pcm_handle);
             snd_pcm_prepare(player->pcm_handle);
+            if(atomic_load(&player->state) == PLAYER_STOPPED) continue;
             atomic_store(&player->state, PLAYER_PAUSED);
             atomic_store(&player->seek_pos, 0);
             atomic_store(&player->seek_request, true);
